@@ -404,14 +404,27 @@ const meetingInputSchema = z.object({
   title: z.string().trim().min(1).max(200),
   goal: z.string().trim().max(500).optional().nullable(),
   scheduledFor: z.string().trim().optional().nullable(), // ISO date (yyyy-mm-dd) or empty
+  startMinute: z.number().int().min(0).max(1439).optional().nullable(), // wall-clock minutes past midnight
+  durationMin: z.number().int().min(5).max(1440).optional().nullable(),
   attendeeIds: z.array(z.string()).max(50),
 });
 type MeetingInput = z.infer<typeof meetingInputSchema>;
 
 function parseScheduledFor(v: string | null | undefined): Date | null {
   if (!v) return null;
-  const d = new Date(v);
+  // yyyy-mm-dd → UTC midnight, so the day is stored floating (see lib/calendar.ts).
+  const d = new Date(`${v}T00:00:00.000Z`);
   return isNaN(d.getTime()) ? null : d;
+}
+
+/** A time only means something with a date; drop it (and duration) when undated. */
+function normalizeTime(
+  scheduledFor: Date | null,
+  startMinute: number | null | undefined,
+  durationMin: number | null | undefined,
+): { startMinute: number | null; durationMin: number | null } {
+  if (!scheduledFor || startMinute == null) return { startMinute: null, durationMin: null };
+  return { startMinute, durationMin: durationMin ?? 30 };
 }
 
 /** Keep only attendee ids that are real members of the team, plus the creator. */
@@ -434,13 +447,17 @@ export async function createMeeting(input: MeetingInput) {
   if (!teamId) return { error: "Join a team before planning a meeting." };
 
   const attendeeIds = await resolveAttendees(teamId, user.id, parsed.data.attendeeIds);
+  const scheduledFor = parseScheduledFor(parsed.data.scheduledFor);
+  const time = normalizeTime(scheduledFor, parsed.data.startMinute, parsed.data.durationMin);
   const meeting = await prisma.meeting.create({
     data: {
       teamId,
       type: parsed.data.type,
       title: parsed.data.title,
       goal: parsed.data.goal || null,
-      scheduledFor: parseScheduledFor(parsed.data.scheduledFor),
+      scheduledFor,
+      startMinute: time.startMinute,
+      durationMin: time.durationMin,
       createdById: user.id,
       attendees: { create: attendeeIds.map((userId) => ({ userId })) },
     },
@@ -472,6 +489,8 @@ export async function updateMeeting(id: string, input: MeetingInput) {
   if (!meeting) return { error: "You can't edit this meeting." };
 
   const attendeeIds = await resolveAttendees(meeting.teamId, meeting.createdById, parsed.data.attendeeIds);
+  const scheduledFor = parseScheduledFor(parsed.data.scheduledFor);
+  const time = normalizeTime(scheduledFor, parsed.data.startMinute, parsed.data.durationMin);
   await prisma.$transaction([
     prisma.meetingAttendee.deleteMany({ where: { meetingId: id } }),
     prisma.meeting.update({
@@ -480,7 +499,9 @@ export async function updateMeeting(id: string, input: MeetingInput) {
         type: parsed.data.type,
         title: parsed.data.title,
         goal: parsed.data.goal || null,
-        scheduledFor: parseScheduledFor(parsed.data.scheduledFor),
+        scheduledFor,
+        startMinute: time.startMinute,
+        durationMin: time.durationMin,
         attendees: { create: attendeeIds.map((userId) => ({ userId })) },
       },
     }),
@@ -496,6 +517,31 @@ export async function deleteMeeting(id: string) {
   if (!(await canManageMeeting(user, id))) return { error: "You can't delete this meeting." };
   await prisma.meeting.delete({ where: { id } });
   revalidatePath("/meeting");
+  return { ok: true };
+}
+
+const rescheduleSchema = z.object({
+  scheduledFor: z.string().trim().optional().nullable(), // yyyy-mm-dd or empty
+  startMinute: z.number().int().min(0).max(1439).optional().nullable(),
+  durationMin: z.number().int().min(5).max(1440).optional().nullable(),
+});
+
+/** Lightweight move/reschedule from the calendar: just date + time, no re-editing the whole meeting. */
+export async function rescheduleMeeting(id: string, input: z.infer<typeof rescheduleSchema>) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await canManageMeeting(user, id))) return { error: "You can't reschedule this meeting." };
+  const parsed = rescheduleSchema.safeParse(input);
+  if (!parsed.success) return { error: "That date or time didn't look right." };
+
+  const scheduledFor = parseScheduledFor(parsed.data.scheduledFor);
+  const time = normalizeTime(scheduledFor, parsed.data.startMinute, parsed.data.durationMin);
+  await prisma.meeting.update({
+    where: { id },
+    data: { scheduledFor, startMinute: time.startMinute, durationMin: time.durationMin },
+  });
+  revalidatePath("/meeting");
+  revalidatePath(`/meeting/${id}`);
   return { ok: true };
 }
 

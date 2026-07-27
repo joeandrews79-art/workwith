@@ -64,6 +64,8 @@ export default async function EditMeetingPage({
             title: detail.title,
             goal: detail.goal ?? "",
             scheduledFor,
+            startMinute: detail.startMinute,
+            durationMin: detail.durationMin,
             attendeeIds: detail.attendees.map((a) => a.id).filter((aid) => aid !== user.id),
           }}
         />

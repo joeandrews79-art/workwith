@@ -116,7 +116,9 @@ model Meeting {
   type         String // MeetingTypeCode (see lib/meeting-types.ts)
   title        String
   goal         String? // what a good outcome looks like (optional, one line)
-  scheduledFor DateTime? // optional date/time
+  scheduledFor DateTime? // the calendar DAY, stored at UTC midnight (a "floating" date, read via UTC getters — see lib/calendar.ts)
+  startMinute  Int? // start time as minutes past midnight, wall-clock (null = no set time / all-day). Stored as an offset, not a UTC instant, so it never shifts across timezones.
+  durationMin  Int? // meeting length in minutes (null = unset; UI assumes 30 when a time is set)
   createdById  String
   createdBy    User     @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())

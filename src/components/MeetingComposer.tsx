@@ -8,12 +8,15 @@ import { MEETING_TYPES, MeetingTypeCode, meetingType } from "@/lib/meeting-types
 import { createMeeting, updateMeeting } from "@/app/actions";
 import MeetingBriefView from "@/components/MeetingBriefView";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
+import { minuteToTimeInput, timeInputToMinute, DURATION_OPTIONS } from "@/lib/calendar";
 
 export interface MeetingInitial {
   type: MeetingTypeCode;
   title: string;
   goal: string;
   scheduledFor: string; // yyyy-mm-dd or ""
+  startMinute: number | null;
+  durationMin: number | null;
   attendeeIds: string[];
 }
 
@@ -38,6 +41,10 @@ export default function MeetingComposer({
   const [title, setTitle] = useState(initial?.title ?? "");
   const [goal, setGoal] = useState(initial?.goal ?? "");
   const [date, setDate] = useState(initial?.scheduledFor ?? "");
+  const [time, setTime] = useState(
+    initial?.startMinute != null ? minuteToTimeInput(initial.startMinute) : "",
+  );
+  const [duration, setDuration] = useState<number>(initial?.durationMin ?? 30);
   const [selected, setSelected] = useState<Set<string>>(new Set(initial?.attendeeIds ?? []));
 
   const chosen = useMemo(() => others.filter((m) => selected.has(m.id)), [others, selected]);
@@ -59,11 +66,14 @@ export default function MeetingComposer({
     setError(null);
     if (!type) return setError("Pick a meeting type.");
     if (!title.trim()) return setError("Give the meeting a title.");
+    const startMinute = date && time ? timeInputToMinute(time) : null;
     const payload = {
       type,
       title: title.trim(),
       goal: goal.trim() || null,
       scheduledFor: date || null,
+      startMinute,
+      durationMin: startMinute != null ? duration : null,
       attendeeIds: [...selected],
     };
     startTransition(async () => {
@@ -132,10 +142,40 @@ export default function MeetingComposer({
             placeholder={activeType?.goalPlaceholder ?? "What does a good outcome look like?"}
           />
         </div>
-        <div className="space-y-1.5">
-          <label className="label" htmlFor="m-date">Date (optional)</label>
-          <input id="m-date" type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} />
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="space-y-1.5">
+            <label className="label" htmlFor="m-date">Date (optional)</label>
+            <input id="m-date" type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="label" htmlFor="m-time">Start time</label>
+            <input
+              id="m-time"
+              type="time"
+              className="input"
+              value={time}
+              disabled={!date}
+              onChange={(e) => setTime(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="label" htmlFor="m-duration">Length</label>
+            <select
+              id="m-duration"
+              className="input"
+              value={duration}
+              disabled={!date || !time}
+              onChange={(e) => setDuration(Number(e.target.value))}
+            >
+              {DURATION_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
+        {!date && (
+          <p className="text-xs text-stone-400 -mt-2">Set a date to add a start time. Undated meetings show in the calendar's “Unscheduled” tray.</p>
+        )}
       </section>
 
       {/* Attendees */}

@@ -7,6 +7,7 @@ import { getMeetingDetail, AgendaItemView } from "@/lib/meeting-data";
 import { meetingType } from "@/lib/meeting-types";
 import { buildMeetingBrief } from "@/lib/meeting";
 import { formatDate } from "@/components/Bits";
+import { fmtTimeRange } from "@/lib/calendar";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
 import { aiEnabled } from "@/lib/ai";
 import MeetingBriefView from "@/components/MeetingBriefView";
@@ -58,6 +59,9 @@ export default async function MeetingDetailPage({
           </span>
           <span className="text-xs text-stone-400">
             {detail.scheduledFor ? formatDate(detail.scheduledFor) : "No date set"}
+            {detail.scheduledFor && detail.startMinute != null && (
+              <> · {fmtTimeRange(detail.startMinute, detail.durationMin)}</>
+            )}
           </span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{detail.title}</h1>

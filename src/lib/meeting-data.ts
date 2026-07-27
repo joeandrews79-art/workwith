@@ -22,7 +22,10 @@ export interface MeetingSummary {
   id: string;
   type: MeetingTypeCode;
   title: string;
+  goal: string | null;
   scheduledFor: Date | null;
+  startMinute: number | null;
+  durationMin: number | null;
   createdAt: Date;
   createdById: string;
   attendees: { id: string; name: string }[];
@@ -39,7 +42,10 @@ export async function listTeamMeetings(teamId: string): Promise<MeetingSummary[]
     id: m.id,
     type: m.type as MeetingTypeCode,
     title: m.title,
+    goal: m.goal,
     scheduledFor: m.scheduledFor,
+    startMinute: m.startMinute,
+    durationMin: m.durationMin,
     createdAt: m.createdAt,
     createdById: m.createdById,
     attendees: m.attendees.map((a) => ({ id: a.user.id, name: a.user.name })),
@@ -63,6 +69,8 @@ export interface MeetingDetail {
   title: string;
   goal: string | null;
   scheduledFor: Date | null;
+  startMinute: number | null;
+  durationMin: number | null;
   createdById: string;
   createdByName: string;
   attendees: { id: string; name: string; title: string | null; hasProfile: boolean }[];
@@ -162,6 +170,8 @@ export async function getMeetingDetail(
     title: m.title,
     goal: m.goal,
     scheduledFor: m.scheduledFor,
+    startMinute: m.startMinute,
+    durationMin: m.durationMin,
     createdById: m.createdById,
     createdByName: m.createdBy.name,
     attendees: attendees.map((a) => ({ id: a.id, name: a.name, title: a.title, hasProfile: a.hasProfile })),

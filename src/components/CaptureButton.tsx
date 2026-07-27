@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createThought, getThoughtCaptureContext } from "@/app/actions";
@@ -96,7 +97,7 @@ export default function CaptureButton({
         </button>
       )}
 
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} aria-hidden />
           <div className="card relative w-full sm:max-w-lg p-5 space-y-4 rounded-b-none sm:rounded-2xl max-h-[90vh] overflow-y-auto">
@@ -185,7 +186,8 @@ export default function CaptureButton({
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

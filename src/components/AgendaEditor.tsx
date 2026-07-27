@@ -148,14 +148,15 @@ export default function AgendaEditor({
                     aria-label={`Topic ${i + 1}`}
                   />
                   <div className="flex flex-wrap items-center gap-2">
-                    <select className="input py-1 px-2 text-xs w-auto" value={item.purpose} onChange={(e) => commit(item, { purpose: e.target.value as AgendaItemView["purpose"] })} disabled={pending} aria-label="Purpose">
+                    <select className="input py-1 px-2 text-xs shrink-0" style={{ width: "8rem" }} value={item.purpose} onChange={(e) => commit(item, { purpose: e.target.value as AgendaItemView["purpose"] })} disabled={pending} aria-label="Purpose">
                       {PURPOSES.map((p) => <option key={p} value={p}>{PURPOSE_LABEL[p]}</option>)}
                     </select>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 shrink-0">
                       <input
                         type="number"
                         min={1}
-                        className="input py-1 px-2 text-xs w-16"
+                        className="input py-1 px-2 text-xs"
+                        style={{ width: "3.75rem" }}
                         defaultValue={item.minutes ?? ""}
                         placeholder="min"
                         onBlur={(e) => {
@@ -166,7 +167,7 @@ export default function AgendaEditor({
                       />
                       <span className="text-xs text-stone-400">min</span>
                     </div>
-                    <select className="input py-1 px-2 text-xs w-auto" value={item.ownerId ?? ""} onChange={(e) => commit(item, { ownerId: e.target.value || null })} disabled={pending} aria-label="Owner">
+                    <select className="input py-1 px-2 text-xs shrink-0" style={{ width: "8.5rem" }} value={item.ownerId ?? ""} onChange={(e) => commit(item, { ownerId: e.target.value || null })} disabled={pending} aria-label="Owner">
                       <option value="">No owner</option>
                       {attendees.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
@@ -182,16 +183,16 @@ export default function AgendaEditor({
       )}
 
       {/* Add item */}
-      <div className="flex items-end gap-2 pt-2 border-t border-stone-100">
-        <div className="flex-1 space-y-1">
-          <label className="label text-xs" htmlFor="new-topic">Add an item</label>
-          <input id="new-topic" className="input py-1.5" value={newTopic} onChange={(e) => setNewTopic(e.target.value)} placeholder="Topic" onKeyDown={(e) => e.key === "Enter" && add()} />
+      <div className="pt-2 border-t border-stone-100">
+        <label className="label text-xs block mb-1.5" htmlFor="new-topic">Add an item</label>
+        <div className="flex items-center gap-2">
+          <input id="new-topic" className="input py-1.5 flex-1 min-w-0" value={newTopic} onChange={(e) => setNewTopic(e.target.value)} placeholder="Topic" onKeyDown={(e) => e.key === "Enter" && add()} />
+          <select className="input py-1.5 shrink-0" style={{ width: "9rem" }} value={newPurpose} onChange={(e) => setNewPurpose(e.target.value as (typeof PURPOSES)[number])} aria-label="New item purpose">
+            {PURPOSES.map((p) => <option key={p} value={p}>{PURPOSE_LABEL[p]}</option>)}
+          </select>
+          <input type="number" min={1} className="input py-1.5 shrink-0" style={{ width: "4.5rem" }} value={newMinutes} onChange={(e) => setNewMinutes(e.target.value)} placeholder="min" aria-label="New item minutes" />
+          <button className="btn btn-primary py-1.5 shrink-0" onClick={add} disabled={pending}>Add</button>
         </div>
-        <select className="input py-1.5 w-auto" value={newPurpose} onChange={(e) => setNewPurpose(e.target.value as (typeof PURPOSES)[number])} aria-label="New item purpose">
-          {PURPOSES.map((p) => <option key={p} value={p}>{PURPOSE_LABEL[p]}</option>)}
-        </select>
-        <input type="number" min={1} className="input py-1.5 w-16" value={newMinutes} onChange={(e) => setNewMinutes(e.target.value)} placeholder="min" aria-label="New item minutes" />
-        <button className="btn btn-primary py-1.5" onClick={add} disabled={pending}>Add</button>
       </div>
     </section>
   );

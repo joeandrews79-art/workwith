@@ -35,6 +35,11 @@ export default function Assessment({
     return i === -1 ? total - 1 : i;
   }, [items, initialResponses, total]);
   const [idx, setIdx] = useState(firstUnanswered);
+  // Mirror idx in a ref so answer() always reads the CURRENTLY shown statement,
+  // even when several keystrokes land in the same tick. Without this, rapid
+  // input desyncs the position from the recorded answers.
+  const idxRef = useRef(idx);
+  idxRef.current = idx;
   const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,16 +80,34 @@ export default function Assessment({
 
   const answer = useCallback(
     (value: number) => {
-      const item = items[idx];
+      // Read the live index from the ref so back-to-back keystrokes each land
+      // on the statement they were meant for, not whatever idx was captured
+      // when this callback was created.
+      const cur = idxRef.current;
+      const item = items[cur];
       setResponses((r) => ({ ...r, [item.id]: value }));
       setSaving("idle");
       scheduleSave();
-      // auto-advance
-      if (idx < total - 1) {
-        setTimeout(() => setIdx((i) => Math.min(i + 1, total - 1)), 160);
+      // Advance immediately and deterministically. Updating the ref here (not
+      // just via a delayed setState) means the very next keystroke already sees
+      // the new position, so rapid input can't double-answer one statement.
+      if (cur < total - 1) {
+        const next = cur + 1;
+        idxRef.current = next;
+        setIdx(next);
       }
     },
-    [idx, items, total, scheduleSave],
+    [items, total, scheduleSave],
+  );
+
+  // Move to a specific statement, keeping the ref in lockstep with state.
+  const goTo = useCallback(
+    (target: number) => {
+      const clamped = Math.max(0, Math.min(total - 1, target));
+      idxRef.current = clamped;
+      setIdx(clamped);
+    },
+    [total],
   );
 
   // Keyboard shortcuts
@@ -92,12 +115,12 @@ export default function Assessment({
     if (reviewing) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key >= "1" && e.key <= "5") answer(Number(e.key));
-      else if (e.key === "ArrowLeft") setIdx((i) => Math.max(0, i - 1));
-      else if (e.key === "ArrowRight") setIdx((i) => Math.min(total - 1, i + 1));
+      else if (e.key === "ArrowLeft") goTo(idxRef.current - 1);
+      else if (e.key === "ArrowRight") goTo(idxRef.current + 1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answer, total, reviewing]);
+  }, [answer, goTo, reviewing]);
 
   async function onFinish() {
     setSubmitting(true);
@@ -210,7 +233,7 @@ export default function Assessment({
         <div className="flex items-center justify-between mt-6">
           <button
             className="btn btn-ghost"
-            onClick={() => setIdx((i) => Math.max(0, i - 1))}
+            onClick={() => goTo(idx - 1)}
             disabled={idx === 0}
           >
             ← Previous
@@ -222,7 +245,7 @@ export default function Assessment({
           ) : (
             <button
               className="btn btn-secondary"
-              onClick={() => setIdx((i) => Math.min(total - 1, i + 1))}
+              onClick={() => goTo(idx + 1)}
               disabled={idx === total - 1}
             >
               Next →

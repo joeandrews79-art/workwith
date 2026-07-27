@@ -1,0 +1,14 @@
+# Netlify configuration for WorkWith (Next.js).
+# Netlify auto-detects Next.js and installs @netlify/plugin-nextjs, which handles
+# SSR, server actions, and API routes as serverless functions.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Required environment variables (set these in the Netlify UI, not here):
+#   DATABASE_URL      postgresql://...supabase connection string (use the pooled/6543 URI)
+#   SESSION_SECRET    a long random string (node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))")
+#   ANTHROPIC_API_KEY optional, enables the Claude question assistant

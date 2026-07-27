@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { assembleProfile } from "@/lib/profile";
+import { getAnsweredPreferences } from "@/lib/prefs";
 import { getVisibleMembers } from "@/lib/team-data";
 import { teamStats } from "@/lib/team";
 import { DomainCode, DOMAIN_ORDER } from "@/lib/ipip";
@@ -52,6 +53,7 @@ export default async function ProfilePage({
   const teamMean = Object.fromEntries(
     DOMAIN_ORDER.map((d) => [d, stats[d].mean]),
   ) as Record<DomainCode, number>;
+  const preferences = await getAnsweredPreferences(target.orgId, target.id);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -63,7 +65,7 @@ export default async function ProfilePage({
           Compare with me
         </Link>
       </div>
-      <ProfileView profile={profile} teamMean={teamMean} />
+      <ProfileView profile={profile} teamMean={teamMean} preferences={preferences} />
     </div>
   );
 }

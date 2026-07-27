@@ -30,6 +30,14 @@ export default async function AdminPage() {
         </Link>
       </header>
 
+      <Link href="/admin/questions" className="card p-4 flex items-center justify-between gap-3 hover:shadow-sm transition-shadow">
+        <div>
+          <p className="font-semibold text-sm">Working-preference questions</p>
+          <p className="text-sm text-stone-500">Edit the quick "how I work" questions your team answers. Claude can help you write them.</p>
+        </div>
+        <span className="text-stone-400" aria-hidden>→</span>
+      </Link>
+
       <InviteForm />
 
       <section>

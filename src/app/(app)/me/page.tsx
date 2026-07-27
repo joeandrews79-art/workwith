@@ -6,6 +6,8 @@ import { teamStats } from "@/lib/team";
 import { DomainCode, DOMAIN_ORDER } from "@/lib/ipip";
 import ProfileView from "@/components/ProfileView";
 import ProfileToolbar from "@/components/ProfileToolbar";
+import PreferencesEditor from "@/components/PreferencesEditor";
+import { getOrgQuestions, getUserAnswers } from "@/lib/prefs";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +40,11 @@ export default async function MyProfilePage({
   const teamMean = Object.fromEntries(
     DOMAIN_ORDER.map((d) => [d, stats[d].mean]),
   ) as Record<DomainCode, number>;
+
+  const [questions, prefAnswers] = await Promise.all([
+    getOrgQuestions(user.orgId),
+    getUserAnswers(user.id),
+  ]);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -73,6 +80,10 @@ export default async function MyProfilePage({
       />
 
       <ProfileView profile={profile} teamMean={teamMean} owner />
+
+      <div className="mt-6">
+        <PreferencesEditor questions={questions} initial={prefAnswers} />
+      </div>
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
 import { ITEMS } from "@/lib/ipip";
 import { scoreAssessment, serializeScores, Responses } from "@/lib/scoring";
 import { Narrative } from "@/lib/narrative";
+import { suggestQuestions } from "@/lib/ai";
 
 // --- Auth -------------------------------------------------------------------
 
@@ -24,12 +25,39 @@ export async function loginAction(_prev: unknown, formData: FormData) {
   const user = await verifyCredentials(email, password);
   if (!user) return { error: "That email and password did not match." };
   await createSession(user.id);
-  redirect("/dashboard");
+  redirect("/"); // root routes to set-password / welcome / dashboard as needed
 }
 
 export async function logoutAction() {
   await destroySession();
   redirect("/login");
+}
+
+/** First-login (or self-service) password change. Clears the mustReset flag. */
+export async function setPassword(_prev: unknown, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (password.length < 8) return { error: "Use at least 8 characters." };
+  if (password !== confirm) return { error: "The two passwords don't match." };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await hashPassword(password), mustReset: false },
+  });
+  return { ok: true };
+}
+
+/** Mark the first-run setup wizard as finished. */
+export async function completeOnboarding() {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { onboardedAt: new Date() },
+  });
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 // --- Assessment -------------------------------------------------------------
@@ -217,6 +245,95 @@ export async function inviteMember(_prev: unknown, formData: FormData) {
     ok: true,
     message: `${name} added${asAdmin ? " as an admin" : ""}. Share their temporary password securely.`,
   };
+}
+
+// --- Working preferences (Rise8-tailored, answered by everyone) -------------
+
+const prefAnswersSchema = z.array(
+  z.object({ questionId: z.string(), value: z.string() }),
+);
+
+export async function savePrefAnswers(
+  answers: { questionId: string; value: string }[],
+) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const parsed = prefAnswersSchema.safeParse(answers);
+  if (!parsed.success) return { error: "Invalid answers." };
+  for (const a of parsed.data) {
+    await prisma.prefAnswer.upsert({
+      where: { userId_questionId: { userId: user.id, questionId: a.questionId } },
+      create: { userId: user.id, questionId: a.questionId, value: a.value },
+      update: { value: a.value },
+    });
+  }
+  revalidatePath("/me");
+  return { ok: true };
+}
+
+// --- Admin: manage the working-preference questions ------------------------
+
+export async function upsertQuestion(input: {
+  id?: string;
+  domain: string;
+  prompt: string;
+  kind: string;
+  options: string[];
+  helpText?: string;
+}) {
+  const admin = await getCurrentUser();
+  if (!isAdmin(admin)) return { error: "Admins only." };
+  const data = {
+    domain: input.domain.trim(),
+    prompt: input.prompt.trim(),
+    kind: input.kind,
+    options: JSON.stringify(input.options ?? []),
+    helpText: input.helpText?.trim() || null,
+  };
+  if (!data.prompt) return { error: "The question text is required." };
+  if (input.id) {
+    await prisma.prefQuestion.update({ where: { id: input.id }, data });
+  } else {
+    const count = await prisma.prefQuestion.count({ where: { orgId: admin!.orgId } });
+    await prisma.prefQuestion.create({
+      data: { ...data, orgId: admin!.orgId, order: count },
+    });
+  }
+  revalidatePath("/admin/questions");
+  revalidatePath("/assessment");
+  return { ok: true };
+}
+
+export async function deleteQuestion(id: string) {
+  const admin = await getCurrentUser();
+  if (!isAdmin(admin)) return { error: "Admins only." };
+  await prisma.prefQuestion.deleteMany({ where: { id, orgId: admin!.orgId } });
+  revalidatePath("/admin/questions");
+  return { ok: true };
+}
+
+/** Ask Claude to suggest or refine questions (admin-only, no personal data). */
+export async function aiSuggestQuestions(instruction: string) {
+  const admin = await getCurrentUser();
+  if (!isAdmin(admin)) return { error: "Admins only." };
+  const existing = await prisma.prefQuestion.findMany({
+    where: { orgId: admin!.orgId },
+    orderBy: { order: "asc" },
+  });
+  try {
+    const result = await suggestQuestions(
+      instruction,
+      existing.map((q) => ({
+        domain: q.domain,
+        prompt: q.prompt,
+        kind: q.kind,
+        options: JSON.parse(q.options || "[]"),
+      })),
+    );
+    return { ok: true, ...result };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "AI request failed." };
+  }
 }
 
 /** Promote a member to admin or demote an admin to member. */

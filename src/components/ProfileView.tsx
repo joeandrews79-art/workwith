@@ -25,10 +25,12 @@ export default function ProfileView({
   profile,
   teamMean,
   owner = false,
+  preferences = [],
 }: {
   profile: AssembledProfile;
   teamMean?: Record<DomainCode, number>;
   owner?: boolean;
+  preferences?: { domain: string; prompt: string; display: string }[];
 }) {
   const { domains, narrative, facets } = profile;
 
@@ -122,6 +124,21 @@ export default function ProfileView({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* Working preferences (read-only, from the org's question set) */}
+      {preferences.length > 0 && (
+        <section className="card p-5">
+          <h2 className="font-semibold mb-3">Working preferences</h2>
+          <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+            {preferences.map((p, i) => (
+              <div key={i}>
+                <dt className="text-xs text-stone-400">{p.prompt}</dt>
+                <dd className="text-sm font-medium mt-0.5">{p.display}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
       )}
 

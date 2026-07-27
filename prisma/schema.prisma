@@ -58,11 +58,47 @@ model User {
   role         String       @default("MEMBER") // ADMIN | MEMBER
   mustReset    Boolean      @default(false) // force password change on first login
   createdAt    DateTime     @default(now())
+  onboardedAt  DateTime? // null until the first-run setup wizard is finished
   assessments  Assessment[]
   profile      Profile?
   teamMemberships TeamMember[]
+  prefAnswers  PrefAnswer[]
 
   @@index([orgId])
+}
+
+/// Admin-editable "working preferences" questions, tailored to the org
+/// (seeded for Rise8). These sit ALONGSIDE the fixed IPIP Big Five items: they
+/// capture concrete, directly-actionable preferences (channels, response times,
+/// escalation) that are shown verbatim on the profile and are NOT psychometrically
+/// scored. Admins add/edit/remove them (with Claude's help). See docs/rise8.md.
+model PrefQuestion {
+  id        String   @id @default(cuid())
+  orgId     String
+  domain    String // e.g. "Communication", "Feedback" (grouping label)
+  prompt    String // the question text, first-person situational
+  kind      String   @default("single") // single | multi | scale | text
+  options   String   @default("[]") // JSON array of choice labels (for single/multi/scale)
+  helpText  String? // optional clarifier shown under the prompt
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  answers   PrefAnswer[]
+
+  @@index([orgId])
+}
+
+model PrefAnswer {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   PrefQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value      String // JSON: string, string[], or number depending on kind
+  updatedAt  DateTime     @updatedAt
+
+  @@unique([userId, questionId])
+  @@index([userId])
 }
 
 model Assessment {

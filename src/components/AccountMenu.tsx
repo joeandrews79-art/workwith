@@ -11,10 +11,14 @@ export default function AccountMenu({
   name,
   email,
   isAdmin,
+  openUp = false,
+  showName = false,
 }: {
   name: string;
   email: string;
   isAdmin: boolean;
+  openUp?: boolean; // open the menu upward (for the bottom-of-sidebar placement)
+  showName?: boolean; // show the name in the trigger (sidebar), so it reads as the account button
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -42,22 +46,32 @@ export default function AccountMenu({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 rounded-full pl-0.5 pr-1 py-0.5 hover:bg-stone-100"
+        className={
+          showName
+            ? "w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-stone-100"
+            : "flex items-center gap-1.5 rounded-full pl-0.5 pr-1 py-0.5 hover:bg-stone-100"
+        }
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Account menu"
       >
         <span
-          className="grid place-items-center w-8 h-8 rounded-full text-xs font-bold"
+          className="grid place-items-center w-8 h-8 rounded-full text-xs font-bold shrink-0"
           style={{ background: avatarColor(name), color: avatarInkColor(name) }}
           aria-hidden
         >
           {initials(name)}
         </span>
-        {isAdmin && inAdmin && (
+        {showName && (
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block text-sm font-medium truncate leading-tight">{name}</span>
+            <span className="block text-[11px] text-stone-500 leading-tight">Account · sign out</span>
+          </span>
+        )}
+        {isAdmin && inAdmin && !showName && (
           <span className="pill bg-stone-800 text-white text-[10px] hidden sm:inline-flex">Admin mode</span>
         )}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-stone-400" aria-hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-stone-400 shrink-0" aria-hidden>
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
@@ -65,7 +79,7 @@ export default function AccountMenu({
       {open && (
         <div
           role="menu"
-          className="card absolute right-0 mt-2 w-60 p-1.5 shadow-lg z-30"
+          className={`card absolute right-0 w-60 p-1.5 shadow-lg z-30 ${openUp ? "bottom-full mb-2" : "mt-2"}`}
         >
           <div className="px-3 py-2">
             <p className="text-sm font-semibold truncate">{name}</p>

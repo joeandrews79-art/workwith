@@ -131,7 +131,7 @@ export default function AppShell({
         <TeamSwitcher teams={teams} activeTeamId={activeTeamId} />
         <NavLinks />
         <div className="border-t border-stone-100 p-2">
-          <AccountMenu name={name} email={email} isAdmin={isAdmin} />
+          <AccountMenu name={name} email={email} isAdmin={isAdmin} openUp showName />
         </div>
       </aside>
 

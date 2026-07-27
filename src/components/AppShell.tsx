@@ -73,7 +73,7 @@ export default function AppShell({
   const active = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   const NavLinks = () => (
-    <nav className="flex-1 px-3 py-2 space-y-0.5" aria-label="Primary">
+    <nav className="flex-1 px-2 py-2 space-y-0.5" aria-label="Primary">
       {links.map((l) => {
         const on = active(l.href);
         return (
@@ -96,7 +96,7 @@ export default function AppShell({
   );
 
   const Brand = () => (
-    <Link href="/dashboard" className="flex items-center gap-2 font-bold tracking-tight px-5 h-14 shrink-0">
+    <Link href="/dashboard" className="flex items-center gap-2 font-bold tracking-tight px-4 h-14 shrink-0">
       <span className="inline-grid place-items-center w-7 h-7 rounded-lg text-white text-sm" style={{ background: "var(--color-brand-600)" }} aria-hidden>W</span>
       <span>WorkWith</span>
     </Link>
@@ -105,10 +105,10 @@ export default function AppShell({
   return (
     <div className="min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 w-60 flex-col border-r border-stone-200 bg-white/70 backdrop-blur z-20">
+      <aside className="hidden md:flex fixed inset-y-0 left-0 w-52 flex-col border-r border-stone-200 bg-white/70 backdrop-blur z-20">
         <Brand />
         <NavLinks />
-        <div className="border-t border-stone-100 p-3">
+        <div className="border-t border-stone-100 p-2">
           <AccountMenu name={name} email={email} isAdmin={isAdmin} />
         </div>
       </aside>
@@ -142,7 +142,7 @@ export default function AppShell({
       )}
 
       {/* Content */}
-      <div className="md:pl-60">
+      <div className="md:pl-52">
         <main className="max-w-5xl mx-auto px-4 py-6 sm:py-8">{children}</main>
         <footer className="max-w-5xl mx-auto px-4 py-8 text-[11px] text-stone-400 leading-relaxed">
           WorkWith is a self-report reflection tool built on the public-domain Big

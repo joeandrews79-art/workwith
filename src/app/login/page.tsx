@@ -66,13 +66,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-5 text-xs text-stone-500 leading-relaxed card p-4 bg-stone-50">
-          <p className="font-semibold text-stone-600 mb-1">Demo logins</p>
-          <p>Admin: joeandrews79@gmail.com / workwith-admin</p>
-          <p>Member: maya@workwith.demo / workwith-demo</p>
-        </div>
-
-        <p className="mt-5 text-[11px] text-stone-400 text-center leading-relaxed">
+        <p className="mt-6 text-[11px] text-stone-400 text-center leading-relaxed">
           WorkWith is a self-report reflection tool based on the public-domain
           Big Five (IPIP-NEO-120). It is not a clinical, diagnostic, or hiring
           assessment.

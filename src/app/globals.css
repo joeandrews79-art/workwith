@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* WorkWith design tokens ---------------------------------------------------- */
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+
+  --color-ink: #1c1917;
+  --color-paper: #edeaf3;
+  --color-surface: #ffffff;
+  --color-border: #e2ddeb;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+/* -----------------------------------------------------------------------------
+   Themes. Applied via data-theme on <html>. Each theme sets a comfortable
+   tinted page background (so white cards separate clearly) plus an accent ramp.
+   Default (no attribute) = "indigo".
+----------------------------------------------------------------------------- */
+:root[data-theme="indigo"] {
+  --color-paper: #edeaf3;
+  --color-surface: #ffffff;
+  --color-border: #e2ddeb;
+  --color-brand-50: #eef2ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+}
+:root[data-theme="slate"] {
+  --color-paper: #e9edf3;
+  --color-surface: #ffffff;
+  --color-border: #dbe1ea;
+  --color-brand-50: #eff6ff;
+  --color-brand-200: #bfdbfe;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+}
+:root[data-theme="sage"] {
+  --color-paper: #e7eee9;
+  --color-surface: #ffffff;
+  --color-border: #d6e2da;
+  --color-brand-50: #ecfdf5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+}
+:root[data-theme="warm"] {
+  --color-paper: #f1ece4;
+  --color-surface: #fffdfa;
+  --color-border: #e7ddcf;
+  --color-brand-50: #fff7ed;
+  --color-brand-200: #fed7aa;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Reusable primitives ------------------------------------------------------- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.05), 0 1px 3px rgba(28, 25, 23, 0.04);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: 0.625rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s,
+    box-shadow 0.15s;
+  cursor: pointer;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+.btn-primary {
+  background: var(--color-brand-600);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-brand-700);
+}
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover {
+  background: color-mix(in srgb, var(--color-surface) 92%, var(--color-ink));
+}
+.btn-ghost {
+  background: transparent;
+  color: #57534e;
+}
+.btn-ghost:hover {
+  background: #f5f3ef;
+}
+.btn-danger {
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+.btn-danger:hover {
+  background: #fef2f2;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.9375rem;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+.input:focus {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #44403c;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}

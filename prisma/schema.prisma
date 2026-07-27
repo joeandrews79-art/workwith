@@ -1,0 +1,93 @@
+// WorkWith data model.
+//
+// Local prototype: SQLite (zero setup). For production, change `provider` to
+// "postgresql" and point DATABASE_URL at Supabase. Notes on the swap:
+//   - `role` and `status` are Strings here because SQLite has no enums. In
+//     Postgres you may promote them to real enums.
+//   - JSON payloads (responses / scores / narrative) are stored as String
+//     (TEXT) for portability; in Postgres you may switch these to Json.
+// See README "From local prototype to hosted app".
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  users     User[]
+  teams     Team[]
+}
+
+model Team {
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime     @default(now())
+  members   TeamMember[]
+
+  @@index([orgId])
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model User {
+  id           String       @id @default(cuid())
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  email        String       @unique
+  name         String
+  title        String? // job title, e.g. "Head of Operations"
+  passwordHash String
+  role         String       @default("MEMBER") // ADMIN | MEMBER
+  mustReset    Boolean      @default(false) // force password change on first login
+  createdAt    DateTime     @default(now())
+  assessments  Assessment[]
+  profile      Profile?
+  teamMemberships TeamMember[]
+
+  @@index([orgId])
+}
+
+model Assessment {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       String    @default("IN_PROGRESS") // IN_PROGRESS | COMPLETED
+  responses    String    @default("{}") // JSON map: { [itemId]: 1..5 }
+  domainScores String? // JSON, computed at completion
+  facetScores  String? // JSON, computed at completion
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Profile {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessmentId       String? // the COMPLETED assessment this profile reflects
+  shared             Boolean   @default(false)
+  generatedNarrative String? // JSON, canonical machine-written narrative
+  editedNarrative    String? // JSON, the user's lightly-edited version (overrides generated when present)
+  refreshedAt        DateTime? // = completedAt of the assessment above; drives the 12-month flag
+  updatedAt          DateTime  @updatedAt
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getActiveTeamContext } from "@/lib/active-team";
 import { getVisibleTeamMembers } from "@/lib/team-data";
+import { visionEnabled } from "@/lib/meeting-vision";
 import { NoTeam } from "@/components/Bits";
 import MeetingComposer from "@/components/MeetingComposer";
 
@@ -38,7 +39,7 @@ export default async function NewMeetingPage() {
           <Link href="/assessment" className="btn btn-primary">Start assessment</Link>
         </div>
       ) : (
-        <MeetingComposer mode="create" viewer={viewer} others={others} />
+        <MeetingComposer mode="create" viewer={viewer} others={others} visionEnabled={visionEnabled()} />
       )}
     </div>
   );

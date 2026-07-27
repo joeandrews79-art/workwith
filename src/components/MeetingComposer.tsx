@@ -5,10 +5,33 @@ import { useRouter } from "next/navigation";
 import { Member } from "@/lib/team";
 import { buildMeetingBrief } from "@/lib/meeting";
 import { MEETING_TYPES, MeetingTypeCode, meetingType } from "@/lib/meeting-types";
-import { createMeeting, updateMeeting } from "@/app/actions";
+import { createMeeting, updateMeeting, extractMeetingFromScreenshot } from "@/app/actions";
 import MeetingBriefView from "@/components/MeetingBriefView";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
 import { minuteToTimeInput, timeInputToMinute, DURATION_OPTIONS } from "@/lib/calendar";
+
+async function fileToResizedJpeg(file: File, maxDim = 1500, quality = 0.85): Promise<string> {
+  const dataUrl: string = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result as string);
+    fr.onerror = () => rej(new Error("Could not read that file."));
+    fr.readAsDataURL(file);
+  });
+  const img: HTMLImageElement = await new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.onerror = () => rej(new Error("Could not open that image."));
+    i.src = dataUrl;
+  });
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+  return canvas.toDataURL("image/jpeg", quality).split(",")[1];
+}
 
 export interface MeetingInitial {
   type: MeetingTypeCode;
@@ -26,16 +49,21 @@ export default function MeetingComposer({
   viewer,
   others,
   initial,
+  visionEnabled = false,
 }: {
   mode: "create" | "edit";
   meetingId?: string;
   viewer: Member;
   others: Member[];
   initial?: MeetingInitial;
+  visionEnabled?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importNote, setImportNote] = useState<string | null>(null);
 
   const [type, setType] = useState<MeetingTypeCode | "">(initial?.type ?? "");
   const [title, setTitle] = useState(initial?.title ?? "");
@@ -60,6 +88,46 @@ export default function MeetingComposer({
       else n.add(id);
       return n;
     });
+  }
+
+  async function importFromScreenshot(file: File) {
+    setImportError(null);
+    setImportNote(null);
+    if (!file.type.startsWith("image/")) {
+      setImportError("Please choose an image file.");
+      return;
+    }
+    setImporting(true);
+    try {
+      const imageBase64 = await fileToResizedJpeg(file);
+      const res = await extractMeetingFromScreenshot({ imageBase64, mediaType: "image/jpeg" });
+      if ("error" in res) {
+        setImportError(res.error);
+        return;
+      }
+      const p = res.prefill;
+      if (!p.isMeeting) {
+        setImportError("That didn't look like a meeting screenshot. Try another, or just fill it in below.");
+        return;
+      }
+      if (p.type) setType(p.type as MeetingTypeCode);
+      if (p.title) setTitle(p.title);
+      if (p.goal) setGoal(p.goal);
+      setDate(p.date || "");
+      setTime(p.startMinute != null ? minuteToTimeInput(p.startMinute) : "");
+      if (p.durationMin != null) setDuration(p.durationMin);
+      const known = new Set(others.map((o) => o.id));
+      setSelected(new Set(p.attendeeIds.filter((id) => known.has(id))));
+      const bits = ["Pulled the details from your screenshot. Review everything below before saving."];
+      if (p.otherAttendees.length) {
+        bits.push(`Not on your team (add manually if needed): ${p.otherAttendees.join(", ")}.`);
+      }
+      setImportNote(bits.join(" "));
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : "Could not read that screenshot.");
+    } finally {
+      setImporting(false);
+    }
   }
 
   function save() {
@@ -90,6 +158,48 @@ export default function MeetingComposer({
 
   return (
     <div className="space-y-6">
+      {/* Screenshot import (create only) */}
+      {visionEnabled && mode === "create" && (
+        <section className="card p-5" style={{ borderColor: "var(--color-brand-200)" }}>
+          <h2 className="font-semibold mb-1 flex items-center gap-2"><Spark /> Start from a screenshot</h2>
+          <p className="text-sm text-stone-500 mb-3">
+            Have a calendar invite? Drop in a screenshot and Claude will read the title, date,
+            time, and attendees to pre-fill this for you.
+          </p>
+          <label
+            className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed py-6 px-4 text-center cursor-pointer transition-colors hover:bg-[var(--color-brand-50)]"
+            style={{ borderColor: "var(--color-brand-200)" }}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={importing}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) importFromScreenshot(f);
+                e.target.value = "";
+              }}
+            />
+            <span className="text-sm font-medium">{importing ? "Reading your screenshot…" : "Upload a screenshot"}</span>
+            <span className="text-xs text-stone-400">PNG or JPG of a calendar event or invite</span>
+          </label>
+          <p
+            className="text-xs mt-3 rounded-lg px-3 py-2"
+            style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}
+          >
+            Heads up: the image is sent to Claude to read the details. Don't upload anything
+            sensitive, restricted, or CUI. Everything it fills in is yours to review and edit before saving.
+          </p>
+          {importError && (
+            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2">{importError}</p>
+          )}
+          {importNote && (
+            <p className="text-sm mt-2 rounded-lg px-3 py-2" style={{ background: "rgba(34,197,94,0.12)", color: "#166534" }}>{importNote}</p>
+          )}
+        </section>
+      )}
+
       {/* Type picker */}
       <section className="card p-5">
         <h2 className="font-semibold mb-1">What kind of meeting?</h2>
@@ -250,5 +360,13 @@ export default function MeetingComposer({
         </button>
       </div>
     </div>
+  );
+}
+
+function Spark() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-600)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" />
+    </svg>
   );
 }

@@ -35,6 +35,8 @@ import {
 } from "@/lib/coach";
 import { generateTeamRead, teamReadEnabled, TeamReadResult, TeamReadTrait } from "@/lib/team-read";
 import { generateInterpretation, interpretEnabled, InterpretationResult } from "@/lib/interpret";
+import { extractMeetingFromImage, visionEnabled, VisionMediaType } from "@/lib/meeting-vision";
+import { timeInputToMinute } from "@/lib/calendar";
 
 // --- Auth -------------------------------------------------------------------
 
@@ -552,6 +554,77 @@ export async function rescheduleMeeting(id: string, input: z.infer<typeof resche
   revalidatePath("/meeting");
   revalidatePath(`/meeting/${id}`);
   return { ok: true };
+}
+
+// --- Screenshot -> meeting (vision) ----------------------------------------
+
+const screenshotSchema = z.object({
+  imageBase64: z.string().min(100).max(7_500_000), // ~5.6MB base64 cap
+  mediaType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+});
+
+export interface MeetingPrefill {
+  isMeeting: boolean;
+  type: string;
+  title: string;
+  goal: string;
+  date: string; // yyyy-mm-dd or ""
+  startMinute: number | null;
+  durationMin: number | null;
+  attendeeIds: string[];
+  otherAttendees: string[];
+}
+
+/**
+ * Read a calendar screenshot with Claude vision and return values that pre-fill
+ * the meeting composer. Sends the image to Anthropic (the user is warned first).
+ */
+export async function extractMeetingFromScreenshot(
+  input: z.infer<typeof screenshotSchema>,
+): Promise<{ ok: true; prefill: MeetingPrefill } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!visionEnabled())
+    return { error: "This is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
+  const parsed = screenshotSchema.safeParse(input);
+  if (!parsed.success) return { error: "That image looked too big or wasn't a supported type." };
+
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return { error: "Join a team first." };
+  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
+  const roster = members
+    .filter((m) => m.id !== user.id)
+    .map((m) => ({ id: m.id, name: m.name }));
+
+  try {
+    const r = await extractMeetingFromImage({
+      imageBase64: parsed.data.imageBase64,
+      mediaType: parsed.data.mediaType as VisionMediaType,
+      roster,
+    });
+    const startMinute = r.startTime ? timeInputToMinute(r.startTime) : null;
+    const endMinute = r.endTime ? timeInputToMinute(r.endTime) : null;
+    let durationMin: number | null = null;
+    if (startMinute != null) {
+      durationMin = endMinute != null && endMinute > startMinute ? endMinute - startMinute : 30;
+    }
+    return {
+      ok: true,
+      prefill: {
+        isMeeting: r.isMeeting,
+        type: r.meetingType,
+        title: r.title,
+        goal: r.goal,
+        date: r.date,
+        startMinute,
+        durationMin,
+        attendeeIds: r.attendeeIds,
+        otherAttendees: r.otherAttendees,
+      },
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not read that screenshot." };
+  }
 }
 
 // --- Agenda (Phase 2 item 4) -----------------------------------------------

@@ -54,7 +54,7 @@ function Icon({ name }: { name: IconKey }) {
 const BASE: { href: string; label: string; icon: IconKey }[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/directory", label: "Team", icon: "team" },
-  { href: "/meeting", label: "Meeting prep", icon: "meeting" },
+  { href: "/meeting", label: "Meetings", icon: "meeting" },
   { href: "/compare", label: "Compare", icon: "compare" },
   { href: "/discussion", label: "Discussion", icon: "discussion" },
   { href: "/coach", label: "Coach", icon: "coach" },

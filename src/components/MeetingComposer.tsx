@@ -64,6 +64,7 @@ export default function MeetingComposer({
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [importNote, setImportNote] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const [type, setType] = useState<MeetingTypeCode | "">(initial?.type ?? "");
   const [title, setTitle] = useState(initial?.title ?? "");
@@ -167,8 +168,21 @@ export default function MeetingComposer({
             time, and attendees to pre-fill this for you.
           </p>
           <label
-            className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed py-6 px-4 text-center cursor-pointer transition-colors hover:bg-[var(--color-brand-50)]"
-            style={{ borderColor: "var(--color-brand-200)" }}
+            className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed py-6 px-4 text-center cursor-pointer transition-colors"
+            style={{
+              borderColor: dragActive ? "var(--color-brand-600)" : "var(--color-brand-200)",
+              background: dragActive ? "var(--color-brand-50)" : "transparent",
+            }}
+            onDragEnter={(e) => { e.preventDefault(); if (!importing) setDragActive(true); }}
+            onDragOver={(e) => { e.preventDefault(); if (!importing && !dragActive) setDragActive(true); }}
+            onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragActive(false);
+              if (importing) return;
+              const f = e.dataTransfer.files?.[0];
+              if (f) importFromScreenshot(f);
+            }}
           >
             <input
               type="file"
@@ -181,7 +195,9 @@ export default function MeetingComposer({
                 e.target.value = "";
               }}
             />
-            <span className="text-sm font-medium">{importing ? "Reading your screenshot…" : "Upload a screenshot"}</span>
+            <span className="text-sm font-medium">
+              {importing ? "Reading your screenshot…" : dragActive ? "Drop the image here" : "Drag an image here, or click to upload"}
+            </span>
             <span className="text-xs text-stone-400">PNG or JPG of a calendar event or invite</span>
           </label>
           <p

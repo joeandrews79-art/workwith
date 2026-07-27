@@ -154,6 +154,20 @@ about this, same posture as the Coach (your data stays yours until you share it)
 
 ## 4. Agenda add / helper
 
+> **STATUS: BUILT 2026-07-27** (branch `feat/agenda-helper`). Every Meeting can
+> carry an agenda.
+> - New `AgendaItem` model (order, topic, purpose, minutes time-box, owner).
+> - On the meeting page, managers get an editor: add items, edit topic / purpose
+>   / time-box / owner, reorder (up/down buttons), delete; non-managers see a
+>   read-only agenda. Total time is shown.
+> - **AI "Build with AI" / "Tighten"** (`lib/agenda-ai.ts`) draft or sharpen the
+>   agenda from the meeting's type, goal, and attendee names (structural only, no
+>   psychometric data leaves the app). **Copy** exports it as text.
+> - Meetings created from a thought carry the proposed agenda across.
+> - Follow-ups: true drag-and-drop (today it's up/down buttons, which are also
+>   more accessible); deeper working-style-aware agendas would need the same
+>   opt-in flagged in item 3.
+
 **Why:** meetings without agendas are a common productivity killer. Make the good
 path the easy path.
 

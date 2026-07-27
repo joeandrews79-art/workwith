@@ -25,9 +25,11 @@ export default async function MeetingsPage() {
             the room and the meeting's purpose.
           </p>
         </div>
-        <Link href="/meeting/new" className="btn btn-primary shrink-0">
-          New meeting
-        </Link>
+        {meetings.length > 0 && (
+          <Link href="/meeting/new" className="btn btn-primary shrink-0">
+            New meeting
+          </Link>
+        )}
       </header>
 
       {meetings.length === 0 ? (

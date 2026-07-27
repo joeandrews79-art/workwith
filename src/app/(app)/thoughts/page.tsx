@@ -19,17 +19,14 @@ export default async function ThoughtsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Thoughts</h1>
-          <p className="text-stone-500 mt-1">
-            Jot a fleeting idea, then turn it into a structured meeting when you're
-            ready. Only you can see these until they become a meeting.
-          </p>
-        </div>
-        <div className="shrink-0">
-          <CaptureButton variant="inline" label="Capture" />
-        </div>
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight">Thoughts</h1>
+        <p className="text-stone-500 mt-1">
+          Use{" "}
+          <span className="font-medium text-stone-600">+ Capture a thought</span>{" "}
+          to jot a fleeting idea, then turn it into a structured meeting when
+          you're ready. Only you can see these until they become a meeting.
+        </p>
       </header>
 
       {sorted.length === 0 ? (

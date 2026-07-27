@@ -33,9 +33,9 @@ export default async function MeetingDetailPage({
   });
   if (!membership && !isAdmin(user)) redirect("/meeting");
 
+  const isCreator = detail.createdById === user.id;
   const canManage =
-    detail.createdById === user.id ||
-    (await canLeadTeam(user.id, detail.teamId, isAdmin(user)));
+    isCreator || (await canLeadTeam(user.id, detail.teamId, isAdmin(user)));
 
   const t = meetingType(detail.type);
   const brief = detail.viewerMember
@@ -91,7 +91,7 @@ export default async function MeetingDetailPage({
         </div>
       </header>
 
-      {canManage ? (
+      {isCreator ? (
         <AgendaEditor
           meetingId={detail.id}
           items={detail.agenda}

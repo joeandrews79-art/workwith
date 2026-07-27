@@ -37,6 +37,7 @@ export interface CalendarMeeting {
   title: string;
   typeCode: string;
   typeLabel: string;
+  teamName?: string;
   day: string | null; // yyyy-mm-dd (UTC-anchored) or null when unscheduled
   startMinute: number | null;
   durationMin: number | null;
@@ -467,7 +468,10 @@ function DetailModal({ meeting, onClose }: { meeting: CalendarMeeting; onClose: 
           <div className="min-w-0">
             <span className="pill text-[10px]" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}>{meeting.typeLabel}</span>
             <h2 className="text-lg font-bold tracking-tight mt-1.5">{meeting.title}</h2>
-            <p className="text-sm text-stone-500 mt-0.5">{when}</p>
+            <p className="text-sm text-stone-500 mt-0.5">
+              {when}
+              {meeting.teamName && <> · {meeting.teamName}</>}
+            </p>
           </div>
           <button onClick={onClose} className="text-stone-400 hover:text-stone-600 text-xl leading-none" aria-label="Close">×</button>
         </div>

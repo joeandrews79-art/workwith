@@ -556,6 +556,19 @@ export async function rescheduleMeeting(id: string, input: z.infer<typeof resche
 
 // --- Agenda (Phase 2 item 4) -----------------------------------------------
 
+/** Agenda is owned by the meeting's CREATOR alone (not team leaders/admins). */
+async function isMeetingCreator(
+  user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>,
+  meetingId: string,
+) {
+  const m = await prisma.meeting.findUnique({
+    where: { id: meetingId },
+    include: { team: { select: { orgId: true } } },
+  });
+  if (!m || m.team.orgId !== user.orgId) return null;
+  return m.createdById === user.id ? m : null;
+}
+
 const agendaItemSchema = z.object({
   topic: z.string().trim().min(1).max(300),
   purpose: z.enum(["decision", "discussion", "information", "brainstorm"]),
@@ -570,7 +583,7 @@ async function manageableAgendaItem(
 ) {
   const item = await prisma.agendaItem.findUnique({ where: { id: itemId } });
   if (!item) return null;
-  return (await canManageMeeting(user, item.meetingId)) ? item : null;
+  return (await isMeetingCreator(user, item.meetingId)) ? item : null;
 }
 
 /** Gather the structural context the agenda AI needs (no profiles). */
@@ -591,7 +604,7 @@ async function meetingAiContext(meetingId: string) {
 export async function addAgendaItem(meetingId: string, input: z.infer<typeof agendaItemSchema>) {
   const user = await getCurrentUser();
   if (!user) return { error: "Not signed in." };
-  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  if (!(await isMeetingCreator(user, meetingId))) return { error: "Only the meeting's creator can edit the agenda." };
   const parsed = agendaItemSchema.safeParse(input);
   if (!parsed.success) return { error: "Give the item a topic." };
   const last = await prisma.agendaItem.findFirst({
@@ -646,7 +659,7 @@ export async function deleteAgendaItem(itemId: string) {
 export async function reorderAgenda(meetingId: string, orderedIds: string[]) {
   const user = await getCurrentUser();
   if (!user) return { error: "Not signed in." };
-  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  if (!(await isMeetingCreator(user, meetingId))) return { error: "Only the meeting's creator can edit the agenda." };
   const items = await prisma.agendaItem.findMany({ where: { meetingId }, select: { id: true } });
   const owned = new Set(items.map((i) => i.id));
   await prisma.$transaction(
@@ -672,7 +685,7 @@ async function replaceAgenda(meetingId: string, items: { topic: string; purpose:
 export async function buildAgendaAction(meetingId: string) {
   const user = await getCurrentUser();
   if (!user) return { error: "Not signed in." };
-  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  if (!(await isMeetingCreator(user, meetingId))) return { error: "Only the meeting's creator can edit the agenda." };
   const ctx = await meetingAiContext(meetingId);
   if (!ctx) return { error: "Meeting not found." };
   try {
@@ -688,7 +701,7 @@ export async function buildAgendaAction(meetingId: string) {
 export async function tightenAgendaAction(meetingId: string) {
   const user = await getCurrentUser();
   if (!user) return { error: "Not signed in." };
-  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  if (!(await isMeetingCreator(user, meetingId))) return { error: "Only the meeting's creator can edit the agenda." };
   const ctx = await meetingAiContext(meetingId);
   if (!ctx) return { error: "Meeting not found." };
   const current = await prisma.agendaItem.findMany({

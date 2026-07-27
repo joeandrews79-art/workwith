@@ -52,6 +52,41 @@ export async function listTeamMeetings(teamId: string): Promise<MeetingSummary[]
   }));
 }
 
+export interface MyMeeting extends MeetingSummary {
+  teamId: string;
+  teamName: string;
+}
+
+/**
+ * Every meeting the user is an ATTENDEE of, across all their teams (the creator
+ * is always an attendee). This is the personal calendar: attendees see a meeting
+ * regardless of which team is currently active.
+ */
+export async function getMyMeetings(userId: string): Promise<MyMeeting[]> {
+  const rows = await prisma.meeting.findMany({
+    where: { attendees: { some: { userId } } },
+    orderBy: [{ scheduledFor: "asc" }, { createdAt: "desc" }],
+    include: {
+      team: { select: { name: true } },
+      attendees: { include: { user: { select: { id: true, name: true } } } },
+    },
+  });
+  return rows.map((m) => ({
+    id: m.id,
+    type: m.type as MeetingTypeCode,
+    title: m.title,
+    goal: m.goal,
+    scheduledFor: m.scheduledFor,
+    startMinute: m.startMinute,
+    durationMin: m.durationMin,
+    createdAt: m.createdAt,
+    createdById: m.createdById,
+    teamId: m.teamId,
+    teamName: m.team.name,
+    attendees: m.attendees.map((a) => ({ id: a.user.id, name: a.user.name })),
+  }));
+}
+
 export interface AgendaItemView {
   id: string;
   order: number;

@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { getTeamMemberRows, OverviewRow } from "@/lib/team-data";
+import { getMyMeetings } from "@/lib/meeting-data";
+import { meetingType } from "@/lib/meeting-types";
+import { ymd } from "@/lib/calendar";
 import { getActiveTeamContext } from "@/lib/active-team";
+import TodayMeetings, { TodayMeetingItem } from "@/components/TodayMeetings";
 import {
   formatDate,
   StatusPill,
@@ -18,8 +22,22 @@ export default async function DashboardPage() {
   const { activeTeam } = await getActiveTeamContext(user.id);
   if (!activeTeam) return <NoTeam />;
 
-  const rows = await getTeamMemberRows(activeTeam.id);
+  const [rows, myMeetings] = await Promise.all([
+    getTeamMemberRows(activeTeam.id),
+    getMyMeetings(user.id),
+  ]);
   const canLead = isAdmin(user) || activeTeam.role === "LEADER";
+
+  const todayItems: TodayMeetingItem[] = myMeetings.map((m) => ({
+    id: m.id,
+    title: m.title,
+    typeLabel: meetingType(m.type).label,
+    day: m.scheduledFor ? ymd(m.scheduledFor) : null,
+    startMinute: m.startMinute,
+    durationMin: m.durationMin,
+    teamName: m.teamName,
+    people: m.attendees.length,
+  }));
 
   const total = rows.length;
   const completed = rows.filter((r) => r.status === "completed").length;
@@ -49,6 +67,8 @@ export default async function DashboardPage() {
       </header>
 
       {me && <YourStatus me={me} />}
+
+      <TodayMeetings meetings={todayItems} />
 
       {canLead ? (
         <LeaderView rows={rows} total={total} completed={completed} shared={shared} pct={pct} viewerId={user.id} />

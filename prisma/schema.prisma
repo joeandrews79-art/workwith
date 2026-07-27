@@ -45,6 +45,10 @@ model TeamMember {
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Per-team role. A person can LEAD one team and be a plain MEMBER of another,
+  // so this lives on the membership, not the user. Org-level admins (User.role
+  // = ADMIN) can manage every team regardless of this value.
+  role   String @default("MEMBER") // LEADER | MEMBER
 
   @@unique([teamId, userId])
   @@index([userId])

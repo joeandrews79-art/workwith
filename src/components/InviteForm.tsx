@@ -4,7 +4,11 @@ import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { inviteMember } from "@/app/actions";
 
-export default function InviteForm() {
+export default function InviteForm({
+  teams,
+}: {
+  teams: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const [state, action, pending] = useActionState(
     inviteMember,
@@ -40,6 +44,33 @@ export default function InviteForm() {
           <input id="password" name="password" className="input" required minLength={8} placeholder="At least 8 characters" />
         </div>
       </div>
+
+      {teams.length > 0 && (
+        <fieldset className="space-y-2">
+          <legend className="label mb-1">Add to team{teams.length > 1 ? "s" : ""}</legend>
+          <div className="flex flex-wrap gap-2">
+            {teams.map((t, i) => (
+              <label
+                key={t.id}
+                className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer select-none border border-stone-200 rounded-lg px-3 py-1.5"
+              >
+                <input
+                  type="checkbox"
+                  name="teamIds"
+                  value={t.id}
+                  defaultChecked={i === 0}
+                  className="w-4 h-4"
+                  style={{ accentColor: "var(--color-brand-600)" }}
+                />
+                {t.name}
+              </label>
+            ))}
+          </div>
+          <p className="text-xs text-stone-400">
+            Pick one or more. You can move people between teams later.
+          </p>
+        </fieldset>
+      )}
 
       <label className="flex items-center gap-2.5 text-sm text-stone-700 cursor-pointer select-none">
         <input type="checkbox" name="role" value="ADMIN" className="w-4 h-4 accent-current" style={{ accentColor: "var(--color-brand-600)" }} />

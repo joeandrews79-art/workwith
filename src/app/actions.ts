@@ -18,6 +18,7 @@ import { Narrative } from "@/lib/narrative";
 import { suggestQuestions } from "@/lib/ai";
 import { assembleProfile } from "@/lib/profile";
 import { getAnsweredPreferences } from "@/lib/prefs";
+import { writeActiveTeamCookie } from "@/lib/active-team";
 import {
   coachEnabled,
   generateCoaching,
@@ -224,6 +225,28 @@ export async function inviteMember(_prev: unknown, formData: FormData) {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: "Someone with that email already exists." };
 
+  // Which team(s) the person joins. The form sends one or more `teamIds`;
+  // fall back to the inviting admin's team(s), then the org's first team.
+  let teamIds = formData.getAll("teamIds").map(String).filter(Boolean);
+  if (teamIds.length) {
+    const owned = await prisma.team.findMany({
+      where: { id: { in: teamIds }, orgId: admin!.orgId },
+      select: { id: true },
+    });
+    teamIds = owned.map((t) => t.id); // drop anything not in this org
+  }
+  if (!teamIds.length) {
+    const adminTeams = await prisma.teamMember.findMany({
+      where: { userId: admin!.id },
+      select: { teamId: true },
+    });
+    teamIds = adminTeams.length
+      ? adminTeams.map((t) => t.teamId)
+      : (await prisma.team.findMany({ where: { orgId: admin!.orgId }, select: { id: true }, take: 1 })).map((t) => t.id);
+  }
+  if (!teamIds.length)
+    return { error: "Create a team first, then invite people into it." };
+
   const user = await prisma.user.create({
     data: {
       orgId: admin!.orgId,
@@ -236,15 +259,6 @@ export async function inviteMember(_prev: unknown, formData: FormData) {
     },
   });
 
-  // Add every new person to the same team(s) as the inviting admin, so they
-  // show up in the directory. Falls back to the org's first team.
-  const adminTeams = await prisma.teamMember.findMany({
-    where: { userId: admin!.id },
-    select: { teamId: true },
-  });
-  const teamIds = adminTeams.length
-    ? adminTeams.map((t) => t.teamId)
-    : (await prisma.team.findMany({ where: { orgId: admin!.orgId }, select: { id: true }, take: 1 })).map((t) => t.id);
   for (const teamId of teamIds) {
     await prisma.teamMember.create({ data: { teamId, userId: user.id } });
   }
@@ -252,10 +266,152 @@ export async function inviteMember(_prev: unknown, formData: FormData) {
   revalidatePath("/dashboard");
   revalidatePath("/directory");
   revalidatePath("/admin");
+  revalidatePath("/admin/teams");
   return {
     ok: true,
     message: `${name} added${asAdmin ? " as an admin" : ""}. Share their temporary password securely.`,
   };
+}
+
+// --- Teams (multi-team foundation) -----------------------------------------
+
+/** Switch which team the current user is viewing. */
+export async function setActiveTeam(teamId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const membership = await prisma.teamMember.findUnique({
+    where: { teamId_userId: { teamId, userId: user.id } },
+  });
+  if (!membership) return { error: "You're not on that team." };
+  await writeActiveTeamCookie(teamId);
+  revalidatePath("/dashboard");
+  revalidatePath("/directory");
+  revalidatePath("/compare");
+  revalidatePath("/discussion");
+  revalidatePath("/meeting");
+  return { ok: true };
+}
+
+/** Guard that a team belongs to the user's org, returns it or null. */
+async function orgTeam(orgId: string, teamId: string) {
+  return prisma.team.findFirst({ where: { id: teamId, orgId } });
+}
+
+/**
+ * May this user manage this team's roster? Org admins can manage any team in
+ * their org; a team's own leaders can manage that team. Returns the team (for
+ * reuse) or null if not allowed.
+ */
+async function manageableTeam(
+  user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>,
+  teamId: string,
+) {
+  const team = await orgTeam(user.orgId, teamId);
+  if (!team) return null;
+  if (isAdmin(user)) return team;
+  const m = await prisma.teamMember.findUnique({
+    where: { teamId_userId: { teamId, userId: user.id } },
+    select: { role: true },
+  });
+  return m?.role === "LEADER" ? team : null;
+}
+
+export async function createTeam(_prev: unknown, formData: FormData) {
+  const admin = await getCurrentUser();
+  if (!isAdmin(admin)) return { error: "Admins only." };
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Give the team a name." };
+  const dup = await prisma.team.findFirst({
+    where: { orgId: admin!.orgId, name: { equals: name, mode: "insensitive" } },
+  });
+  if (dup) return { error: "A team with that name already exists." };
+  await prisma.team.create({ data: { orgId: admin!.orgId, name } });
+  revalidatePath("/admin/teams");
+  return { ok: true, message: `Created "${name}".` };
+}
+
+export async function renameTeam(teamId: string, name: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const trimmed = name.trim();
+  if (!trimmed) return { error: "Give the team a name." };
+  if (!(await manageableTeam(user, teamId)))
+    return { error: "You can't manage that team." };
+  await prisma.team.update({ where: { id: teamId }, data: { name: trimmed } });
+  revalidatePath("/admin/teams");
+  revalidatePath("/teams/manage");
+  revalidatePath("/directory");
+  return { ok: true };
+}
+
+/** Create/delete are org-wide operations, so they stay admin-only. */
+export async function deleteTeam(teamId: string) {
+  const admin = await getCurrentUser();
+  if (!isAdmin(admin)) return { error: "Admins only." };
+  if (!(await orgTeam(admin!.orgId, teamId))) return { error: "Unknown team." };
+  const count = await prisma.team.count({ where: { orgId: admin!.orgId } });
+  if (count <= 1)
+    return { error: "You can't delete the only team. Create another first." };
+  // Membership rows cascade; people keep their account and any other teams.
+  await prisma.team.delete({ where: { id: teamId } });
+  revalidatePath("/admin/teams");
+  revalidatePath("/directory");
+  return { ok: true };
+}
+
+export async function addTeamMember(teamId: string, userId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await manageableTeam(user, teamId)))
+    return { error: "You can't manage that team." };
+  const target = await prisma.user.findUnique({ where: { id: userId } });
+  if (!target || target.orgId !== user.orgId)
+    return { error: "That person isn't in your organization." };
+  await prisma.teamMember.upsert({
+    where: { teamId_userId: { teamId, userId } },
+    create: { teamId, userId },
+    update: {},
+  });
+  revalidatePath("/admin/teams");
+  revalidatePath("/teams/manage");
+  revalidatePath("/directory");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+export async function removeTeamMember(teamId: string, userId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await manageableTeam(user, teamId)))
+    return { error: "You can't manage that team." };
+  await prisma.teamMember.deleteMany({ where: { teamId, userId } });
+  revalidatePath("/admin/teams");
+  revalidatePath("/teams/manage");
+  revalidatePath("/directory");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+/** Set a member's per-team role (leader vs member). Managers of the team only. */
+export async function setTeamRole(
+  teamId: string,
+  userId: string,
+  role: "LEADER" | "MEMBER",
+) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await manageableTeam(user, teamId)))
+    return { error: "You can't manage that team." };
+  const updated = await prisma.teamMember.updateMany({
+    where: { teamId, userId },
+    data: { role },
+  });
+  if (updated.count === 0)
+    return { error: "That person isn't on this team." };
+  revalidatePath("/admin/teams");
+  revalidatePath("/teams/manage");
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 // --- Working preferences (Rise8-tailored, answered by everyone) -------------

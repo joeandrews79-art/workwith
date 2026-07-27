@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AccountMenu from "@/components/AccountMenu";
+import TeamSwitcher from "@/components/TeamSwitcher";
 
 type IconKey =
   | "dashboard"
@@ -13,6 +14,7 @@ type IconKey =
   | "discussion"
   | "coach"
   | "me"
+  | "manage"
   | "admin";
 
 function Icon({ name }: { name: IconKey }) {
@@ -42,6 +44,8 @@ function Icon({ name }: { name: IconKey }) {
       return <svg {...common}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" /></svg>;
     case "me":
       return <svg {...common}><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></svg>;
+    case "manage":
+      return <svg {...common}><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>;
     case "admin":
       return <svg {...common}><path d="M12 2 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6z" /></svg>;
   }
@@ -61,16 +65,29 @@ export default function AppShell({
   name,
   email,
   isAdmin,
+  teams,
+  activeTeamId,
   children,
 }: {
   name: string;
   email: string;
   isAdmin: boolean;
+  teams: { id: string; name: string; role: "LEADER" | "MEMBER" }[];
+  activeTeamId: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const links = isAdmin ? [...BASE, { href: "/admin", label: "Admin", icon: "admin" as IconKey }] : BASE;
+  const leadsAny = teams.some((t) => t.role === "LEADER");
+  const links = [
+    ...BASE,
+    // Non-admin leaders get a direct entry to manage the team(s) they lead.
+    // Admins reach the same thing (org-wide) under Admin → Teams.
+    ...(!isAdmin && leadsAny
+      ? [{ href: "/teams/manage", label: "Manage team", icon: "manage" as IconKey }]
+      : []),
+    ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: "admin" as IconKey }] : []),
+  ];
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -111,6 +128,7 @@ export default function AppShell({
       {/* Desktop sidebar */}
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-52 flex-col border-r border-stone-200 bg-white/70 backdrop-blur z-20">
         <Brand />
+        <TeamSwitcher teams={teams} activeTeamId={activeTeamId} />
         <NavLinks />
         <div className="border-t border-stone-100 p-2">
           <AccountMenu name={name} email={email} isAdmin={isAdmin} />
@@ -140,6 +158,7 @@ export default function AppShell({
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
+            <TeamSwitcher teams={teams} activeTeamId={activeTeamId} />
             <NavLinks />
           </div>
         </div>

@@ -1,8 +1,10 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getVisibleMembers } from "@/lib/team-data";
+import { getVisibleTeamMembers } from "@/lib/team-data";
+import { getActiveTeamContext } from "@/lib/active-team";
 import { compareMembers } from "@/lib/team";
 import { DOMAIN_ORDER, DOMAINS } from "@/lib/ipip";
 import { DOMAIN_COLOR, initials, avatarColor, avatarInkColor } from "@/lib/ui";
+import { NoTeam } from "@/components/Bits";
 import CompareSelector from "@/components/CompareSelector";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +16,9 @@ export default async function ComparePage({
 }) {
   const { a, b } = await searchParams;
   const user = (await getCurrentUser())!;
-  const members = await getVisibleMembers(user.orgId, user.id);
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return <NoTeam />;
+  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
   const options = members.map((m) => ({ id: m.id, name: m.name }));
 
   const aId = a ?? user.id;
@@ -54,8 +58,8 @@ function Comparison({
   a,
   b,
 }: {
-  a: Awaited<ReturnType<typeof getVisibleMembers>>[number];
-  b: Awaited<ReturnType<typeof getVisibleMembers>>[number];
+  a: Awaited<ReturnType<typeof getVisibleTeamMembers>>[number];
+  b: Awaited<ReturnType<typeof getVisibleTeamMembers>>[number];
 }) {
   const diffs = compareMembers(a, b);
   const top = diffs.slice(0, 3);

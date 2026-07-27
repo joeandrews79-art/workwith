@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
-import { getTeamOverview } from "@/lib/team-data";
+import { getOrgOverview, getOrgTeams } from "@/lib/team-data";
 import { StatusPill } from "@/components/Bits";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
 import InviteForm from "@/components/InviteForm";
@@ -13,7 +13,7 @@ export default async function AdminPage() {
   const user = await getCurrentUser();
   if (!isAdmin(user)) redirect("/dashboard");
 
-  const rows = await getTeamOverview(user!.orgId);
+  const rows = await getOrgOverview(user!.orgId);
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -30,6 +30,14 @@ export default async function AdminPage() {
         </Link>
       </header>
 
+      <Link href="/admin/teams" className="card p-4 flex items-center justify-between gap-3 hover:shadow-sm transition-shadow">
+        <div>
+          <p className="font-semibold text-sm">Teams</p>
+          <p className="text-sm text-stone-500">Create teams, move people between them, and name each team's leader.</p>
+        </div>
+        <span className="text-stone-400" aria-hidden>→</span>
+      </Link>
+
       <Link href="/admin/questions" className="card p-4 flex items-center justify-between gap-3 hover:shadow-sm transition-shadow">
         <div>
           <p className="font-semibold text-sm">Working-preference questions</p>
@@ -38,7 +46,7 @@ export default async function AdminPage() {
         <span className="text-stone-400" aria-hidden>→</span>
       </Link>
 
-      <InviteForm />
+      <InviteForm teams={await getOrgTeams(user!.orgId)} />
 
       <section>
         <h2 className="font-semibold mb-3">Members · {rows.length}</h2>

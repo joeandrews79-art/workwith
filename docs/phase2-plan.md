@@ -15,6 +15,24 @@ the **agenda helper** is how they get made productive.
 
 ## 1. Multiple teams per user (foundation — build first)
 
+> **STATUS: BUILT 2026-07-27** (branch `feat/multi-team-roles`, verified in an
+> isolated preview against the demo org). Scope grew during the session: Joe
+> asked for **role-differentiated dashboards**, so the foundation now includes a
+> **per-team role** (`TeamMember.role` = LEADER | MEMBER) — a person can lead one
+> team and be a plain member of another.
+> - Active-team **switcher** in the sidebar (cookie-remembered, always
+>   re-validated against real memberships).
+> - Dashboard, Team directory, Compare, Discussion, Meeting prep all scope to the
+>   active team.
+> - **Role-aware dashboard:** org admins + team leaders see full oversight
+>   (per-person completion status, refresh-due nudges, "Manage team"); plain
+>   members see roster + team completion/shared % and can open *shared* profiles
+>   only. Private profile content stays share-gated regardless of role.
+> - **Team management:** org admins at `/admin/teams` (create/rename/delete, move
+>   people, set leaders); team leaders at `/teams/manage` (their team only, no
+>   delete). Invite flow picks the team(s) a person joins.
+> - Not yet deployed to prod — awaiting Joe's go-ahead to merge to `main`.
+
 **Why:** A person is on more than one team (e.g., a leadership team AND their own
 people-ops team), and those meetings are not the same. Everything else in Phase 2
 (meeting types, prep, agendas) should be scoped to the right team.

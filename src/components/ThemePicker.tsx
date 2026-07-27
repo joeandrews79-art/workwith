@@ -7,7 +7,7 @@ const THEMES = [
   { id: "midnight", label: "Midnight", swatch: "#3b82f6", paper: "#0a0f1e" },
   { id: "graphite", label: "Graphite", swatch: "#4f8bd6", paper: "#0d1117" },
   { id: "teal", label: "Deep teal", swatch: "#14b8a6", paper: "#08120f" },
-  { id: "ember", label: "Ember", swatch: "#f59e0b", paper: "#14100c" },
+  { id: "ember", label: "Crimson", swatch: "#ef4444", paper: "#150c0d" },
 ];
 
 export const THEME_STORAGE_KEY = "workwith-theme";

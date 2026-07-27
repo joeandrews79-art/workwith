@@ -40,7 +40,7 @@
   --color-brand-200: #2f4d80;
   --color-brand-600: #3b82f6;
   --color-brand-700: #93c5fd;
-  --bg-gradient: linear-gradient(135deg, #0a0f1e 0%, #16224a 100%);
+  --bg-gradient: linear-gradient(135deg, #090d1a 0%, #24357a 100%);
 }
 /* Graphite: neutral slate canvas, cool steel-blue accent. */
 :root[data-theme="graphite"] {
@@ -52,7 +52,7 @@
   --color-brand-200: #35506f;
   --color-brand-600: #4f8bd6;
   --color-brand-700: #a9cbf0;
-  --bg-gradient: linear-gradient(135deg, #0d1117 0%, #1b2536 100%);
+  --bg-gradient: linear-gradient(135deg, #0c1016 0%, #29405c 100%);
 }
 /* Deep teal: near-black canvas, vivid teal accent. */
 :root[data-theme="teal"] {
@@ -64,7 +64,7 @@
   --color-brand-200: #1f6355;
   --color-brand-600: #14b8a6;
   --color-brand-700: #7ff0e0;
-  --bg-gradient: linear-gradient(135deg, #08120f 0%, #0e2a24 100%);
+  --bg-gradient: linear-gradient(135deg, #06100d 0%, #125447 100%);
 }
 /* Ember: deep warm charcoal, bold amber accent. */
 :root[data-theme="ember"] {
@@ -76,7 +76,7 @@
   --color-brand-200: #7a5a22;
   --color-brand-600: #f59e0b;
   --color-brand-700: #fcd34d;
-  --bg-gradient: linear-gradient(135deg, #14100c 0%, #2a1c10 100%);
+  --bg-gradient: linear-gradient(135deg, #14100c 0%, #533615 100%);
 }
 /* Daylight: a clean LIGHT theme. White cards on a soft blue-gray canvas, dark
    ink, calm blue accent. The dark "stone" remap below is scoped OUT of this
@@ -95,7 +95,7 @@
   --color-brand-600: #2563eb;
   --color-brand-700: #1d4ed8;
   --color-brand-800: #1e40af;
-  --bg-gradient: linear-gradient(135deg, #ffffff 0%, #e7eefb 100%);
+  --bg-gradient: linear-gradient(135deg, #eef4ff 0%, #b9d0f4 100%);
 }
 
 html {

@@ -26,7 +26,7 @@ export default async function DirectoryPage() {
           </p>
         </div>
         <Link href="/compare" className="btn btn-secondary shrink-0">
-          Compare two people
+          Compare people
         </Link>
       </header>
 

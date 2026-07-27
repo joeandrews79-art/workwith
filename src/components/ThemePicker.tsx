@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 const THEMES = [
+  { id: "daylight", label: "Daylight (light)", swatch: "#2563eb", paper: "#f6f8fb" },
   { id: "midnight", label: "Midnight", swatch: "#3b82f6", paper: "#0a0f1e" },
   { id: "graphite", label: "Graphite", swatch: "#4f8bd6", paper: "#0d1117" },
   { id: "teal", label: "Deep teal", swatch: "#14b8a6", paper: "#08120f" },

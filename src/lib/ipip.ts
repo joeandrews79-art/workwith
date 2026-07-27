@@ -94,14 +94,17 @@ export const FACETS: Record<DomainCode, Record<number, string>> = {
     6: "Cheerfulness",
   },
   O: {
-    // Facet 6 ("Liberalism", the political/values items) is intentionally
-    // omitted: political questions have no place in a workplace tool. Openness
-    // is scored from its five work-relevant facets below.
+    // The standard NEO facet 6 is "Liberalism" (political/values items). Those
+    // have no place in a workplace tool, so they were removed. In their place,
+    // facet 6 here is "Open-mindedness": four neutral, public-domain IPIP
+    // Openness items about openness to new ideas and new ways of working, which
+    // fit this domain's friendly framing ("Openness to change") far better.
     1: "Imagination",
     2: "Artistic Interests",
     3: "Emotionality",
     4: "Adventurousness",
     5: "Intellect",
+    6: "Open-mindedness",
   },
   A: {
     1: "Trust",

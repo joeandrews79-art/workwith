@@ -73,6 +73,24 @@
   --color-brand-600: #f59e0b;
   --color-brand-700: #fcd34d;
 }
+/* Daylight: a clean LIGHT theme. White cards on a soft blue-gray canvas, dark
+   ink, calm blue accent. The dark "stone" remap below is scoped OUT of this
+   theme, so the app's original light-built styling shows through. */
+:root[data-theme="daylight"] {
+  --color-paper: #f6f8fb;
+  --color-surface: #ffffff;
+  --color-elevated: #ffffff;
+  --color-border: #e4e8f0;
+  --color-ink: #1b2333;
+  --color-muted: #5c6880;
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dce8fe;
+  --color-brand-200: #c3d6fb;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+}
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -88,30 +106,46 @@ body {
 
 /* -----------------------------------------------------------------------------
    Dark remap of the Tailwind "stone" utilities used throughout the app. These
-   were written for a light theme (dark text / light fills); here we point them
-   at dark-theme values so every screen reads correctly without touching each
-   file. Because ALL themes are dark, these apply globally.
+   were written for a LIGHT theme (dark text / light fills); on the dark themes
+   we point them at dark values so every screen reads correctly without touching
+   each file. Scoped to NOT apply on "daylight", where the original light-theme
+   Tailwind values are exactly what we want.
 ----------------------------------------------------------------------------- */
-.text-stone-800 { color: #e7ecf6 !important; }
-.text-stone-700 { color: #d4dcec !important; }
-.text-stone-600 { color: #b7c2d6 !important; }
-.text-stone-500 { color: #97a3ba !important; }
-.text-stone-400 { color: #7d8aa2 !important; }
-.text-stone-300 { color: #6b7893 !important; }
+:root:not([data-theme="daylight"]) {
+  .text-stone-800 { color: #e7ecf6 !important; }
+  .text-stone-700 { color: #d4dcec !important; }
+  .text-stone-600 { color: #b7c2d6 !important; }
+  .text-stone-500 { color: #97a3ba !important; }
+  .text-stone-400 { color: #7d8aa2 !important; }
+  .text-stone-300 { color: #6b7893 !important; }
 
-.bg-stone-50 { background-color: #131a2b !important; }
-.bg-stone-100 { background-color: #1c2540 !important; }
-.bg-stone-200 { background-color: #273150 !important; }
-.hover\:bg-stone-100:hover { background-color: #212b45 !important; }
+  .bg-stone-50 { background-color: #131a2b !important; }
+  .bg-stone-100 { background-color: #1c2540 !important; }
+  .bg-stone-200 { background-color: #273150 !important; }
+  .hover\:bg-stone-100:hover { background-color: #212b45 !important; }
 
-.border-stone-100 { border-color: #212b45 !important; }
-.border-stone-200 { border-color: #27324e !important; }
-.border-stone-300 { border-color: #313d5c !important; }
+  .border-stone-100 { border-color: #212b45 !important; }
+  .border-stone-200 { border-color: #27324e !important; }
+  .border-stone-300 { border-color: #313d5c !important; }
 
-/* Sidebar / bars written as translucent white: make them dark glass instead. */
-.bg-white { background-color: var(--color-surface) !important; }
-.bg-white\/70 { background-color: color-mix(in srgb, var(--color-surface) 82%, transparent) !important; }
-.bg-white\/90 { background-color: color-mix(in srgb, var(--color-surface) 92%, transparent) !important; }
+  /* Sidebar / bars written as translucent white: make them dark glass. */
+  .bg-white { background-color: var(--color-surface) !important; }
+  .bg-white\/70 { background-color: color-mix(in srgb, var(--color-surface) 82%, transparent) !important; }
+  .bg-white\/90 { background-color: color-mix(in srgb, var(--color-surface) 92%, transparent) !important; }
+}
+
+/* Daylight fixups: a few primitives were baked with dark-surface assumptions
+   (light label ink, near-black primary-button text, heavy dark card shadow).
+   Restore light-appropriate values under the light theme. */
+:root[data-theme="daylight"] {
+  .label { color: #475569; }
+  .btn-primary { color: #ffffff; }
+  .btn-secondary:hover { background: #eef1f6; }
+  .btn-ghost:hover { background: #eef1f6; color: var(--color-ink); }
+  .card {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.06);
+  }
+}
 
 /* Reusable primitives ------------------------------------------------------- */
 .card {

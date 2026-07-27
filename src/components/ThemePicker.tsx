@@ -3,19 +3,19 @@
 import { useEffect, useState } from "react";
 
 const THEMES = [
-  { id: "indigo", label: "Indigo", swatch: "#4f46e5", paper: "#edeaf3" },
-  { id: "slate", label: "Slate", swatch: "#2563eb", paper: "#e9edf3" },
-  { id: "sage", label: "Sage", swatch: "#0d9488", paper: "#e7eee9" },
-  { id: "warm", label: "Warm", swatch: "#ea580c", paper: "#f1ece4" },
+  { id: "midnight", label: "Midnight", swatch: "#3b82f6", paper: "#0a0f1e" },
+  { id: "graphite", label: "Graphite", swatch: "#4f8bd6", paper: "#0d1117" },
+  { id: "teal", label: "Deep teal", swatch: "#14b8a6", paper: "#08120f" },
+  { id: "ember", label: "Ember", swatch: "#f59e0b", paper: "#14100c" },
 ];
 
 export const THEME_STORAGE_KEY = "workwith-theme";
 
 export default function ThemePicker() {
-  const [active, setActive] = useState("indigo");
+  const [active, setActive] = useState("midnight");
 
   useEffect(() => {
-    const current = document.documentElement.getAttribute("data-theme") || "indigo";
+    const current = document.documentElement.getAttribute("data-theme") || "midnight";
     setActive(current);
   }, []);
 

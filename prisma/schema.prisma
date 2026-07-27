@@ -73,8 +73,36 @@ model User {
   prefAnswers  PrefAnswer[]
   meetingsCreated  Meeting[]         @relation("MeetingCreator")
   meetingAttendance MeetingAttendee[]
+  thoughts     Thought[]
 
   @@index([orgId])
+}
+
+/// A fleeting idea captured for meeting planning (Phase 2 item 3). Private to
+/// its author (only they see it) until it becomes a shared meeting. Can be
+/// anchored to a team member (`aboutUserId`, from the Discussion-mode entry
+/// point) and, once "structured", links to the Meeting it produced.
+///
+/// PRIVACY: the "Structure this" AI step sends the thought text plus the team
+/// roster's names/titles to Anthropic to draft a meeting shape. It does NOT send
+/// anyone's psychometric profile; the working-style prep is computed locally by
+/// the deterministic engine on the resulting meeting.
+model Thought {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId      String? // which team this is for (defaults to the active team at capture)
+  aboutUserId String? // anchored team member, if captured about someone specific
+  meetingType String? // optional MeetingTypeCode hint
+  text        String // the one-line thought
+  detail      String? // optional longer note
+  status      String   @default("captured") // captured | planned | archived
+  structured  String? // JSON cache of the AI-proposed meeting brief
+  meetingId   String? // set once turned into a Meeting
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 /// A planned meeting: a real object tied to a team, with a type that shapes the

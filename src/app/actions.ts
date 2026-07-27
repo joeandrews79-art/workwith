@@ -18,8 +18,10 @@ import { Narrative } from "@/lib/narrative";
 import { suggestQuestions } from "@/lib/ai";
 import { assembleProfile } from "@/lib/profile";
 import { getAnsweredPreferences } from "@/lib/prefs";
-import { writeActiveTeamCookie, getActiveTeamId, canLeadTeam } from "@/lib/active-team";
+import { writeActiveTeamCookie, getActiveTeamId, canLeadTeam, getActiveTeamContext } from "@/lib/active-team";
 import { MEETING_TYPES } from "@/lib/meeting-types";
+import { getTeamRoster } from "@/lib/team-data";
+import { structureThought, MeetingProposal } from "@/lib/structure";
 import {
   coachEnabled,
   generateCoaching,
@@ -493,6 +495,171 @@ export async function deleteMeeting(id: string) {
   await prisma.meeting.delete({ where: { id } });
   revalidatePath("/meeting");
   return { ok: true };
+}
+
+// --- Thought capture (Phase 2 item 3) --------------------------------------
+
+/** Context for the quick-capture form: the active team and who's on it. */
+export async function getThoughtCaptureContext() {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." as const };
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return { ok: true as const, teamId: null, teamName: null, members: [] };
+  const roster = await getTeamRoster(activeTeam.id);
+  return {
+    ok: true as const,
+    teamId: activeTeam.id,
+    teamName: activeTeam.name,
+    members: roster.filter((m) => m.id !== user.id).map((m) => ({ id: m.id, name: m.name })),
+  };
+}
+
+const thoughtInputSchema = z.object({
+  text: z.string().trim().min(1).max(300),
+  detail: z.string().trim().max(2000).optional().nullable(),
+  teamId: z.string().optional().nullable(),
+  aboutUserId: z.string().optional().nullable(),
+  meetingType: z.enum(MEETING_TYPES.map((t) => t.code) as [string, ...string[]]).optional().nullable(),
+});
+
+export async function createThought(input: z.infer<typeof thoughtInputSchema>) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const parsed = thoughtInputSchema.safeParse(input);
+  if (!parsed.success) return { error: "Jot down at least a line before saving." };
+
+  // Validate the optional team + anchored person belong to the user's world.
+  let teamId = parsed.data.teamId || (await getActiveTeamId(user.id));
+  if (teamId) {
+    const member = await prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId: user.id } },
+      select: { id: true },
+    });
+    if (!member) teamId = null; // don't pin to a team you're not on
+  }
+  let aboutUserId = parsed.data.aboutUserId || null;
+  if (aboutUserId && teamId) {
+    const onTeam = await prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId: aboutUserId } },
+      select: { id: true },
+    });
+    if (!onTeam) aboutUserId = null;
+  } else {
+    aboutUserId = null;
+  }
+
+  await prisma.thought.create({
+    data: {
+      userId: user.id,
+      text: parsed.data.text,
+      detail: parsed.data.detail || null,
+      teamId,
+      aboutUserId,
+      meetingType: parsed.data.meetingType || null,
+    },
+  });
+  revalidatePath("/thoughts");
+  return { ok: true };
+}
+
+async function myThought(userId: string, id: string) {
+  const t = await prisma.thought.findUnique({ where: { id } });
+  return t && t.userId === userId ? t : null;
+}
+
+export async function setThoughtStatus(id: string, status: "captured" | "archived") {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await myThought(user.id, id))) return { error: "Not your thought." };
+  await prisma.thought.update({ where: { id }, data: { status } });
+  revalidatePath("/thoughts");
+  return { ok: true };
+}
+
+export async function deleteThought(id: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await myThought(user.id, id))) return { error: "Not your thought." };
+  await prisma.thought.delete({ where: { id } });
+  revalidatePath("/thoughts");
+  return { ok: true };
+}
+
+/** Ask Claude to turn a captured thought into a proposed meeting brief. */
+export async function structureThoughtAction(
+  id: string,
+): Promise<{ ok: true; proposal: MeetingProposal } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const t = await myThought(user.id, id);
+  if (!t) return { error: "Not your thought." };
+
+  // Roster to suggest attendees from: the thought's team (or the active team).
+  const teamId = t.teamId || (await getActiveTeamId(user.id));
+  const roster = teamId ? await getTeamRoster(teamId) : [];
+  const aboutName = t.aboutUserId
+    ? (await prisma.user.findUnique({ where: { id: t.aboutUserId }, select: { name: true } }))?.name ?? null
+    : null;
+
+  try {
+    const proposal = await structureThought({
+      text: t.text,
+      detail: t.detail,
+      meetingTypeHint: t.meetingType,
+      aboutName,
+      roster: roster.map((r) => ({ id: r.id, name: r.name, title: r.title })),
+    });
+    await prisma.thought.update({ where: { id }, data: { structured: JSON.stringify(proposal) } });
+    revalidatePath(`/thoughts/${id}`);
+    return { ok: true, proposal };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not structure this thought." };
+  }
+}
+
+/** Create a real Meeting from a thought's cached proposal, and link them. */
+export async function createMeetingFromThought(
+  id: string,
+): Promise<{ ok: true; id: string } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const t = await myThought(user.id, id);
+  if (!t) return { error: "Not your thought." };
+  if (!t.structured) return { error: "Structure this thought first." };
+
+  let proposal: MeetingProposal;
+  try {
+    proposal = JSON.parse(t.structured) as MeetingProposal;
+  } catch {
+    return { error: "The saved proposal is unreadable. Structure it again." };
+  }
+
+  const teamId = t.teamId || (await getActiveTeamId(user.id));
+  if (!teamId) return { error: "Join a team before turning this into a meeting." };
+  const onTeam = await prisma.teamMember.findUnique({
+    where: { teamId_userId: { teamId, userId: user.id } },
+    select: { id: true },
+  });
+  if (!onTeam) return { error: "You're not on that team anymore." };
+
+  const attendeeIds = await resolveAttendees(teamId, user.id, proposal.attendeeIds ?? []);
+  const meeting = await prisma.meeting.create({
+    data: {
+      teamId,
+      type: proposal.meetingType,
+      title: proposal.title,
+      goal: proposal.goal || null,
+      createdById: user.id,
+      attendees: { create: attendeeIds.map((userId) => ({ userId })) },
+    },
+  });
+  await prisma.thought.update({
+    where: { id },
+    data: { status: "planned", meetingId: meeting.id },
+  });
+  revalidatePath("/thoughts");
+  revalidatePath("/meeting");
+  return { ok: true, id: meeting.id };
 }
 
 /** Set a member's per-team role (leader vs member). Managers of the team only. */

@@ -185,8 +185,9 @@ export default function AppShell({
         <footer className="max-w-5xl mx-auto px-4 py-8 text-[11px] text-stone-400 leading-relaxed">
           WorkWith is a self-report reflection tool built on the public-domain Big
           Five (IPIP-NEO-120, Goldberg / Johnson 2014). It is not a clinical,
-          diagnostic, or hiring assessment. Your responses stay in this app and are
-          never sent to a third party.
+          diagnostic, or hiring assessment. Your raw answers stay in this app. AI
+          features you choose to run (Coach, team read, score guide) send your own
+          scores to Anthropic; no one else's data is sent.
         </footer>
       </div>
     </div>

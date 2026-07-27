@@ -66,17 +66,18 @@
   --color-brand-700: #7ff0e0;
   --bg-gradient: linear-gradient(135deg, #06100d 0%, #125447 100%);
 }
-/* Ember: deep warm charcoal, bold amber accent. */
+/* Crimson: deep warm-charcoal canvas, bold red accent. (The internal id stays
+   "ember" so anyone who already selected this slot keeps it, now in red.) */
 :root[data-theme="ember"] {
-  --color-paper: #14100c;
-  --color-surface: #211a12;
-  --color-elevated: #2a2117;
-  --color-border: #3a2e1f;
-  --color-brand-50: #33260f;
-  --color-brand-200: #7a5a22;
-  --color-brand-600: #f59e0b;
-  --color-brand-700: #fcd34d;
-  --bg-gradient: linear-gradient(135deg, #14100c 0%, #533615 100%);
+  --color-paper: #150c0d;
+  --color-surface: #221315;
+  --color-elevated: #2c181b;
+  --color-border: #3f2429;
+  --color-brand-50: #3a161a;
+  --color-brand-200: #8a3236;
+  --color-brand-600: #ef4444;
+  --color-brand-700: #fca5a5;
+  --bg-gradient: linear-gradient(135deg, #150b0d 0%, #5f1622 100%);
 }
 /* Daylight: a clean LIGHT theme. White cards on a soft blue-gray canvas, dark
    ink, calm blue accent. The dark "stone" remap below is scoped OUT of this

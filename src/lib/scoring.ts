@@ -17,7 +17,7 @@
  * not a validated clinical or hiring assessment.
  */
 
-import { DomainCode, DOMAIN_ORDER, ITEMS } from "./ipip";
+import { DomainCode, DOMAIN_ORDER, ITEMS, FACETS } from "./ipip";
 
 export type Responses = Record<string, number>; // itemId -> 1..5
 
@@ -95,7 +95,10 @@ export function scoreAssessment(responses: Responses): ScoreResult {
 
   const facets: FacetScore[] = [];
   for (const d of DOMAIN_ORDER) {
-    for (let f = 1; f <= 6; f++) {
+    // Iterate only the facets that actually exist for this domain (the
+    // political O6 "Liberalism" facet is intentionally omitted), so we never
+    // emit a scored facet that has no label or items.
+    for (const f of Object.keys(FACETS[d]).map(Number)) {
       const agg = facetSums[`${d}${f}`];
       const mean = agg && agg.n > 0 ? agg.sum / agg.n : 3;
       facets.push({ domain: d, facet: f, mean, score: to100(mean) });

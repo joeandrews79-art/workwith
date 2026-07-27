@@ -127,6 +127,8 @@ model Profile {
   shared             Boolean   @default(false)
   generatedNarrative String? // JSON, canonical machine-written narrative
   editedNarrative    String? // JSON, the user's lightly-edited version (overrides generated when present)
+  coaching           String? // JSON, AI coaching plan grounded in this person's own profile (see lib/coach.ts)
+  coachingAt         DateTime? // when the coaching plan above was generated
   refreshedAt        DateTime? // = completedAt of the assessment above; drives the 12-month flag
   updatedAt          DateTime  @updatedAt
 }

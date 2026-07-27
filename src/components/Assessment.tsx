@@ -186,16 +186,16 @@ export default function Assessment({
                   aria-pressed={selected}
                   className="flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors"
                   style={{
-                    borderColor: selected ? "var(--color-brand-600)" : "#e2ddd4",
-                    background: selected ? "var(--color-brand-50)" : "#fff",
+                    borderColor: selected ? "var(--color-brand-600)" : "var(--color-border)",
+                    background: selected ? "var(--color-brand-50)" : "var(--color-elevated)",
                   }}
                 >
                   <span
                     className="grid place-items-center w-6 h-6 rounded-full border text-xs font-bold shrink-0"
                     style={{
-                      borderColor: selected ? "var(--color-brand-600)" : "#cfc9bd",
-                      background: selected ? "var(--color-brand-600)" : "#fff",
-                      color: selected ? "#fff" : "#78716c",
+                      borderColor: selected ? "var(--color-brand-600)" : "var(--color-border)",
+                      background: selected ? "var(--color-brand-600)" : "transparent",
+                      color: selected ? "#0a0f1e" : "var(--color-muted)",
                     }}
                   >
                     {o.v}

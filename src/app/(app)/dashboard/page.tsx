@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getTeamOverview } from "@/lib/team-data";
 import { formatDate, StatusPill, SharePill, StaleFlag } from "@/components/Bits";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
+import { TOTAL_ITEMS } from "@/lib/ipip";
 
 export default async function DashboardPage() {
   const user = (await getCurrentUser())!;
@@ -97,7 +98,7 @@ export default async function DashboardPage() {
                 <div className="text-xs text-stone-500 truncate">
                   {r.title ?? "Team member"}
                   {r.status === "completed" && ` · last refreshed ${formatDate(r.refreshedAt)}`}
-                  {r.status === "in_progress" && ` · ${r.answered}/120 answered`}
+                  {r.status === "in_progress" && ` · ${r.answered}/${TOTAL_ITEMS} answered`}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -146,7 +147,7 @@ function YourStatus({ me }: { me: Awaited<ReturnType<typeof getTeamOverview>>[nu
         </h2>
         <p className="text-sm text-stone-600 mt-0.5">
           {me.status === "in_progress"
-            ? `You have answered ${me.answered} of 120. Your progress is saved.`
+            ? `You have answered ${me.answered} of ${TOTAL_ITEMS}. Your progress is saved.`
             : "About 10 to 15 minutes. Your answers save as you go."}
         </p>
       </div>

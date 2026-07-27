@@ -161,7 +161,7 @@ export default function ProfileView({
                 </h4>
                 <div className="space-y-2">
                   {facets
-                    .filter((f) => f.domain === d)
+                    .filter((f) => f.domain === d && FACETS[d][f.facet])
                     .map((f) => (
                       <div key={`${f.domain}${f.facet}`}>
                         <div className="flex justify-between text-xs mb-0.5">

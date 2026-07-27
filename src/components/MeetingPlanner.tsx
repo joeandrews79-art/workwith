@@ -56,7 +56,7 @@ export default function MeetingPlanner({
                   className="flex items-center gap-2 rounded-full border pl-1.5 pr-3 py-1.5 text-sm transition-colors"
                   style={{
                     borderColor: on ? "var(--color-brand-600)" : "#e2ddd4",
-                    background: on ? "var(--color-brand-50)" : "#fff",
+                    background: on ? "var(--color-brand-50)" : "var(--color-elevated)",
                     fontWeight: on ? 600 : 400,
                   }}
                 >

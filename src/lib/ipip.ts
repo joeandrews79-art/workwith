@@ -94,12 +94,14 @@ export const FACETS: Record<DomainCode, Record<number, string>> = {
     6: "Cheerfulness",
   },
   O: {
+    // Facet 6 ("Liberalism", the political/values items) is intentionally
+    // omitted: political questions have no place in a workplace tool. Openness
+    // is scored from its five work-relevant facets below.
     1: "Imagination",
     2: "Artistic Interests",
     3: "Emotionality",
     4: "Adventurousness",
     5: "Intellect",
-    6: "Liberalism",
   },
   A: {
     1: "Trust",

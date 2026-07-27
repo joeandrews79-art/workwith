@@ -16,6 +16,15 @@ import { ITEMS } from "@/lib/ipip";
 import { scoreAssessment, serializeScores, Responses } from "@/lib/scoring";
 import { Narrative } from "@/lib/narrative";
 import { suggestQuestions } from "@/lib/ai";
+import { assembleProfile } from "@/lib/profile";
+import { getAnsweredPreferences } from "@/lib/prefs";
+import {
+  coachEnabled,
+  generateCoaching,
+  askCoach,
+  CoachingPlan,
+  CoachAnswer,
+} from "@/lib/coach";
 
 // --- Auth -------------------------------------------------------------------
 
@@ -134,8 +143,10 @@ export async function completeAssessment(assessmentId: string, responses: Respon
     update: {
       assessmentId,
       refreshedAt: completedAt,
-      // Re-taking clears prior edits so the narrative reflects the new scores.
+      // Re-taking clears prior edits and coaching so both reflect the new scores.
       editedNarrative: null,
+      coaching: null,
+      coachingAt: null,
     },
   });
 
@@ -333,6 +344,76 @@ export async function aiSuggestQuestions(instruction: string) {
     return { ok: true, ...result };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "AI request failed." };
+  }
+}
+
+// --- Coach (AI, grounded in the person's OWN profile) ----------------------
+
+/**
+ * Assemble the signed-in person's own profile into the shape the coach needs.
+ * Returns null if they have not completed the assessment yet.
+ */
+async function myCoachInput(userId: string, orgId: string, name: string) {
+  const profile = await assembleProfile(userId);
+  if (!profile || !profile.domains) return null;
+  const prefs = await getAnsweredPreferences(orgId, userId);
+  return {
+    firstName: name.trim().split(/\s+/)[0] || name,
+    domains: profile.domains,
+    facets: profile.facets,
+    narrative: profile.narrative,
+    prefs: prefs.map((p) => ({ prompt: p.prompt, answer: p.display })),
+  };
+}
+
+/** Generate (or refresh) my coaching plan and cache it on my profile. */
+export async function generateMyCoaching(): Promise<
+  { ok: true; plan: CoachingPlan } | { error: string }
+> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!coachEnabled())
+    return { error: "Coaching is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
+
+  const input = await myCoachInput(user.id, user.orgId, user.name);
+  if (!input)
+    return { error: "Complete your assessment first so your coach has something to work with." };
+
+  try {
+    const plan = await generateCoaching(input);
+    await prisma.profile.update({
+      where: { userId: user.id },
+      data: { coaching: JSON.stringify(plan), coachingAt: new Date() },
+    });
+    revalidatePath("/coach");
+    return { ok: true, plan };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Coaching request failed." };
+  }
+}
+
+/** Ask the coach about a specific situation, grounded in my profile. */
+export async function askMyCoach(
+  question: string,
+): Promise<{ ok: true; answer: CoachAnswer } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!coachEnabled())
+    return { error: "Coaching is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
+
+  const q = question.trim();
+  if (q.length < 5) return { error: "Tell your coach a little more about the situation." };
+  if (q.length > 1000) return { error: "Please keep it under 1000 characters." };
+
+  const input = await myCoachInput(user.id, user.orgId, user.name);
+  if (!input)
+    return { error: "Complete your assessment first so your coach has something to work with." };
+
+  try {
+    const answer = await askCoach({ ...input, question: q });
+    return { ok: true, answer };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Coaching request failed." };
   }
 }
 

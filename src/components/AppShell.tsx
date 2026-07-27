@@ -11,6 +11,7 @@ type IconKey =
   | "meeting"
   | "compare"
   | "discussion"
+  | "coach"
   | "me"
   | "admin";
 
@@ -37,6 +38,8 @@ function Icon({ name }: { name: IconKey }) {
       return <svg {...common}><path d="M12 3v18M5 8l-3 3 3 3M19 8l3 3-3 3" /></svg>;
     case "discussion":
       return <svg {...common}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>;
+    case "coach":
+      return <svg {...common}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" /></svg>;
     case "me":
       return <svg {...common}><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></svg>;
     case "admin":
@@ -50,6 +53,7 @@ const BASE: { href: string; label: string; icon: IconKey }[] = [
   { href: "/meeting", label: "Meeting prep", icon: "meeting" },
   { href: "/compare", label: "Compare", icon: "compare" },
   { href: "/discussion", label: "Discussion", icon: "discussion" },
+  { href: "/coach", label: "Coach", icon: "coach" },
   { href: "/me", label: "My profile", icon: "me" },
 ];
 
@@ -84,7 +88,7 @@ export default function AppShell({
             style={
               on
                 ? { background: "var(--color-brand-50)", color: "var(--color-brand-700)" }
-                : { color: "#57534e" }
+                : { color: "var(--color-muted)" }
             }
           >
             <Icon name={l.icon} />

@@ -61,7 +61,7 @@ export default async function MyProfilePage({
       {isNew && (
         <div
           className="card p-4 mb-5 flex items-start gap-3"
-          style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}
+          style={{ background: "rgba(34,197,94,0.12)", borderColor: "rgba(34,197,94,0.35)" }}
         >
           <span aria-hidden className="text-lg">✅</span>
           <div>

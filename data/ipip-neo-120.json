@@ -189,13 +189,6 @@
     "facet": 6
   },
   {
-    "id": "79186f48-e7fa-4df4-b74b-b0627ee244e1",
-    "text": "Tend to vote for liberal political candidates",
-    "keyed": "plus",
-    "domain": "O",
-    "facet": 6
-  },
-  {
     "id": "fd50e1ca-d9e0-4037-a7a1-a191d4db2d96",
     "text": "Sympathize with the homeless",
     "keyed": "plus",
@@ -396,13 +389,6 @@
     "text": "Have a lot of fun",
     "keyed": "plus",
     "domain": "E",
-    "facet": 6
-  },
-  {
-    "id": "f08e1b27-3673-4898-9cae-896482d0d9f9",
-    "text": "Believe that there is no absolute right and wrong",
-    "keyed": "plus",
-    "domain": "O",
     "facet": 6
   },
   {
@@ -609,13 +595,6 @@
     "facet": 6
   },
   {
-    "id": "96ba77b2-1a44-4dfd-95f9-ae4d1f714460",
-    "text": "Tend to vote for conservative political candidates",
-    "keyed": "minus",
-    "domain": "O",
-    "facet": 6
-  },
-  {
     "id": "77f54ab4-0fba-4efb-8700-066c7490eb87",
     "text": "Am not interested in other people's problems",
     "keyed": "minus",
@@ -816,13 +795,6 @@
     "text": "Look at the bright side of life",
     "keyed": "plus",
     "domain": "E",
-    "facet": 6
-  },
-  {
-    "id": "580b08d1-3c94-46e9-9d07-d6d80c698127",
-    "text": "Believe that we should be tough on crime",
-    "keyed": "minus",
-    "domain": "O",
     "facet": 6
   },
   {

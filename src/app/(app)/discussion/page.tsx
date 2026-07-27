@@ -28,34 +28,19 @@ export default async function DiscussionPage() {
         </p>
       </header>
 
-      {/* Discussion-mode entry into thought capture: pick a person you're
-          looking at here and capture a thought to plan a meeting about them. */}
+      {/* Discussion-mode entry into thought capture: you're looking at the team
+          here, so jot a thought to plan a meeting. Not tied to any one person. */}
       <section className="card p-5">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <h2 className="font-semibold">Had a thought? Capture it</h2>
             <p className="text-sm text-stone-500 mt-0.5">
-              Jot something you want to raise with someone here. It stays private
-              until you turn it into a meeting.
+              Jot something you want to bring up. It stays private until you turn
+              it into a meeting.
             </p>
           </div>
           <CaptureButton variant="inline" label="Capture a thought" />
         </div>
-        {members.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {members
-              .filter((m) => m.id !== user.id)
-              .map((m) => (
-                <CaptureButton
-                  key={m.id}
-                  variant="inline"
-                  presetAboutUserId={m.id}
-                  presetAboutName={m.name}
-                  label={`About ${m.name}`}
-                />
-              ))}
-          </div>
-        )}
       </section>
 
       {members.length < 2 ? (

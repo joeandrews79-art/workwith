@@ -28,7 +28,7 @@ const ITEM_SCHEMA = {
         properties: {
           topic: { type: "string" },
           purpose: { type: "string", enum: ["decision", "discussion", "information", "brainstorm"] },
-          minutes: { type: "integer", minimum: 1, maximum: 240 },
+          minutes: { type: "integer", description: "A realistic time-box in minutes, between 1 and 240." },
         },
         required: ["topic", "purpose", "minutes"],
         additionalProperties: false,
@@ -74,7 +74,9 @@ async function run(userContent: string): Promise<AgendaDraftItem[]> {
   const textBlock = response.content.find((b) => b.type === "text");
   const raw = textBlock && "text" in textBlock ? textBlock.text : "{}";
   const parsed = JSON.parse(raw) as { items: AgendaDraftItem[] };
-  return Array.isArray(parsed.items) ? parsed.items : [];
+  const items = Array.isArray(parsed.items) ? parsed.items : [];
+  // Clamp time-boxes to a sane range (schema can't express bounds).
+  return items.map((it) => ({ ...it, minutes: Math.min(240, Math.max(1, Math.round(it.minutes || 15))) }));
 }
 
 /** Draft a fresh agenda from the meeting's shape. */

@@ -30,6 +30,32 @@ export function SharePill({ shared }: { shared: boolean }) {
   );
 }
 
+/** Shown on team-scoped pages when the viewer belongs to no team yet. */
+export function NoTeam() {
+  return (
+    <div className="card p-8 text-center max-w-md mx-auto mt-8">
+      <p className="font-semibold">You're not on a team yet</p>
+      <p className="text-sm text-stone-500 mt-1">
+        Ask an admin to add you to a team. Once you're on one, your dashboard and
+        team views will appear here.
+      </p>
+    </div>
+  );
+}
+
+/** A small "Leader" tag for someone who leads the team being viewed. */
+export function LeaderPill() {
+  return (
+    <span
+      className="pill text-[10px]"
+      style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}
+      title="Leads this team"
+    >
+      Leader
+    </span>
+  );
+}
+
 export function StaleFlag() {
   return (
     <span className="pill bg-orange-50 text-orange-700" title="Older than 12 months">

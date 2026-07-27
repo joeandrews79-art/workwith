@@ -1,14 +1,18 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getVisibleMembers } from "@/lib/team-data";
+import { getVisibleTeamMembers } from "@/lib/team-data";
+import { getActiveTeamContext } from "@/lib/active-team";
 import { discussionPoints, teamStats } from "@/lib/team";
 import { DOMAIN_ORDER, DOMAINS } from "@/lib/ipip";
 import { DOMAIN_COLOR } from "@/lib/ui";
+import { NoTeam } from "@/components/Bits";
 
 export const dynamic = "force-dynamic";
 
 export default async function DiscussionPage() {
   const user = (await getCurrentUser())!;
-  const members = await getVisibleMembers(user.orgId, user.id);
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return <NoTeam />;
+  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
   const points = discussionPoints(members);
   const stats = members.length >= 2 ? teamStats(members) : null;
 

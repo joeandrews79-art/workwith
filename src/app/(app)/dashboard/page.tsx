@@ -1,54 +1,88 @@
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth";
-import { getTeamOverview } from "@/lib/team-data";
-import { formatDate, StatusPill, SharePill, StaleFlag } from "@/components/Bits";
+import { getCurrentUser, isAdmin } from "@/lib/auth";
+import { getTeamMemberRows, OverviewRow } from "@/lib/team-data";
+import { getActiveTeamContext } from "@/lib/active-team";
+import {
+  formatDate,
+  StatusPill,
+  SharePill,
+  StaleFlag,
+  LeaderPill,
+  NoTeam,
+} from "@/components/Bits";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
 import { TOTAL_ITEMS } from "@/lib/ipip";
 
 export default async function DashboardPage() {
   const user = (await getCurrentUser())!;
-  const rows = await getTeamOverview(user.orgId);
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return <NoTeam />;
+
+  const rows = await getTeamMemberRows(activeTeam.id);
+  const canLead = isAdmin(user) || activeTeam.role === "LEADER";
 
   const total = rows.length;
   const completed = rows.filter((r) => r.status === "completed").length;
   const shared = rows.filter((r) => r.status === "completed" && r.shared).length;
-  const stale = rows.filter((r) => r.stale);
   const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
-
-  const me = rows.find((r) => r.id === user.id)!;
+  const me = rows.find((r) => r.id === user.id);
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Team dashboard</h1>
-        <p className="text-stone-500 mt-1">
-          Where the team stands on completing and sharing working-style profiles.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight">{activeTeam.name}</h1>
+            {canLead && <LeaderPill />}
+          </div>
+          <p className="text-stone-500 mt-1">
+            {canLead
+              ? "Where your team stands on completing and sharing working-style profiles."
+              : "Your team and how far along everyone is, together."}
+          </p>
+        </div>
+        {canLead && (
+          <Link href="/teams/manage" className="btn btn-secondary py-1.5 text-sm shrink-0">
+            Manage team
+          </Link>
+        )}
       </header>
 
-      {/* Your status */}
-      <YourStatus me={me} />
+      {me && <YourStatus me={me} />}
 
-      {/* Metrics */}
+      {canLead ? (
+        <LeaderView rows={rows} total={total} completed={completed} shared={shared} pct={pct} viewerId={user.id} />
+      ) : (
+        <MemberView rows={rows} total={total} completed={completed} shared={shared} pct={pct} viewerId={user.id} />
+      )}
+    </div>
+  );
+}
+
+// --- Leader / admin view: full oversight -----------------------------------
+
+function LeaderView({
+  rows,
+  total,
+  completed,
+  shared,
+  pct,
+  viewerId,
+}: {
+  rows: OverviewRow[];
+  total: number;
+  completed: number;
+  shared: number;
+  pct: (n: number) => number;
+  viewerId: string;
+}) {
+  const stale = rows.filter((r) => r.stale);
+  return (
+    <>
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Metric
-          label="Completed"
-          value={`${pct(completed)}%`}
-          sub={`${completed} of ${total} · target 100%`}
-          pct={pct(completed)}
-        />
-        <Metric
-          label="Completed & shared"
-          value={`${pct(shared)}%`}
-          sub={`${shared} of ${total} visible to the team`}
-          pct={pct(shared)}
-        />
-        <Metric
-          label="Refresh due"
-          value={`${stale.length}`}
-          sub={stale.length ? "Profiles older than 12 months" : "Everyone is current"}
-          tone={stale.length ? "warn" : "ok"}
-        />
+        <Metric label="Completed" value={`${pct(completed)}%`} sub={`${completed} of ${total} · target 100%`} pct={pct(completed)} />
+        <Metric label="Completed & shared" value={`${pct(shared)}%`} sub={`${shared} of ${total} visible to the team`} pct={pct(shared)} />
+        <Metric label="Refresh due" value={`${stale.length}`} sub={stale.length ? "Profiles older than 12 months" : "Everyone is current"} tone={stale.length ? "warn" : "ok"} />
       </section>
 
       {stale.length > 0 && (
@@ -72,28 +106,17 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      {/* Completion table */}
       <section>
         <h2 className="font-semibold mb-3">Completion by person</h2>
         <div className="card divide-y divide-stone-100 overflow-hidden">
           {rows.map((r) => (
             <div key={r.id} className="flex items-center gap-3 px-4 py-3">
-              <span
-                className="grid place-items-center w-9 h-9 rounded-full text-xs font-bold shrink-0"
-                style={{ background: avatarColor(r.name), color: avatarInkColor(r.name) }}
-                aria-hidden
-              >
-                {initials(r.name)}
-              </span>
+              <Avatar name={r.name} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{r.name}</span>
-                  {r.role === "ADMIN" && (
-                    <span className="pill bg-stone-100 text-stone-500 text-[10px]">Admin</span>
-                  )}
-                  {r.id === user.id && (
-                    <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>
-                  )}
+                  {r.teamRole === "LEADER" && <LeaderPill />}
+                  {r.id === viewerId && <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>}
                 </div>
                 <div className="text-xs text-stone-500 truncate">
                   {r.title ?? "Team member"}
@@ -105,8 +128,8 @@ export default async function DashboardPage() {
                 {r.stale && <StaleFlag />}
                 {r.status === "completed" && <SharePill shared={r.shared} />}
                 <StatusPill status={r.status} />
-                {r.status === "completed" && (r.shared || r.id === user.id) && (
-                  <Link href={`/profile/${r.id}`} className="btn btn-secondary py-1 px-2.5 text-xs hidden sm:inline-flex">
+                {r.status === "completed" && (r.shared || r.id === viewerId) && (
+                  <Link href={r.id === viewerId ? "/me" : `/profile/${r.id}`} className="btn btn-secondary py-1 px-2.5 text-xs hidden sm:inline-flex">
                     View
                   </Link>
                 )}
@@ -115,11 +138,93 @@ export default async function DashboardPage() {
           ))}
         </div>
       </section>
-    </div>
+    </>
   );
 }
 
-function YourStatus({ me }: { me: Awaited<ReturnType<typeof getTeamOverview>>[number] }) {
+// --- Member view: roster + team completion, no per-person oversight --------
+
+function MemberView({
+  rows,
+  total,
+  completed,
+  shared,
+  pct,
+  viewerId,
+}: {
+  rows: OverviewRow[];
+  total: number;
+  completed: number;
+  shared: number;
+  pct: (n: number) => number;
+  viewerId: string;
+}) {
+  return (
+    <>
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Metric label="Team completed" value={`${pct(completed)}%`} sub={`${completed} of ${total} have finished`} pct={pct(completed)} />
+        <Metric label="Shared with the team" value={`${pct(shared)}%`} sub={`${shared} profiles you can open`} pct={pct(shared)} />
+      </section>
+
+      <section>
+        <h2 className="font-semibold mb-1">Who's on the team</h2>
+        <p className="text-sm text-stone-500 mb-3">
+          Open anyone who has shared their profile to see how they like to work.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {rows.map((r) => {
+            const viewable = r.status === "completed" && (r.shared || r.id === viewerId);
+            const Card = (
+              <div className="card p-4 h-full flex items-start gap-3 transition-shadow hover:shadow-sm">
+                <Avatar name={r.name} size={11} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold truncate">{r.name}</span>
+                    {r.teamRole === "LEADER" && <LeaderPill />}
+                    {r.id === viewerId && <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>}
+                  </div>
+                  <p className="text-sm text-stone-500 truncate">{r.title ?? "Team member"}</p>
+                  {viewable && (
+                    <div className="mt-2">
+                      <SharePill shared />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+            return viewable ? (
+              <Link key={r.id} href={r.id === viewerId ? "/me" : `/profile/${r.id}`} className="block">
+                {Card}
+              </Link>
+            ) : (
+              <div key={r.id}>{Card}</div>
+            );
+          })}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Avatar({ name, size = 9 }: { name: string; size?: number }) {
+  return (
+    <span
+      className="grid place-items-center rounded-full font-bold shrink-0"
+      style={{
+        width: `${size * 4}px`,
+        height: `${size * 4}px`,
+        fontSize: size >= 11 ? "0.875rem" : "0.75rem",
+        background: avatarColor(name),
+        color: avatarInkColor(name),
+      }}
+      aria-hidden
+    >
+      {initials(name)}
+    </span>
+  );
+}
+
+function YourStatus({ me }: { me: OverviewRow }) {
   if (me.status === "completed") {
     return (
       <section className="card p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
@@ -171,8 +276,7 @@ function Metric({
   pct?: number;
   tone?: "brand" | "warn" | "ok";
 }) {
-  const barColor =
-    tone === "warn" ? "#ea580c" : tone === "ok" ? "#16a34a" : "var(--color-brand-600)";
+  const barColor = tone === "warn" ? "#ea580c" : tone === "ok" ? "#16a34a" : "var(--color-brand-600)";
   return (
     <div className="card p-5">
       <div className="text-sm text-stone-500">{label}</div>

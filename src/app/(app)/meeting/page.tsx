@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { getVisibleMembers } from "@/lib/team-data";
+import { getVisibleTeamMembers } from "@/lib/team-data";
+import { getActiveTeamContext } from "@/lib/active-team";
+import { NoTeam } from "@/components/Bits";
 import MeetingPlanner from "@/components/MeetingPlanner";
 
 export const dynamic = "force-dynamic";
 
 export default async function MeetingPage() {
   const user = (await getCurrentUser())!;
-  const members = await getVisibleMembers(user.orgId, user.id);
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return <NoTeam />;
+  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
   const viewer = members.find((m) => m.id === user.id);
   const others = members.filter((m) => m.id !== user.id);
 

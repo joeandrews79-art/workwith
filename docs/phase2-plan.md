@@ -95,8 +95,23 @@ fleeting. Capture them in one tap, then turn them into structured meetings.
   aware), a draft agenda, key talking points, and the desired outcome. That draft
   becomes a **Meeting** you can edit.
 
-**Data:** new `Thought { userId, text, detail?, teamId?, meetingType?, status:
-captured|planned|archived, createdAt }`, optionally linked to a `Meeting`.
+**Entry point from Discussion mode (Joe, 2026-07-27):** Discussion mode is where
+you're already looking at the team, so it should be a launch pad for planning.
+From Discussion mode the user can **pick a specific team member** and **capture /
+upload thoughts about them or a topic** ("need to talk to Marcus about how we
+challenge decisions in reviews"). Those thoughts attach to that person and flow
+straight into meeting planning: "Structure this" then drafts a meeting (or a 1:1)
+that is working-style aware for that person — e.g. it already knows Marcus leans
+direct and Priya leans structured, and shapes the approach accordingly. So the
+thought is not just free text; it can be **anchored to a member** and turned into
+a person-aware plan. "Upload" here means jotting or pasting notes into the app
+(text first; file/paste is a later nicety), not sharing them with that person —
+thoughts stay private until they become a shared meeting.
+
+**Data:** new `Thought { userId, text, detail?, teamId?, aboutUserId?,
+meetingType?, status: captured|planned|archived, createdAt }`, optionally linked
+to a `Meeting`. `aboutUserId` is the "anchored to a team member" link above and
+stays private to the author.
 
 **Privacy:** thoughts are personal by default (only you see them). If a thought
 becomes a shared meeting, only then does it surface to attendees. Be explicit

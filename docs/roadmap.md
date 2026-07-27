@@ -3,6 +3,41 @@
 What's built, and what's deliberately staged next. Ordered by how much
 foundation each item needs.
 
+## ⭐ NEXT SESSION (before Phase 3): calendar import + calendar view (owner, 2026-07-27)
+
+**Constraint / why:** for **CUI (Controlled Unclassified Information)** security
+reasons we **cannot** connect WorkWith directly to a work calendar (no Google /
+Microsoft OAuth or API sync). So we need a fast manual way to get planned
+meetings INTO the Meetings tab, plus a calendar-style view to run them.
+
+**1. Image upload → analyze → create the meeting.**
+- Add an "upload a meeting" option: drop in a screenshot / photo of a calendar
+  event or invite; **Claude (vision)** reads it and extracts the details (title,
+  date, start time, duration or end, attendees it can match to the team roster,
+  best-guess meeting type), then pre-fills / creates the Meeting for review.
+- Reuses the existing Meeting object + `MeetingComposer`; the new piece is a
+  vision call (Anthropic SDK supports image input) returning the same shape as
+  "Structure this" (see `lib/structure.ts` for the pattern).
+- ⚠️ **PRIVACY / COMPLIANCE FLAG:** the premise is CUI, yet uploading a calendar
+  image sends that content to Anthropic. Only OK if the meeting metadata itself
+  (title / time / attendees) is **not** CUI. Confirm with owner before building;
+  always keep a plain manual-entry path; add clear consent copy; never send
+  anything that could be CUI to the API.
+
+**2. Meetings tab as a day / week calendar view.**
+- Turn (or toggle) the Meetings list into a **daily / weekly calendar grid** with
+  meetings laid out on a timeline by their scheduled time.
+- **Cancel** from the grid, and **move / reschedule** by dragging or editing the
+  time.
+- **SCHEMA NOTE:** `Meeting.scheduledFor` is currently a date-only `DateTime`. A
+  timeline needs a real **start time + duration** (add `startAt` / `durationMin`
+  or a start/end pair). Do this first.
+
+**Open questions to settle when we build:** calendar view replaces the list or
+toggles with it? day + week (+ month?) views? drag-to-move vs edit-a-time-field
+first? which fields the image analysis returns and how it matches attendees to
+the roster? plus the CUI confirmation above.
+
 ## Shipped (local prototype)
 
 - Big Five assessment (IPIP-NEO-120), autosave/resume, mobile-friendly.

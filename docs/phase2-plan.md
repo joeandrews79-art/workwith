@@ -1,6 +1,7 @@
 # WorkWith — Phase 2 plan (meetings, thought capture, multi-team)
 
-Status: planning. Captured 2026-07-27 from Joe's asks. Nothing here is built yet.
+Status: **Phase 2 COMPLETE — items 1-4 built + live 2026-07-27.** Item 5
+(configurable Coach + feedback model) was **moved to Phase 3** (Joe, 2026-07-27).
 
 Phase 1 (live) turns a person's working style into a shareable profile, a team
 view, a meeting-prep read, and a personal Coach. Phase 2 turns WorkWith from a
@@ -188,9 +189,13 @@ with `AgendaItem[] { meetingId, order, topic, purpose, minutes?, ownerId? }`.
 
 ---
 
-## 5. ⚠️ REMINDER — customize the Coach and the feedback model
+## 5. Customize the Coach and the feedback model — MOVED TO PHASE 3
 
-**Joe asked to make sure this is addressed in Phase 2.**
+> **DEFERRED to Phase 3 (Joe, 2026-07-27).** Phase 2 ships as items 1-4 (all
+> built + live). This configurable-org-context work is the multi-tenant unlock,
+> so it belongs with the broader productization push rather than blocking the
+> Phase 2 close. The notes below are the starting spec for whenever Phase 3
+> picks it up.
 
 Today the Coach and the admin question assistant use a **hardcoded Rise8**
 `ORG_CONTEXT` in `src/lib/ai.ts` (values, voice, "blunt reads as respect," no
@@ -211,14 +216,14 @@ read from the same org context and should be tunable in one place.
 
 ---
 
-## Suggested build order
+## Build order — Phase 2 COMPLETE (items 1-4 built + live 2026-07-27)
 
-1. **Multiple teams** (foundation: switcher + team-scoped views + team admin).
-2. **Meeting object + meeting types** (persist prep as a saved Meeting).
-3. **Thought capture** (quick capture → "structure this" → Meeting draft).
-4. **Agenda helper** (manual + AI, working-style aware, shareable).
-5. **Configurable Coach + feedback model** (org context editor, per-user coach
-   prefs) — also the multi-tenant unlock.
+1. ✅ **Multiple teams** (foundation: switcher + team-scoped views + per-team roles).
+2. ✅ **Meeting object + meeting types** (persist prep as a saved Meeting).
+3. ✅ **Thought capture** (quick capture → "structure this" → Meeting draft).
+4. ✅ **Agenda helper** (manual + AI, shareable/exportable).
+5. ➡️ **Configurable Coach + feedback model** (org context editor, per-user coach
+   prefs) — **MOVED TO PHASE 3**, also the multi-tenant unlock.
 
 ## Cross-cutting
 - **Permissions:** team admins/owners vs org admins; who can see whose thoughts and

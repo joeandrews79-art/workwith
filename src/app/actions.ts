@@ -37,6 +37,7 @@ import { generateTeamRead, teamReadEnabled, TeamReadResult, TeamReadTrait } from
 import { generateInterpretation, interpretEnabled, InterpretationResult } from "@/lib/interpret";
 import { extractMeetingFromImage, visionEnabled, VisionMediaType } from "@/lib/meeting-vision";
 import { timeInputToMinute } from "@/lib/calendar";
+import { generateMeetingIdeas, brainstormEnabled, MeetingIdea } from "@/lib/brainstorm";
 
 // --- Auth -------------------------------------------------------------------
 
@@ -303,7 +304,7 @@ export async function setActiveTeam(teamId: string) {
   revalidatePath("/dashboard");
   revalidatePath("/directory");
   revalidatePath("/compare");
-  revalidatePath("/discussion");
+  revalidatePath("/team-map");
   revalidatePath("/meeting");
   return { ok: true };
 }
@@ -962,6 +963,90 @@ export async function createMeetingFromThought(
     data: { status: "planned", meetingId: meeting.id },
   });
   revalidatePath("/thoughts");
+  revalidatePath("/meeting");
+  return { ok: true, id: meeting.id };
+}
+
+// --- Brainstorm meetings (Thoughts tab) ------------------------------------
+
+export interface BrainstormedIdea {
+  title: string;
+  meetingType: MeetingTypeCode;
+  meetingTypeLabel: string;
+  goal: string;
+  why: string;
+  attendeeIds: string[];
+  attendeeNames: string[];
+}
+
+/** From a rough prompt, suggest a few concrete meeting ideas (AI). */
+export async function brainstormMeetings(
+  prompt: string,
+): Promise<{ ok: true; ideas: BrainstormedIdea[] } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!brainstormEnabled())
+    return { error: "This is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
+  const p = prompt.trim();
+  if (p.length < 5) return { error: "Tell it a little more about what you're trying to move forward." };
+  if (p.length > 1000) return { error: "Please keep it under 1000 characters." };
+
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  const roster = activeTeam ? await getTeamRoster(activeTeam.id) : [];
+  const nameById = new Map(roster.map((r) => [r.id, r.name] as const));
+
+  try {
+    const ideas = await generateMeetingIdeas({
+      prompt: p,
+      roster: roster.map((r) => ({ id: r.id, name: r.name, title: r.title })),
+    });
+    return {
+      ok: true,
+      ideas: ideas.map((i) => ({
+        title: i.title,
+        meetingType: i.meetingType,
+        meetingTypeLabel: MEETING_TYPES.find((t) => t.code === i.meetingType)?.label ?? i.meetingType,
+        goal: i.goal,
+        why: i.why,
+        attendeeIds: i.attendeeIds,
+        attendeeNames: i.attendeeIds.map((id) => nameById.get(id)).filter(Boolean) as string[],
+      })),
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not brainstorm right now." };
+  }
+}
+
+const ideaSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  meetingType: z.enum(MEETING_TYPES.map((t) => t.code) as [string, ...string[]]),
+  goal: z.string().trim().max(500).optional().nullable(),
+  attendeeIds: z.array(z.string()).max(50),
+});
+
+/** Turn a brainstormed idea straight into a meeting on the active team. */
+export async function createMeetingFromIdea(
+  input: z.infer<typeof ideaSchema>,
+): Promise<{ ok: true; id: string } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const parsed = ideaSchema.safeParse(input);
+  if (!parsed.success) return { error: "That idea was missing a title or type." };
+
+  const teamId = await getActiveTeamId(user.id);
+  if (!teamId) return { error: "Join a team before creating a meeting." };
+
+  const attendeeIds = await resolveAttendees(teamId, user.id, parsed.data.attendeeIds);
+  const meeting = await prisma.meeting.create({
+    data: {
+      teamId,
+      type: parsed.data.meetingType,
+      title: parsed.data.title,
+      goal: parsed.data.goal || null,
+      createdById: user.id,
+      attendees: { create: attendeeIds.map((userId) => ({ userId })) },
+    },
+  });
   revalidatePath("/meeting");
   return { ok: true, id: meeting.id };
 }

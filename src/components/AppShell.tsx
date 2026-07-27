@@ -65,7 +65,6 @@ const BASE: { href: string; label: string; icon: IconKey }[] = [
   { href: "/meeting", label: "Meetings", icon: "meeting" },
   { href: "/thoughts", label: "Thoughts", icon: "thoughts" },
   { href: "/compare", label: "Compare", icon: "compare" },
-  { href: "/discussion", label: "Discussion", icon: "discussion" },
   { href: "/coach", label: "Coach", icon: "coach" },
   { href: "/me", label: "My profile", icon: "me" },
 ];

@@ -2,9 +2,11 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { listMyThoughts, ThoughtView } from "@/lib/thoughts";
 import { meetingType } from "@/lib/meeting-types";
+import { brainstormEnabled } from "@/lib/brainstorm";
 import { formatDate } from "@/components/Bits";
 import CaptureButton from "@/components/CaptureButton";
 import ThoughtRowActions from "@/components/ThoughtRowActions";
+import BrainstormMeetings from "@/components/BrainstormMeetings";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +30,8 @@ export default async function ThoughtsPage() {
           you're ready. Only you can see these until they become a meeting.
         </p>
       </header>
+
+      {brainstormEnabled() && <BrainstormMeetings />}
 
       {sorted.length === 0 ? (
         <div className="card p-8 text-center">

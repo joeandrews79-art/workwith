@@ -59,7 +59,23 @@ thought capture, and agendas all hang off the right team from day one.
 
 ---
 
-## 2. Meeting types
+## 2. Meeting object + meeting types
+
+> **STATUS: BUILT 2026-07-27** (branch `feat/meeting-object`). Meeting prep is now
+> a saved **Meeting** object tied to the active team, with a **type** that frames
+> the working-style prep.
+> - New models `Meeting` + `MeetingAttendee` (`lib/meeting-types.ts` holds the 6
+>   types and their deterministic "lens" copy).
+> - Six types: internal team sync, leadership/strategy, 1:1, customer/sales call,
+>   all-hands, retro. Each carries a goal shape, an example goal, and lens
+>   pointers appended to the brief.
+> - `/meeting` = saved meetings list; `/meeting/new` + `/meeting/[id]/edit` =
+>   composer with a **live type-aware preview**; `/meeting/[id]` = saved meeting
+>   with the brief recomputed from attendees (always current). Creator or a team
+>   leader/admin can edit/delete. Nav renamed "Meeting prep" → "Meetings".
+> - The generated brief is NOT stored; it is recomputed from attendee profiles,
+>   so it stays in sync and respects share-gating.
+> - Agenda (item 4) is the natural next add onto this Meeting object.
 
 **Why:** advice and agendas for an internal team sync, a leadership strategy
 session, and a customer/sales call should be shaped very differently.

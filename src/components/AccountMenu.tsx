@@ -79,7 +79,7 @@ export default function AccountMenu({
       {open && (
         <div
           role="menu"
-          className={`card absolute right-0 w-60 p-1.5 shadow-lg z-30 ${openUp ? "bottom-full mb-2" : "mt-2"}`}
+          className={`card absolute p-1.5 shadow-lg z-30 ${openUp ? "left-0 w-56 bottom-full mb-2" : "right-0 w-60 mt-2"}`}
         >
           <div className="px-3 py-2">
             <p className="text-sm font-semibold truncate">{name}</p>

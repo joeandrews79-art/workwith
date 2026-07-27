@@ -96,6 +96,23 @@ meeting prep, and pass the type into the prep + agenda AI prompts.
 
 ## 3. Thought capture
 
+> **STATUS: BUILT 2026-07-27** (branch `feat/thought-capture`). Fleeting ideas
+> become structured meetings.
+> - New `Thought` model. Owner-only until it becomes a meeting.
+> - Quick-capture: "+ Capture a thought" in the sidebar (and mobile drawer), plus
+>   a per-person entry from Discussion mode (anchors the thought to that member).
+>   Fields: text, detail, optional team / about-person / meeting type.
+> - Thoughts inbox at `/thoughts` (captured / planned / archived), archive/delete.
+> - **"Structure this"** (`lib/structure.ts`) asks Claude for a proposed meeting
+>   (title, type, goal, suggested attendees from the roster, draft agenda with
+>   purposes, talking points, outcome), cached on the thought. "Create this
+>   meeting" turns it into a real Meeting (item 2) and links the two.
+> - PRIVACY: thoughts are private to the author; "Structure this" sends only the
+>   thought text + roster names/titles to Claude, never psychometric profiles.
+>   The working-style prep comes from the local deterministic engine on the
+>   resulting meeting. (Flag to owner: deeper AI style-tailoring would be a
+>   separate opt-in.)
+
 **Why (Joe's example):** "I'm prepping for a meeting and I just had a thought, I
 need to discuss this, can you help me structure the meeting." Thoughts are
 fleeting. Capture them in one tap, then turn them into structured meetings.

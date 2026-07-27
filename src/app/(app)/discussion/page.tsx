@@ -5,6 +5,7 @@ import { discussionPoints, teamStats } from "@/lib/team";
 import { DOMAIN_ORDER, DOMAINS } from "@/lib/ipip";
 import { DOMAIN_COLOR } from "@/lib/ui";
 import { NoTeam } from "@/components/Bits";
+import CaptureButton from "@/components/CaptureButton";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,36 @@ export default async function DiscussionPage() {
           {members.length === 1 ? "profile" : "profiles"}.
         </p>
       </header>
+
+      {/* Discussion-mode entry into thought capture: pick a person you're
+          looking at here and capture a thought to plan a meeting about them. */}
+      <section className="card p-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="font-semibold">Had a thought? Capture it</h2>
+            <p className="text-sm text-stone-500 mt-0.5">
+              Jot something you want to raise with someone here. It stays private
+              until you turn it into a meeting.
+            </p>
+          </div>
+          <CaptureButton variant="inline" label="Capture a thought" />
+        </div>
+        {members.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {members
+              .filter((m) => m.id !== user.id)
+              .map((m) => (
+                <CaptureButton
+                  key={m.id}
+                  variant="inline"
+                  presetAboutUserId={m.id}
+                  presetAboutName={m.name}
+                  label={`About ${m.name}`}
+                />
+              ))}
+          </div>
+        )}
+      </section>
 
       {members.length < 2 ? (
         <p className="text-sm text-stone-500">

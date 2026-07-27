@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AccountMenu from "@/components/AccountMenu";
 import TeamSwitcher from "@/components/TeamSwitcher";
+import CaptureButton from "@/components/CaptureButton";
 
 type IconKey =
   | "dashboard"
@@ -14,6 +15,7 @@ type IconKey =
   | "discussion"
   | "coach"
   | "me"
+  | "thoughts"
   | "manage"
   | "admin";
 
@@ -44,6 +46,8 @@ function Icon({ name }: { name: IconKey }) {
       return <svg {...common}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" /></svg>;
     case "me":
       return <svg {...common}><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></svg>;
+    case "thoughts":
+      return <svg {...common}><path d="M9 18h6M10 22h4" /><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z" /></svg>;
     case "manage":
       return <svg {...common}><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>;
     case "admin":
@@ -55,6 +59,7 @@ const BASE: { href: string; label: string; icon: IconKey }[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { href: "/directory", label: "Team", icon: "team" },
   { href: "/meeting", label: "Meetings", icon: "meeting" },
+  { href: "/thoughts", label: "Thoughts", icon: "thoughts" },
   { href: "/compare", label: "Compare", icon: "compare" },
   { href: "/discussion", label: "Discussion", icon: "discussion" },
   { href: "/coach", label: "Coach", icon: "coach" },
@@ -129,6 +134,9 @@ export default function AppShell({
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-52 flex-col border-r border-stone-200 bg-white/70 backdrop-blur z-20">
         <Brand />
         <TeamSwitcher teams={teams} activeTeamId={activeTeamId} />
+        <div className="px-2 pt-2">
+          <CaptureButton />
+        </div>
         <NavLinks />
         <div className="border-t border-stone-100 p-2">
           <AccountMenu name={name} email={email} isAdmin={isAdmin} openUp showName />
@@ -159,6 +167,9 @@ export default function AppShell({
               </button>
             </div>
             <TeamSwitcher teams={teams} activeTeamId={activeTeamId} />
+            <div className="px-2 pt-2">
+              <CaptureButton />
+            </div>
             <NavLinks />
           </div>
         </div>

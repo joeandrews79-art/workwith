@@ -810,5 +810,33 @@
     "keyed": "minus",
     "domain": "C",
     "facet": 6
+  },
+  {
+    "id": "315f94e7-de69-4cac-a195-2c058ee816b1",
+    "text": "Enjoy hearing new ideas",
+    "keyed": "plus",
+    "domain": "O",
+    "facet": 6
+  },
+  {
+    "id": "3cafbdac-1a88-4d3a-b3d0-4613bd6b6d13",
+    "text": "Like to explore new ways of doing things",
+    "keyed": "plus",
+    "domain": "O",
+    "facet": 6
+  },
+  {
+    "id": "a85c3a86-422a-41ea-834d-d2c28ca651c2",
+    "text": "Prefer to stick with familiar ways of working",
+    "keyed": "minus",
+    "domain": "O",
+    "facet": 6
+  },
+  {
+    "id": "a0b790e0-7555-4767-8778-b430860dd942",
+    "text": "Am not interested in abstract ideas",
+    "keyed": "minus",
+    "domain": "O",
+    "facet": 6
   }
 ]

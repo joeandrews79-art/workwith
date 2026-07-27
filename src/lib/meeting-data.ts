@@ -46,6 +46,16 @@ export async function listTeamMeetings(teamId: string): Promise<MeetingSummary[]
   }));
 }
 
+export interface AgendaItemView {
+  id: string;
+  order: number;
+  topic: string;
+  purpose: "decision" | "discussion" | "information" | "brainstorm";
+  minutes: number | null;
+  ownerId: string | null;
+  ownerName: string | null;
+}
+
 export interface MeetingDetail {
   id: string;
   teamId: string;
@@ -56,6 +66,7 @@ export interface MeetingDetail {
   createdById: string;
   createdByName: string;
   attendees: { id: string; name: string; title: string | null; hasProfile: boolean }[];
+  agenda: AgendaItemView[];
   /** Current viewer as a Member (their scores), if they've completed a profile. */
   viewerMember: Member | null;
   /** Other attendees, excluding the viewer, whose profiles are visible. */
@@ -76,6 +87,7 @@ export async function getMeetingDetail(
     where: { id: meetingId },
     include: {
       createdBy: { select: { name: true } },
+      agenda: { orderBy: { order: "asc" } },
       attendees: {
         include: {
           user: {
@@ -132,6 +144,17 @@ export async function getMeetingDetail(
     .filter((a) => a.id !== viewerId && a.domains && (a.shared || a.id === viewerId))
     .map((a) => ({ id: a.id, name: a.name, domains: a.domains! }));
 
+  const nameById = new Map(attendees.map((a) => [a.id, a.name] as const));
+  const agenda: AgendaItemView[] = m.agenda.map((a) => ({
+    id: a.id,
+    order: a.order,
+    topic: a.topic,
+    purpose: a.purpose as AgendaItemView["purpose"],
+    minutes: a.minutes,
+    ownerId: a.ownerId,
+    ownerName: a.ownerId ? nameById.get(a.ownerId) ?? null : null,
+  }));
+
   return {
     id: m.id,
     teamId: m.teamId,
@@ -142,6 +165,7 @@ export async function getMeetingDetail(
     createdById: m.createdById,
     createdByName: m.createdBy.name,
     attendees: attendees.map((a) => ({ id: a.id, name: a.name, title: a.title, hasProfile: a.hasProfile })),
+    agenda,
     viewerMember,
     otherMembers,
   };

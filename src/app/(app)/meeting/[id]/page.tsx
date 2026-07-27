@@ -3,13 +3,15 @@ import { redirect } from "next/navigation";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { canLeadTeam } from "@/lib/active-team";
 import { prisma } from "@/lib/db";
-import { getMeetingDetail } from "@/lib/meeting-data";
+import { getMeetingDetail, AgendaItemView } from "@/lib/meeting-data";
 import { meetingType } from "@/lib/meeting-types";
 import { buildMeetingBrief } from "@/lib/meeting";
 import { formatDate } from "@/components/Bits";
 import { initials, avatarColor, avatarInkColor } from "@/lib/ui";
+import { aiEnabled } from "@/lib/ai";
 import MeetingBriefView from "@/components/MeetingBriefView";
 import MeetingActions from "@/components/MeetingActions";
+import AgendaEditor from "@/components/AgendaEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +87,17 @@ export default async function MeetingDetailPage({
         </div>
       </header>
 
+      {canManage ? (
+        <AgendaEditor
+          meetingId={detail.id}
+          items={detail.agenda}
+          attendees={detail.attendees.map((a) => ({ id: a.id, name: a.name }))}
+          aiEnabled={aiEnabled()}
+        />
+      ) : (
+        detail.agenda.length > 0 && <AgendaReadOnly items={detail.agenda} />
+      )}
+
       {brief ? (
         <MeetingBriefView brief={brief} />
       ) : (
@@ -118,5 +131,35 @@ export default async function MeetingDetailPage({
         </>
       )}
     </div>
+  );
+}
+
+const PURPOSE_LABEL: Record<string, string> = {
+  decision: "Decision",
+  discussion: "Discussion",
+  information: "Info",
+  brainstorm: "Brainstorm",
+};
+
+function AgendaReadOnly({ items }: { items: AgendaItemView[] }) {
+  const total = items.reduce((s, i) => s + (i.minutes ?? 0), 0);
+  return (
+    <section className="card p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <h2 className="font-semibold">Agenda</h2>
+        {total > 0 && <span className="text-xs text-stone-400">{total} min total</span>}
+      </div>
+      <ol className="space-y-2">
+        {items.map((a, i) => (
+          <li key={a.id} className="flex items-start gap-2 text-sm">
+            <span className="text-stone-400 tabular-nums">{i + 1}.</span>
+            <span className="text-stone-700 flex-1">{a.topic}</span>
+            {a.minutes ? <span className="text-xs text-stone-400 shrink-0">{a.minutes}m</span> : null}
+            <span className="pill bg-stone-100 text-stone-500 text-[10px] shrink-0">{PURPOSE_LABEL[a.purpose] ?? a.purpose}</span>
+            {a.ownerName && <span className="text-[11px] text-stone-400 shrink-0">{a.ownerName}</span>}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }

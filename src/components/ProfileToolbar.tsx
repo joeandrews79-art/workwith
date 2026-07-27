@@ -70,6 +70,9 @@ export default function ProfileToolbar({
           <Link href="/me/edit" className="btn btn-secondary py-1.5 text-sm">
             {edited ? "Edit wording" : "Personalize wording"}
           </Link>
+          <a href="/report" className="btn btn-secondary py-1.5 text-sm">
+            PDF report
+          </a>
           <a href="/api/export" className="btn btn-ghost py-1.5 text-sm">
             Export
           </a>

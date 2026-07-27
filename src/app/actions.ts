@@ -18,7 +18,8 @@ import { Narrative } from "@/lib/narrative";
 import { suggestQuestions } from "@/lib/ai";
 import { assembleProfile } from "@/lib/profile";
 import { getAnsweredPreferences } from "@/lib/prefs";
-import { writeActiveTeamCookie } from "@/lib/active-team";
+import { writeActiveTeamCookie, getActiveTeamId, canLeadTeam } from "@/lib/active-team";
+import { MEETING_TYPES } from "@/lib/meeting-types";
 import {
   coachEnabled,
   generateCoaching,
@@ -389,6 +390,108 @@ export async function removeTeamMember(teamId: string, userId: string) {
   revalidatePath("/teams/manage");
   revalidatePath("/directory");
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+// --- Meetings (Phase 2 item 2) ---------------------------------------------
+
+const meetingInputSchema = z.object({
+  type: z.enum(MEETING_TYPES.map((t) => t.code) as [string, ...string[]]),
+  title: z.string().trim().min(1).max(200),
+  goal: z.string().trim().max(500).optional().nullable(),
+  scheduledFor: z.string().trim().optional().nullable(), // ISO date (yyyy-mm-dd) or empty
+  attendeeIds: z.array(z.string()).max(50),
+});
+type MeetingInput = z.infer<typeof meetingInputSchema>;
+
+function parseScheduledFor(v: string | null | undefined): Date | null {
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/** Keep only attendee ids that are real members of the team, plus the creator. */
+async function resolveAttendees(teamId: string, creatorId: string, ids: string[]) {
+  const wanted = new Set([creatorId, ...ids]);
+  const members = await prisma.teamMember.findMany({
+    where: { teamId, userId: { in: [...wanted] } },
+    select: { userId: true },
+  });
+  return members.map((m) => m.userId);
+}
+
+export async function createMeeting(input: MeetingInput) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const parsed = meetingInputSchema.safeParse(input);
+  if (!parsed.success) return { error: "Please add a meeting type and a title." };
+
+  const teamId = await getActiveTeamId(user.id);
+  if (!teamId) return { error: "Join a team before planning a meeting." };
+
+  const attendeeIds = await resolveAttendees(teamId, user.id, parsed.data.attendeeIds);
+  const meeting = await prisma.meeting.create({
+    data: {
+      teamId,
+      type: parsed.data.type,
+      title: parsed.data.title,
+      goal: parsed.data.goal || null,
+      scheduledFor: parseScheduledFor(parsed.data.scheduledFor),
+      createdById: user.id,
+      attendees: { create: attendeeIds.map((userId) => ({ userId })) },
+    },
+  });
+  revalidatePath("/meeting");
+  return { ok: true, id: meeting.id };
+}
+
+/** Only the creator or a team leader/admin may edit or delete a meeting. */
+async function canManageMeeting(
+  user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>,
+  meetingId: string,
+) {
+  const m = await prisma.meeting.findUnique({
+    where: { id: meetingId },
+    include: { team: { select: { orgId: true } } },
+  });
+  if (!m || m.team.orgId !== user.orgId) return null;
+  if (m.createdById === user.id) return m;
+  return (await canLeadTeam(user.id, m.teamId, isAdmin(user))) ? m : null;
+}
+
+export async function updateMeeting(id: string, input: MeetingInput) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const parsed = meetingInputSchema.safeParse(input);
+  if (!parsed.success) return { error: "Please add a meeting type and a title." };
+  const meeting = await canManageMeeting(user, id);
+  if (!meeting) return { error: "You can't edit this meeting." };
+
+  const attendeeIds = await resolveAttendees(meeting.teamId, meeting.createdById, parsed.data.attendeeIds);
+  await prisma.$transaction([
+    prisma.meetingAttendee.deleteMany({ where: { meetingId: id } }),
+    prisma.meeting.update({
+      where: { id },
+      data: {
+        type: parsed.data.type,
+        title: parsed.data.title,
+        goal: parsed.data.goal || null,
+        scheduledFor: parseScheduledFor(parsed.data.scheduledFor),
+        attendees: { create: attendeeIds.map((userId) => ({ userId })) },
+      },
+    }),
+  ]);
+  revalidatePath("/meeting");
+  revalidatePath(`/meeting/${id}`);
+  return { ok: true, id };
+}
+
+export async function deleteMeeting(id: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await canManageMeeting(user, id))) return { error: "You can't delete this meeting." };
+  await prisma.meeting.delete({ where: { id } });
+  revalidatePath("/meeting");
   return { ok: true };
 }
 

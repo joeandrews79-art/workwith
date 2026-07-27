@@ -35,6 +35,7 @@ model Team {
   name      String
   createdAt DateTime     @default(now())
   members   TeamMember[]
+  meetings  Meeting[]
 
   @@index([orgId])
 }
@@ -70,8 +71,42 @@ model User {
   profile      Profile?
   teamMemberships TeamMember[]
   prefAnswers  PrefAnswer[]
+  meetingsCreated  Meeting[]         @relation("MeetingCreator")
+  meetingAttendance MeetingAttendee[]
 
   @@index([orgId])
+}
+
+/// A planned meeting: a real object tied to a team, with a type that shapes the
+/// working-style prep and (Phase 2 item 4) an agenda. The generated brief itself
+/// is not stored; it is recomputed from the attendees' profiles so it always
+/// reflects current data. See docs/phase2-plan.md and lib/meeting-types.ts.
+model Meeting {
+  id           String   @id @default(cuid())
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  type         String // MeetingTypeCode (see lib/meeting-types.ts)
+  title        String
+  goal         String? // what a good outcome looks like (optional, one line)
+  scheduledFor DateTime? // optional date/time
+  createdById  String
+  createdBy    User     @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  attendees    MeetingAttendee[]
+
+  @@index([teamId])
+}
+
+model MeetingAttendee {
+  id        String  @id @default(cuid())
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@index([userId])
 }
 
 /// Admin-editable "working preferences" questions, tailored to the org

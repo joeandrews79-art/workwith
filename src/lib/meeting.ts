@@ -9,6 +9,7 @@
 
 import { DomainCode, DOMAIN_ORDER, DOMAINS } from "./ipip";
 import { Member, teamStats } from "./team";
+import { MeetingTypeCode, meetingType } from "./meeting-types";
 
 export interface ParticipantRead {
   id: string;
@@ -17,10 +18,17 @@ export interface ParticipantRead {
   tip: string; // how to communicate with them
 }
 
+export interface TypeLens {
+  label: string;
+  framing: string;
+  pointers: string[];
+}
+
 export interface MeetingBrief {
   participants: ParticipantRead[];
   groupDynamic: string[];
   yourPlay: string[];
+  lens?: TypeLens; // type-specific framing, when a meeting type is set
 }
 
 function mostDistinctive(m: Member): DomainCode {
@@ -59,7 +67,11 @@ function pole(m: Member, d: DomainCode): "high" | "low" {
   return m.domains[d].friendlyScore >= 50 ? "high" : "low";
 }
 
-export function buildMeetingBrief(viewer: Member, others: Member[]): MeetingBrief {
+export function buildMeetingBrief(
+  viewer: Member,
+  others: Member[],
+  type?: MeetingTypeCode,
+): MeetingBrief {
   const participants: ParticipantRead[] = others.map((m) => {
     const d = mostDistinctive(m);
     return {
@@ -112,7 +124,14 @@ export function buildMeetingBrief(viewer: Member, others: Member[]): MeetingBrie
   const strength = mostDistinctive(viewer);
   yourPlay.push(STRENGTH_PLAY[strength][pole(viewer, strength)]);
 
-  return { participants, groupDynamic, yourPlay };
+  const lens: TypeLens | undefined = type
+    ? (() => {
+        const t = meetingType(type);
+        return { label: t.label, framing: t.framing, pointers: t.lens };
+      })()
+    : undefined;
+
+  return { participants, groupDynamic, yourPlay, lens };
 }
 
 const GROUP_TILT: Record<DomainCode, { high: string; low: string }> = {

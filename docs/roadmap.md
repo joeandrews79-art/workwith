@@ -69,7 +69,12 @@ the roster? plus the CUI confirmation above.
    refresh-due list already exists inline on the leader dashboard, promote it to
    a full filterable report.
 
-5. ⚠️ **Downloadable profile report — DECISION NEEDED (DISC vs Big Five).** Owner
+5. ✅ **Downloadable Big Five report — BUILT + live 2026-07-27** (option (a) below).
+   `/report` renders a print-optimized full profile; "Save as PDF" uses the
+   browser's native print-to-PDF (nothing leaves the app). "PDF report" button on
+   the profile toolbar. Options (b) DISC-style mapping / (c) real DISC remain
+   available if the owner wants the DISC framing later. Original note:
+   ⚠️ Owner
    asked for "a complete DISC profile analysis that is downloadable." IMPORTANT:
    WorkWith deliberately does **not** use DISC. DISC is a proprietary, trademarked
    commercial instrument; the whole app is built on the public-domain **Big Five**

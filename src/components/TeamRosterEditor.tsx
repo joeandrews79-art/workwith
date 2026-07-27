@@ -94,7 +94,7 @@ export default function TeamRosterEditor({
                 <span
                   className="grid place-items-center w-8 h-8 rounded-full text-xs font-bold shrink-0"
                   style={{ background: avatarColor(m.name), color: avatarInkColor(m.name) }}
-                  aria-hidden
+                  title={m.name}
                 >
                   {initials(m.name)}
                 </span>
@@ -103,7 +103,8 @@ export default function TeamRosterEditor({
                   <div className="text-xs text-stone-500 truncate">{m.title ?? "Team member"}</div>
                 </div>
                 <select
-                  className="input py-1 px-2 text-xs w-auto"
+                  className="input py-1 px-2 text-xs shrink-0"
+                  style={{ width: "8.5rem" }}
                   value={m.teamRole ?? "MEMBER"}
                   disabled={pending}
                   onChange={(e) =>

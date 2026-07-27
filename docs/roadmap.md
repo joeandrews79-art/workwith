@@ -38,6 +38,53 @@ toggles with it? day + week (+ month?) views? drag-to-move vs edit-a-time-field
 first? which fields the image analysis returns and how it matches attendees to
 the roster? plus the CUI confirmation above.
 
+## Testing-feedback backlog (owner, 2026-07-27)
+
+1. **Member photos in rosters.** (Done this session: names now show in the roster
+   editor, plus name-on-hover over the initials.) Remaining: let a person upload
+   or take a **photo** for their avatar, shown instead of initials across the app.
+   Needs image upload + storage (Supabase Storage or a sized data URL on the
+   profile) and a crop step. The recruiter/Fidera app's provider-photo feature is
+   a reference.
+
+2. **Notify people when they're added to a team.** Today there is NO
+   notification: they simply see the new team on next login (in the switcher and
+   dashboard). Add an in-app "you were added to X" cue on the dashboard, and/or an
+   email. In-app is self-contained; email needs SMTP (WorkWith has none wired
+   yet), so decide in-app vs email first.
+
+3. **Scalable onboarding: invite links + bulk import.** The current invite (admin
+   sets a temp password, shares it) is fine for a few, not for many. Wants:
+   (a) a **one-time access link** so an invited person logs in and sets their own
+   password / claims their profile (magic-link style), replacing the shared
+   temp-password step (`mustReset` already exists); (b) **bulk upload** a CSV of
+   new users that provisions accounts on the backend, each person logging in to
+   claim their profile. Needs token-based invite links (token + expiry), a claim
+   flow, a CSV importer in admin, and (for emailed links) the SMTP decision from #2.
+
+4. **Admin reporting: make the dashboard metrics real drill-downs.** The
+   Completed / Completed and shared / Refresh due cards should each open a report
+   page listing the people behind the number (status, last refreshed, share
+   state) with CSV export. This is the start of an admin Reporting section. The
+   refresh-due list already exists inline on the leader dashboard, promote it to
+   a full filterable report.
+
+5. ⚠️ **Downloadable profile report — DECISION NEEDED (DISC vs Big Five).** Owner
+   asked for "a complete DISC profile analysis that is downloadable." IMPORTANT:
+   WorkWith deliberately does **not** use DISC. DISC is a proprietary, trademarked
+   commercial instrument; the whole app is built on the public-domain **Big Five**
+   (IPIP-NEO-120) precisely to avoid licensing proprietary tools (see CLAUDE.md).
+   We cannot ship an official DISC report without a license. Options to settle
+   with owner:
+   - (a) **RECOMMENDED** — a downloadable, well-designed **PDF of the full Big
+     Five profile** (summary, how-to-work-with-me, 30 facets, working
+     preferences). Reuses everything we already generate.
+   - (b) A public-domain **"DISC-style" 4-quadrant mapping** derived from the Big
+     Five, clearly labeled "DISC-style, not official DISC."
+   - (c) Real DISC = a licensed instrument, out of scope.
+   Build = PDF generation (puppeteer or react-pdf; the recruiter app has a
+   puppeteer→PDF pipeline to reuse).
+
 ## Shipped (local prototype)
 
 - Big Five assessment (IPIP-NEO-120), autosave/resume, mobile-friendly.

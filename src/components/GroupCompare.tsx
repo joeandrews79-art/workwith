@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Member, teamStats, compareMembers, discussionPoints } from "@/lib/team";
 import { DOMAIN_ORDER, DOMAINS } from "@/lib/ipip";
 import { DOMAIN_COLOR, DOMAIN_POLES, initials, avatarColor, avatarInkColor } from "@/lib/ui";
+import { SpectrumDot } from "@/components/TeamSpectrum";
 
 const PALETTE = ["#4f46e5", "#ea580c", "#0d9488", "#db2777", "#ca8a04", "#16a34a", "#7c3aed", "#dc2626"];
 
@@ -107,18 +108,15 @@ export default function GroupCompare({
                     {chosen.map((m) => {
                       const v = m.domains[d].friendlyScore;
                       return (
-                        <span
+                        <SpectrumDot
                           key={m.id}
-                          className="absolute top-1/2 rounded-full"
-                          style={{
-                            left: `${v}%`,
-                            width: 14,
-                            height: 14,
-                            background: colorOf.get(m.id),
-                            border: "2px solid var(--color-elevated)",
-                            transform: "translate(-50%,-50%)",
-                          }}
-                          title={`${m.id === viewerId ? "You" : m.name}: ${Math.round(v)}`}
+                          left={v}
+                          label={m.id === viewerId ? "You" : m.name}
+                          score={Math.round(v)}
+                          size={14}
+                          background={colorOf.get(m.id)!}
+                          border="2px solid var(--color-elevated)"
+                          z={2}
                         />
                       );
                     })}

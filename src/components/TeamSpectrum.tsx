@@ -120,37 +120,17 @@ function SpectrumView({ members, stats }: { members: SpectrumMember[]; stats: Re
               />
               {members.map((m) => {
                 const v = m.scores[d];
-                if (m.isViewer) {
-                  return (
-                    <span
-                      key={m.id}
-                      className="absolute top-1/2 rounded-full"
-                      style={{
-                        left: `${v}%`,
-                        width: 16,
-                        height: 16,
-                        background: "var(--color-brand-600)",
-                        boxShadow: "0 0 0 3px var(--color-brand-100)",
-                        transform: "translate(-50%,-50%)",
-                        zIndex: 3,
-                      }}
-                      title={`You: ${Math.round(v)}`}
-                    />
-                  );
-                }
                 return (
-                  <span
+                  <SpectrumDot
                     key={m.id}
-                    className="absolute top-1/2 rounded-full bg-stone-400"
-                    style={{
-                      left: `${v}%`,
-                      width: 11,
-                      height: 11,
-                      border: "1.5px solid var(--color-elevated)",
-                      transform: "translate(-50%,-50%)",
-                      zIndex: 2,
-                    }}
-                    title={`${m.name}: ${Math.round(v)}`}
+                    left={v}
+                    label={m.isViewer ? "You" : m.name}
+                    score={Math.round(v)}
+                    size={m.isViewer ? 16 : 11}
+                    background={m.isViewer ? "var(--color-brand-600)" : "#a8a29e"}
+                    ring={m.isViewer ? "0 0 0 3px var(--color-brand-100)" : undefined}
+                    border={m.isViewer ? undefined : "1.5px solid var(--color-elevated)"}
+                    z={m.isViewer ? 3 : 2}
                   />
                 );
               })}
@@ -159,6 +139,44 @@ function SpectrumView({ members, stats }: { members: SpectrumMember[]; stats: Re
         );
       })}
     </div>
+  );
+}
+
+export function SpectrumDot({
+  left,
+  label,
+  score,
+  size,
+  background,
+  ring,
+  border,
+  z,
+}: {
+  left: number;
+  label: string;
+  score: number;
+  size: number;
+  background: string;
+  ring?: string;
+  border?: string;
+  z: number;
+}) {
+  return (
+    <span
+      className="group absolute top-1/2 hover:z-30"
+      style={{ left: `${left}%`, transform: "translate(-50%,-50%)", zIndex: z }}
+    >
+      <span
+        className="block rounded-full"
+        style={{ width: size, height: size, background, boxShadow: ring, border }}
+      />
+      <span
+        className="pointer-events-none absolute left-1/2 bottom-full mb-1.5 -translate-x-1/2 whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium opacity-0 transition-opacity group-hover:opacity-100"
+        style={{ background: "#111827", color: "#fff", zIndex: 40 }}
+      >
+        {label} · {score}
+      </span>
+    </span>
   );
 }
 

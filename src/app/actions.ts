@@ -22,6 +22,8 @@ import { writeActiveTeamCookie, getActiveTeamId, canLeadTeam, getActiveTeamConte
 import { MEETING_TYPES } from "@/lib/meeting-types";
 import { getTeamRoster } from "@/lib/team-data";
 import { structureThought, MeetingProposal } from "@/lib/structure";
+import { buildAgenda, tightenAgenda } from "@/lib/agenda-ai";
+import { MeetingTypeCode } from "@/lib/meeting-types";
 import {
   coachEnabled,
   generateCoaching,
@@ -497,6 +499,159 @@ export async function deleteMeeting(id: string) {
   return { ok: true };
 }
 
+// --- Agenda (Phase 2 item 4) -----------------------------------------------
+
+const agendaItemSchema = z.object({
+  topic: z.string().trim().min(1).max(300),
+  purpose: z.enum(["decision", "discussion", "information", "brainstorm"]),
+  minutes: z.number().int().min(1).max(240).nullable().optional(),
+  ownerId: z.string().nullable().optional(),
+});
+
+/** Load an agenda item and confirm the caller can manage its meeting. */
+async function manageableAgendaItem(
+  user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>,
+  itemId: string,
+) {
+  const item = await prisma.agendaItem.findUnique({ where: { id: itemId } });
+  if (!item) return null;
+  return (await canManageMeeting(user, item.meetingId)) ? item : null;
+}
+
+/** Gather the structural context the agenda AI needs (no profiles). */
+async function meetingAiContext(meetingId: string) {
+  const m = await prisma.meeting.findUnique({
+    where: { id: meetingId },
+    include: { attendees: { include: { user: { select: { name: true, title: true } } } } },
+  });
+  if (!m) return null;
+  return {
+    title: m.title,
+    type: m.type as MeetingTypeCode,
+    goal: m.goal,
+    attendees: m.attendees.map((a) => ({ name: a.user.name, title: a.user.title })),
+  };
+}
+
+export async function addAgendaItem(meetingId: string, input: z.infer<typeof agendaItemSchema>) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  const parsed = agendaItemSchema.safeParse(input);
+  if (!parsed.success) return { error: "Give the item a topic." };
+  const last = await prisma.agendaItem.findFirst({
+    where: { meetingId },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+  await prisma.agendaItem.create({
+    data: {
+      meetingId,
+      order: (last?.order ?? -1) + 1,
+      topic: parsed.data.topic,
+      purpose: parsed.data.purpose,
+      minutes: parsed.data.minutes ?? null,
+      ownerId: parsed.data.ownerId || null,
+    },
+  });
+  revalidatePath(`/meeting/${meetingId}`);
+  return { ok: true };
+}
+
+export async function updateAgendaItem(itemId: string, input: z.infer<typeof agendaItemSchema>) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const item = await manageableAgendaItem(user, itemId);
+  if (!item) return { error: "You can't edit this agenda." };
+  const parsed = agendaItemSchema.safeParse(input);
+  if (!parsed.success) return { error: "Give the item a topic." };
+  await prisma.agendaItem.update({
+    where: { id: itemId },
+    data: {
+      topic: parsed.data.topic,
+      purpose: parsed.data.purpose,
+      minutes: parsed.data.minutes ?? null,
+      ownerId: parsed.data.ownerId || null,
+    },
+  });
+  revalidatePath(`/meeting/${item.meetingId}`);
+  return { ok: true };
+}
+
+export async function deleteAgendaItem(itemId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const item = await manageableAgendaItem(user, itemId);
+  if (!item) return { error: "You can't edit this agenda." };
+  await prisma.agendaItem.delete({ where: { id: itemId } });
+  revalidatePath(`/meeting/${item.meetingId}`);
+  return { ok: true };
+}
+
+export async function reorderAgenda(meetingId: string, orderedIds: string[]) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  const items = await prisma.agendaItem.findMany({ where: { meetingId }, select: { id: true } });
+  const owned = new Set(items.map((i) => i.id));
+  await prisma.$transaction(
+    orderedIds
+      .filter((id) => owned.has(id))
+      .map((id, i) => prisma.agendaItem.update({ where: { id }, data: { order: i } })),
+  );
+  revalidatePath(`/meeting/${meetingId}`);
+  return { ok: true };
+}
+
+async function replaceAgenda(meetingId: string, items: { topic: string; purpose: string; minutes: number }[]) {
+  await prisma.$transaction([
+    prisma.agendaItem.deleteMany({ where: { meetingId } }),
+    ...items.map((it, i) =>
+      prisma.agendaItem.create({
+        data: { meetingId, order: i, topic: it.topic, purpose: it.purpose, minutes: it.minutes },
+      }),
+    ),
+  ]);
+}
+
+export async function buildAgendaAction(meetingId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  const ctx = await meetingAiContext(meetingId);
+  if (!ctx) return { error: "Meeting not found." };
+  try {
+    const items = await buildAgenda(ctx);
+    await replaceAgenda(meetingId, items);
+    revalidatePath(`/meeting/${meetingId}`);
+    return { ok: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not build the agenda." };
+  }
+}
+
+export async function tightenAgendaAction(meetingId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!(await canManageMeeting(user, meetingId))) return { error: "You can't edit this agenda." };
+  const ctx = await meetingAiContext(meetingId);
+  if (!ctx) return { error: "Meeting not found." };
+  const current = await prisma.agendaItem.findMany({
+    where: { meetingId },
+    orderBy: { order: "asc" },
+    select: { topic: true, purpose: true, minutes: true },
+  });
+  if (current.length === 0) return { error: "Add or build an agenda first." };
+  try {
+    const items = await tightenAgenda(ctx, current);
+    await replaceAgenda(meetingId, items);
+    revalidatePath(`/meeting/${meetingId}`);
+    return { ok: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not tighten the agenda." };
+  }
+}
+
 // --- Thought capture (Phase 2 item 3) --------------------------------------
 
 /** Context for the quick-capture form: the active team and who's on it. */
@@ -651,6 +806,14 @@ export async function createMeetingFromThought(
       goal: proposal.goal || null,
       createdById: user.id,
       attendees: { create: attendeeIds.map((userId) => ({ userId })) },
+      // Carry the proposed agenda straight onto the meeting.
+      agenda: {
+        create: (proposal.agenda ?? []).map((a, i) => ({
+          order: i,
+          topic: a.topic,
+          purpose: a.purpose,
+        })),
+      },
     },
   });
   await prisma.thought.update({

@@ -122,8 +122,26 @@ model Meeting {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   attendees    MeetingAttendee[]
+  agenda       AgendaItem[]
 
   @@index([teamId])
+}
+
+/// One ordered item on a meeting's agenda (Phase 2 item 4). Editable by the
+/// meeting's manager; can also be drafted/tightened by Claude from the meeting's
+/// type, goal, and attendee names (no psychometric data leaves the app).
+model AgendaItem {
+  id        String   @id @default(cuid())
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  order     Int
+  topic     String
+  purpose   String   @default("discussion") // decision | discussion | information | brainstorm
+  minutes   Int? // optional time-box
+  ownerId   String? // an attendee's userId (name resolved in the loader)
+  createdAt DateTime @default(now())
+
+  @@index([meetingId])
 }
 
 model MeetingAttendee {

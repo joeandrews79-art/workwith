@@ -13,10 +13,10 @@ const THEMES = [
 export const THEME_STORAGE_KEY = "workwith-theme";
 
 export default function ThemePicker() {
-  const [active, setActive] = useState("midnight");
+  const [active, setActive] = useState("daylight");
 
   useEffect(() => {
-    const current = document.documentElement.getAttribute("data-theme") || "midnight";
+    const current = document.documentElement.getAttribute("data-theme") || "daylight";
     setActive(current);
   }, []);
 

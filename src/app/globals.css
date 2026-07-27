@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 /* WorkWith design tokens ----------------------------------------------------
-   The app runs a BOLD DARK look. All themes are dark variants that differ only
-   by accent, so text stays light everywhere (on the page canvas AND on cards),
-   which keeps contrast correct without per-surface juggling.
-   Default (no attribute) = "midnight" (deep navy + electric blue accent).
+   Default theme = "daylight" (a clean LIGHT theme; set on <html> in layout).
+   Four dark variants remain (midnight/graphite/teal/ember) for anyone who
+   prefers dark; they share a global "stone" utility remap (scoped to exclude
+   daylight) so text/fills read correctly on dark without per-file juggling.
+   The @theme values below are the dark fallback used only if no theme matches.
 --------------------------------------------------------------------------- */
 @theme {
   --color-brand-50: #16233f;

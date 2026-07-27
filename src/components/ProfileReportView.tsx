@@ -3,6 +3,7 @@ import { AnsweredPref } from "@/lib/prefs";
 import { DOMAIN_ORDER, DOMAINS, FACETS } from "@/lib/ipip";
 import { DOMAIN_COLOR, DOMAIN_POLES } from "@/lib/ui";
 import { SECTION_LABELS, SectionKey } from "@/lib/narrative";
+import { InterpretationResult } from "@/lib/interpret";
 
 const SECTION_ORDER: SectionKey[] = [
   "communication",
@@ -22,10 +23,12 @@ export default function ProfileReportView({
   profile,
   prefs,
   date,
+  interpretation,
 }: {
   profile: AssembledProfile;
   prefs: AnsweredPref[];
   date: string;
+  interpretation?: InterpretationResult | null;
 }) {
   const { domains, facets, narrative } = profile;
   if (!domains || !narrative) return null;
@@ -100,6 +103,21 @@ export default function ProfileReportView({
           })}
         </div>
       </section>
+
+      {interpretation && interpretation.traits.length > 0 && (
+        <section className="rpt-block">
+          <h2 className="rpt-h2">What your scores mean</h2>
+          {interpretation.intro && <p className="rpt-note">{interpretation.intro}</p>}
+          <div className="rpt-sections">
+            {interpretation.traits.map((t, i) => (
+              <div key={i} className="rpt-sec">
+                <h3 className="rpt-h3">{t.name} · {t.level}</h3>
+                <p>{t.meaning}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="rpt-block">
         <h2 className="rpt-h2">Facet detail</h2>

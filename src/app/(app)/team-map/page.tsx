@@ -4,10 +4,22 @@ import { getActiveTeamContext } from "@/lib/active-team";
 import { getVisibleTeamMembers } from "@/lib/team-data";
 import { teamStats, discussionPoints } from "@/lib/team";
 import { DOMAIN_ORDER } from "@/lib/ipip";
+import { prisma } from "@/lib/db";
+import { teamReadEnabled, TeamReadResult } from "@/lib/team-read";
 import { NoTeam } from "@/components/Bits";
 import TeamSpectrum, { SpectrumMember } from "@/components/TeamSpectrum";
+import TeamReadCard from "@/components/TeamReadCard";
 
 export const dynamic = "force-dynamic";
+
+function parseTeamRead(json: string | null): TeamReadResult | null {
+  if (!json) return null;
+  try {
+    return JSON.parse(json) as TeamReadResult;
+  } catch {
+    return null;
+  }
+}
 
 export default async function TeamMapPage() {
   const user = (await getCurrentUser())!;
@@ -54,16 +66,31 @@ export default async function TeamMapPage() {
   const discussion = discussionPoints(members);
   const hasViewer = spectrumMembers.some((m) => m.isViewer);
 
+  // Cached AI team read (viewer's own), only if it was generated against THIS team.
+  const aiOn = teamReadEnabled();
+  let cachedRead: TeamReadResult | null = null;
+  if (aiOn && hasViewer) {
+    const profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { teamRead: true, teamReadTeamId: true },
+    });
+    if (profile?.teamReadTeamId === activeTeam.id) {
+      cachedRead = parseTeamRead(profile?.teamRead ?? null);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {header}
-      {!hasViewer && (
+      {!hasViewer ? (
         <div className="card p-4 flex items-center justify-between gap-4" style={{ background: "var(--color-brand-50)", borderColor: "var(--color-brand-200)" }}>
           <p className="text-sm text-stone-600">
             Finish your own assessment to see yourself on the map and how you compare to the team.
           </p>
           <Link href="/assessment" className="btn btn-primary py-1.5 px-3 text-sm shrink-0">Start assessment</Link>
         </div>
+      ) : (
+        aiOn && <TeamReadCard initial={cachedRead} canGenerate={hasViewer} stale={false} />
       )}
       <TeamSpectrum members={spectrumMembers} stats={stats} discussion={discussion} />
     </div>

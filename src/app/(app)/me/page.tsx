@@ -7,7 +7,10 @@ import { DomainCode, DOMAIN_ORDER } from "@/lib/ipip";
 import ProfileView from "@/components/ProfileView";
 import ProfileToolbar from "@/components/ProfileToolbar";
 import PreferencesEditor from "@/components/PreferencesEditor";
+import InterpretationGuide from "@/components/InterpretationGuide";
 import { getOrgQuestions, getUserAnswers } from "@/lib/prefs";
+import { prisma } from "@/lib/db";
+import { interpretEnabled, InterpretationResult } from "@/lib/interpret";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +49,22 @@ export default async function MyProfilePage({
     getUserAnswers(user.id),
   ]);
 
+  const aiOn = interpretEnabled();
+  let interpretation: InterpretationResult | null = null;
+  if (aiOn) {
+    const p = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { interpretation: true },
+    });
+    if (p?.interpretation) {
+      try {
+        interpretation = JSON.parse(p.interpretation) as InterpretationResult;
+      } catch {
+        interpretation = null;
+      }
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
       {isAdmin(user) && (
@@ -80,6 +99,12 @@ export default async function MyProfilePage({
       />
 
       <ProfileView profile={profile} teamMean={teamMean} owner />
+
+      {aiOn && (
+        <div className="mt-6">
+          <InterpretationGuide initial={interpretation} />
+        </div>
+      )}
 
       <div className="mt-6">
         <PreferencesEditor questions={questions} initial={prefAnswers} />

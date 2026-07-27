@@ -216,6 +216,11 @@ model Profile {
   editedNarrative    String? // JSON, the user's lightly-edited version (overrides generated when present)
   coaching           String? // JSON, AI coaching plan grounded in this person's own profile (see lib/coach.ts)
   coachingAt         DateTime? // when the coaching plan above was generated
+  interpretation     String? // JSON, AI plain-language read of THIS person's own Big Five scores (see lib/interpret.ts)
+  interpretationAt   DateTime? // when the interpretation above was generated
+  teamRead           String? // JSON, AI read of how this person sits vs the team (aggregate team stats only, see lib/team-read.ts)
+  teamReadAt         DateTime? // when the team read above was generated
+  teamReadTeamId     String? // the team the read was generated against; regenerate when the active team changes
   refreshedAt        DateTime? // = completedAt of the assessment above; drives the 12-month flag
   updatedAt          DateTime  @updatedAt
 }

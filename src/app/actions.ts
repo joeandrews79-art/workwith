@@ -12,15 +12,17 @@ import {
   isAdmin,
   verifyCredentials,
 } from "@/lib/auth";
-import { ITEMS } from "@/lib/ipip";
-import { scoreAssessment, serializeScores, Responses } from "@/lib/scoring";
+import { ITEMS, DOMAIN_ORDER, DOMAINS } from "@/lib/ipip";
+import { scoreAssessment, serializeScores, Responses, bandFor } from "@/lib/scoring";
 import { Narrative } from "@/lib/narrative";
 import { suggestQuestions } from "@/lib/ai";
 import { assembleProfile } from "@/lib/profile";
 import { getAnsweredPreferences } from "@/lib/prefs";
 import { writeActiveTeamCookie, getActiveTeamId, canLeadTeam, getActiveTeamContext } from "@/lib/active-team";
 import { MEETING_TYPES } from "@/lib/meeting-types";
-import { getTeamRoster } from "@/lib/team-data";
+import { getTeamRoster, getVisibleTeamMembers } from "@/lib/team-data";
+import { teamStats, relBand } from "@/lib/team";
+import { DOMAIN_POLES } from "@/lib/ui";
 import { structureThought, MeetingProposal } from "@/lib/structure";
 import { buildAgenda, tightenAgenda } from "@/lib/agenda-ai";
 import { MeetingTypeCode } from "@/lib/meeting-types";
@@ -31,6 +33,8 @@ import {
   CoachingPlan,
   CoachAnswer,
 } from "@/lib/coach";
+import { generateTeamRead, teamReadEnabled, TeamReadResult, TeamReadTrait } from "@/lib/team-read";
+import { generateInterpretation, interpretEnabled, InterpretationResult } from "@/lib/interpret";
 
 // --- Auth -------------------------------------------------------------------
 
@@ -149,10 +153,15 @@ export async function completeAssessment(assessmentId: string, responses: Respon
     update: {
       assessmentId,
       refreshedAt: completedAt,
-      // Re-taking clears prior edits and coaching so both reflect the new scores.
+      // Re-taking clears prior edits and all AI-cached reads so they reflect the new scores.
       editedNarrative: null,
       coaching: null,
       coachingAt: null,
+      interpretation: null,
+      interpretationAt: null,
+      teamRead: null,
+      teamReadAt: null,
+      teamReadTeamId: null,
     },
   });
 
@@ -1049,6 +1058,89 @@ export async function askMyCoach(
     return { ok: true, answer };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Coaching request failed." };
+  }
+}
+
+/** Generate (or refresh) my team read, grounded in aggregate team stats only. */
+export async function generateMyTeamRead(): Promise<
+  { ok: true; read: TeamReadResult; teamId: string } | { error: string }
+> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!teamReadEnabled())
+    return { error: "This is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
+
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (!activeTeam) return { error: "Join a team first." };
+
+  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
+  if (members.length < 2)
+    return { error: "The team needs at least two completed, shared profiles first." };
+  const viewer = members.find((m) => m.id === user.id);
+  if (!viewer) return { error: "Complete your own assessment first so we can place you on the team." };
+
+  const stats = teamStats(members);
+  const traits: TeamReadTrait[] = DOMAIN_ORDER.map((d) => {
+    const you = viewer.domains[d].friendlyScore;
+    const st = stats[d];
+    return {
+      friendly: DOMAINS[d].friendly,
+      lowPole: DOMAIN_POLES[d].low,
+      highPole: DOMAIN_POLES[d].high,
+      you,
+      band: bandFor(you),
+      teamMean: st.mean,
+      teamMin: st.min,
+      teamMax: st.max,
+      rel: relBand(you, st),
+    };
+  });
+
+  try {
+    const read = await generateTeamRead({
+      firstName: user.name.trim().split(/\s+/)[0] || user.name,
+      teamName: activeTeam.name,
+      teamSize: members.length,
+      traits,
+    });
+    await prisma.profile.update({
+      where: { userId: user.id },
+      data: { teamRead: JSON.stringify(read), teamReadAt: new Date(), teamReadTeamId: activeTeam.id },
+    });
+    revalidatePath("/team-map");
+    return { ok: true, read, teamId: activeTeam.id };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "The request failed." };
+  }
+}
+
+/** Generate (or refresh) a plain-language read of MY own scores. */
+export async function generateMyInterpretation(): Promise<
+  { ok: true; interpretation: InterpretationResult } | { error: string }
+> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!interpretEnabled())
+    return { error: "This is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
+
+  const profile = await assembleProfile(user.id);
+  if (!profile || !profile.domains)
+    return { error: "Complete your assessment first so there's something to interpret." };
+
+  try {
+    const interpretation = await generateInterpretation({
+      firstName: user.name.trim().split(/\s+/)[0] || user.name,
+      domains: profile.domains,
+    });
+    await prisma.profile.update({
+      where: { userId: user.id },
+      data: { interpretation: JSON.stringify(interpretation), interpretationAt: new Date() },
+    });
+    revalidatePath("/me");
+    revalidatePath("/report");
+    return { ok: true, interpretation };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "The request failed." };
   }
 }
 

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { assembleProfile } from "@/lib/profile";
 import { getAnsweredPreferences } from "@/lib/prefs";
+import { prisma } from "@/lib/db";
+import { InterpretationResult } from "@/lib/interpret";
 import ProfileReportView from "@/components/ProfileReportView";
 import PrintButton from "@/components/PrintButton";
 
@@ -23,6 +25,19 @@ export default async function ReportPage() {
     year: "numeric",
   });
 
+  const p = await prisma.profile.findUnique({
+    where: { userId: user.id },
+    select: { interpretation: true },
+  });
+  let interpretation: InterpretationResult | null = null;
+  if (p?.interpretation) {
+    try {
+      interpretation = JSON.parse(p.interpretation) as InterpretationResult;
+    } catch {
+      interpretation = null;
+    }
+  }
+
   return (
     <div className="rpt-screen">
       <style>{RPT_CSS}</style>
@@ -30,7 +45,7 @@ export default async function ReportPage() {
         <Link href="/me" className="rpt-back">← Back to my profile</Link>
         <PrintButton />
       </div>
-      <ProfileReportView profile={profile} prefs={prefs} date={date} />
+      <ProfileReportView profile={profile} prefs={prefs} date={date} interpretation={interpretation} />
       <p className="rpt-hint">Tip: in the print dialog, choose "Save as PDF" as the destination.</p>
     </div>
   );

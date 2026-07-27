@@ -28,6 +28,9 @@ export default function Assessment({
   const router = useRouter();
   const items = PRESENTATION_ORDER;
   const total = items.length;
+  // Local backup of answers, keyed to this attempt. Survives a refresh or a
+  // failed server save, so progress is never lost if the network hiccups.
+  const storageKey = `ww-assessment-${assessmentId}`;
 
   const [responses, setResponses] = useState<Responses>(initialResponses);
   const firstUnanswered = useMemo(() => {
@@ -40,7 +43,7 @@ export default function Assessment({
   // input desyncs the position from the recorded answers.
   const idxRef = useRef(idx);
   idxRef.current = idx;
-  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle");
+  const [saving, setSaving] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reviewing, setReviewing] = useState(false);
@@ -51,16 +54,58 @@ export default function Assessment({
   );
   const allAnswered = answeredCount === total;
 
+  // Restore any locally-backed-up answers if they're ahead of the server (e.g.
+  // after a refresh, or if saves were failing). Runs once on mount.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      const cached = JSON.parse(raw) as Responses;
+      if (Object.keys(cached).length <= Object.keys(initialResponses).length) return;
+      const merged = { ...initialResponses, ...cached };
+      setResponses(merged);
+      const firstUn = items.findIndex((it) => !merged[it.id]);
+      const target = firstUn === -1 ? total - 1 : firstUn;
+      idxRef.current = target;
+      setIdx(target);
+    } catch {
+      /* ignore malformed backup */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mirror answers to local storage on every change, so nothing is lost if a
+  // server save fails or the tab reloads.
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(responses));
+    } catch {
+      /* storage full or unavailable — best effort */
+    }
+  }, [responses, storageKey]);
+
   // --- Autosave (debounced) ---
   const latest = useRef(responses);
   latest.current = responses;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flushRef = useRef<() => void>(() => {});
 
   const flush = useCallback(async () => {
     setSaving("saving");
-    const res = await saveProgress(assessmentId, latest.current);
-    setSaving(res && "ok" in res ? "saved" : "idle");
+    try {
+      const res = await saveProgress(assessmentId, latest.current);
+      if (!(res && "ok" in res)) throw new Error("save rejected");
+      setSaving("saved");
+    } catch {
+      // Keep the answers safe locally and keep trying. The header shows a
+      // "not saved" state so the user knows their progress isn't on the server.
+      setSaving("error");
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+      retryTimer.current = setTimeout(() => flushRef.current(), 4000);
+    }
   }, [assessmentId]);
+  flushRef.current = flush;
 
   const scheduleSave = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -75,6 +120,7 @@ export default function Assessment({
     return () => {
       document.removeEventListener("visibilitychange", onHide);
       if (timer.current) clearTimeout(timer.current);
+      if (retryTimer.current) clearTimeout(retryTimer.current);
     };
   }, [flush]);
 
@@ -126,14 +172,28 @@ export default function Assessment({
     setSubmitting(true);
     setError(null);
     if (timer.current) clearTimeout(timer.current);
-    await saveProgress(assessmentId, latest.current);
-    const res = await completeAssessment(assessmentId, latest.current);
-    if (res && "error" in res && res.error) {
-      setError(res.error);
+    if (retryTimer.current) clearTimeout(retryTimer.current);
+    try {
+      const saved = await saveProgress(assessmentId, latest.current);
+      if (!(saved && "ok" in saved)) throw new Error("save failed");
+      const res = await completeAssessment(assessmentId, latest.current);
+      if (res && "error" in res && res.error) {
+        setError(res.error);
+        setSubmitting(false);
+        return;
+      }
+      try {
+        localStorage.removeItem(storageKey);
+      } catch {
+        /* best effort */
+      }
+      router.push("/me?new=1");
+    } catch {
+      setError(
+        "We couldn't save your assessment just now. Your answers are safe on this device, so please check your connection and try again in a moment.",
+      );
       setSubmitting(false);
-      return;
     }
-    router.push("/me?new=1");
   }
 
   const item = items[idx];
@@ -270,7 +330,7 @@ function ProgressHeader({
   answeredCount: number;
   total: number;
   pct: number;
-  saving: "idle" | "saving" | "saved";
+  saving: "idle" | "saving" | "saved" | "error";
 }) {
   return (
     <div className="sticky top-14 z-10 bg-paper/95 backdrop-blur py-3" style={{ background: "var(--color-paper)" }}>
@@ -278,8 +338,14 @@ function ProgressHeader({
         <span className="font-medium">
           {answeredCount} of {total} answered
         </span>
-        <span className="text-xs text-stone-400">
-          {saving === "saving" ? "Saving…" : saving === "saved" ? "Progress saved" : `${pct}%`}
+        <span className="text-xs" style={{ color: saving === "error" ? "#b91c1c" : undefined }}>
+          {saving === "saving"
+            ? "Saving…"
+            : saving === "saved"
+              ? "Progress saved"
+              : saving === "error"
+                ? "Couldn't save — retrying…"
+                : `${pct}%`}
         </span>
       </div>
       <div className="h-1.5 rounded-full bg-stone-200 overflow-hidden">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { canLeadTeam, getActiveTeamContext } from "@/lib/active-team";
-import { getVisibleTeamMembers } from "@/lib/team-data";
+import { getVisibleMembers } from "@/lib/team-data";
 import { getMeetingDetail } from "@/lib/meeting-data";
 import { NoTeam } from "@/components/Bits";
 import MeetingComposer from "@/components/MeetingComposer";
@@ -27,7 +27,8 @@ export default async function EditMeetingPage({
   const { activeTeam } = await getActiveTeamContext(user.id);
   if (!activeTeam) return <NoTeam />;
 
-  const members = await getVisibleTeamMembers(detail.teamId, user.id);
+  // Attendees can be anyone in the company with a visible profile.
+  const members = await getVisibleMembers(user.orgId, user.id);
   const viewer = members.find((m) => m.id === user.id);
   const others = members.filter((m) => m.id !== user.id);
 

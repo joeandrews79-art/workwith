@@ -20,7 +20,7 @@ import { assembleProfile } from "@/lib/profile";
 import { getAnsweredPreferences } from "@/lib/prefs";
 import { writeActiveTeamCookie, getActiveTeamId, canLeadTeam, getActiveTeamContext } from "@/lib/active-team";
 import { MEETING_TYPES } from "@/lib/meeting-types";
-import { getTeamRoster, getVisibleTeamMembers } from "@/lib/team-data";
+import { getTeamRoster, getVisibleTeamMembers, getVisibleMembers } from "@/lib/team-data";
 import { teamStats, relBand } from "@/lib/team";
 import { DOMAIN_POLES } from "@/lib/ui";
 import { structureThought, MeetingProposal } from "@/lib/structure";
@@ -441,12 +441,17 @@ function normalizeTime(
 
 /** Keep only attendee ids that are real members of the team, plus the creator. */
 async function resolveAttendees(teamId: string, creatorId: string, ids: string[]) {
-  const wanted = new Set([creatorId, ...ids]);
-  const members = await prisma.teamMember.findMany({
-    where: { teamId, userId: { in: [...wanted] } },
-    select: { userId: true },
+  // The creator plus any provided ids that are real users in the SAME COMPANY
+  // (org) as the meeting's team. Attendees are not limited to the host team, so
+  // anyone in the company with a profile can be pulled into a meeting.
+  const wanted = [...new Set([creatorId, ...ids])];
+  const team = await prisma.team.findUnique({ where: { id: teamId }, select: { orgId: true } });
+  if (!team) return [creatorId];
+  const users = await prisma.user.findMany({
+    where: { id: { in: wanted }, orgId: team.orgId },
+    select: { id: true },
   });
-  return members.map((m) => m.userId);
+  return users.map((u) => u.id);
 }
 
 export async function createMeeting(input: MeetingInput) {
@@ -590,12 +595,11 @@ export async function extractMeetingFromScreenshot(
   const parsed = screenshotSchema.safeParse(input);
   if (!parsed.success) return { error: "That image looked too big or wasn't a supported type." };
 
-  const { activeTeam } = await getActiveTeamContext(user.id);
-  if (!activeTeam) return { error: "Join a team first." };
-  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
-  const roster = members
-    .filter((m) => m.id !== user.id)
-    .map((m) => ({ id: m.id, name: m.name }));
+  // Match attendees against everyone in the COMPANY with a visible profile, not
+  // just the active team. Keep the viewer in the roster so their own name in the
+  // invite matches (they're auto-included) instead of showing as "not on team".
+  const members = await getVisibleMembers(user.orgId, user.id);
+  const roster = members.map((m) => ({ id: m.id, name: m.name }));
 
   try {
     const r = await extractMeetingFromImage({

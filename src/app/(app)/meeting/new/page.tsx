@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getActiveTeamContext } from "@/lib/active-team";
-import { getVisibleTeamMembers } from "@/lib/team-data";
+import { getVisibleMembers } from "@/lib/team-data";
 import { visionEnabled } from "@/lib/meeting-vision";
 import { NoTeam } from "@/components/Bits";
 import MeetingComposer from "@/components/MeetingComposer";
@@ -13,7 +13,9 @@ export default async function NewMeetingPage() {
   const { activeTeam } = await getActiveTeamContext(user.id);
   if (!activeTeam) return <NoTeam />;
 
-  const members = await getVisibleTeamMembers(activeTeam.id, user.id);
+  // Attendees can be anyone in the company with a visible profile, not just the
+  // active team.
+  const members = await getVisibleMembers(user.orgId, user.id);
   const viewer = members.find((m) => m.id === user.id);
   const others = members.filter((m) => m.id !== user.id);
 

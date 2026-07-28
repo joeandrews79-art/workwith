@@ -82,7 +82,7 @@ export default async function MyProfilePage({
           className="card p-4 mb-5 flex items-start gap-3"
           style={{ background: "rgba(34,197,94,0.12)", borderColor: "rgba(34,197,94,0.35)" }}
         >
-          <span aria-hidden className="text-lg">✅</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m22 4-10 10.01-3-3" /></svg>
           <div>
             <p className="font-semibold text-sm">Your profile is ready</p>
             <p className="text-sm text-stone-600">

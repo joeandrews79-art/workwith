@@ -111,7 +111,7 @@ export default async function MeetingDetailPage({
             style={{ background: "var(--color-brand-50)", borderColor: "var(--color-brand-200)" }}
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <span aria-hidden>🧭</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" /></svg>
               <h2 className="font-semibold">{t.label}</h2>
             </div>
             <p className="text-sm text-stone-600 mb-3">{t.framing}</p>

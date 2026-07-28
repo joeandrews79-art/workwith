@@ -14,13 +14,29 @@ const SECTION_ORDER: SectionKey[] = [
   "frustrations",
 ];
 
-const SECTION_ICON: Record<SectionKey, string> = {
-  communication: "💬",
-  decisions: "🧭",
-  feedback: "🎯",
-  priorities: "⭐",
-  frustrations: "⚠️",
+const SECTION_PATH: Record<SectionKey, string> = {
+  communication: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
+  decisions: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76Z",
+  feedback: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
+  priorities: "M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2Z",
+  frustrations: "M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0ZM12 9v4M12 17h.01",
 };
+
+const BULB_PATH = "M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z";
+
+function BadgeIcon({ path }: { path: string }) {
+  return (
+    <span
+      className="grid place-items-center w-6 h-6 rounded-lg shrink-0"
+      style={{ background: "var(--accent-soft)", color: "var(--accent-text)" }}
+      aria-hidden
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d={path} />
+      </svg>
+    </span>
+  );
+}
 
 export default function ProfileView({
   profile,
@@ -77,7 +93,7 @@ export default function ProfileView({
             {SECTION_ORDER.map((key) => (
               <div key={key} className="card p-4">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-1.5">
-                  <span aria-hidden>{SECTION_ICON[key]}</span>
+                  <BadgeIcon path={SECTION_PATH[key]} />
                   {SECTION_LABELS[key]}
                 </h3>
                 <p className="text-sm text-stone-600 leading-relaxed">
@@ -93,10 +109,10 @@ export default function ProfileView({
       {owner && narrative && narrative.selfCoaching.length > 0 && (
         <section
           className="card p-5"
-          style={{ borderColor: "#c7d2fe" }}
+          style={{ borderColor: "var(--accent-border)" }}
         >
           <h2 className="font-semibold flex items-center gap-2 mb-1">
-            <span aria-hidden>🧠</span> Coaching for you
+            <BadgeIcon path={BULB_PATH} /> Coaching for you
           </h2>
           <p className="text-sm text-stone-500 mb-3">
             A few ways to flex your own style. This section is only visible to you.

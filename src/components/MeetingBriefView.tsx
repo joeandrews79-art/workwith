@@ -15,7 +15,7 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
           style={{ background: "var(--color-brand-50)", borderColor: "var(--color-brand-200)" }}
         >
           <div className="flex items-center gap-2 mb-1.5">
-            <span aria-hidden>🧭</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" /></svg>
             <h2 className="font-semibold">{brief.lens.label}</h2>
           </div>
           <p className="text-sm text-stone-600 mb-3">{brief.lens.framing}</p>
@@ -33,12 +33,13 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
       {/* Group dynamic */}
       <section className="card p-5">
         <h2 className="font-semibold flex items-center gap-2 mb-3">
-          <span aria-hidden>👥</span> The room
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+          The room
         </h2>
         <ul className="space-y-2.5">
           {brief.groupDynamic.map((g, i) => (
             <li key={i} className="flex gap-2.5 text-sm text-stone-700">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#0891b2" }} />
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--trait-n)" }} />
               <span className="leading-relaxed">{g}</span>
             </li>
           ))}
@@ -48,7 +49,8 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
       {/* Your play */}
       <section className="card p-5">
         <h2 className="font-semibold flex items-center gap-2 mb-1">
-          <span aria-hidden>🎯</span> How to show up
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
+          How to show up
         </h2>
         <p className="text-sm text-stone-500 mb-3">
           Tuned to your profile and the mix of people in this meeting.

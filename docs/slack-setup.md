@@ -77,6 +77,40 @@ This is **additive** (new tables only) and does not touch existing data.
    curl -H "x-tick-secret: <your SLACK_TICK_SECRET>" https://workwith8.netlify.app/api/slack/tick
    ```
 
+## Testing on localhost before deploying
+
+You still need to create the Slack app (steps 1 to 4) first, because you need a
+real bot token and signing secret. Then:
+
+1. Put the values in your local `.env` (same names as step 5). Set
+   `APP_URL="http://localhost:3200"`.
+2. Apply the tables to the database once: `npx prisma db push`. (Local dev uses
+   the same Supabase database as production; this is additive and safe.)
+3. `npm run dev`, sign in, open **My profile**. The **Slack** card now appears.
+   Click **Connect Slack** (this is an outbound call, so it works fine from
+   localhost).
+
+**What you can test fully on localhost (outbound only):**
+
+- **Connect Slack** on your profile.
+- **The pre-meeting DM.** Create a meeting on the calendar starting in ~20
+  minutes with yourself as an attendee (and a teammate whose profile is shared),
+  make sure pre-meeting DMs are on, then trigger the job by hand:
+  ```
+  curl -H "x-tick-secret: <your SLACK_TICK_SECRET>" http://localhost:3200/api/slack/tick
+  ```
+  You should get the DM in Slack. (On the live site this runs automatically every
+  15 minutes; the Netlify scheduled function does not run under `npm run dev`, so
+  curl is how you test it locally.)
+
+**The `/workwith` slash command needs a public URL.** Slack calls your server, and
+it can't reach `localhost`. Two options:
+
+- Easiest: test the slash command **after this evening's deploy**, on the real
+  URL. Everything else you can confirm locally first.
+- Or run a tunnel (e.g. `npx ngrok http 3200`) and temporarily set the slash
+  command's Request URL to the tunnel address while you test.
+
 ## Notes on privacy
 
 - Nothing is sent to Slack for a user who has not connected their account.

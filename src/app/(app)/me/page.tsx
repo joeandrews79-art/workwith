@@ -8,6 +8,8 @@ import ProfileView from "@/components/ProfileView";
 import ProfileToolbar from "@/components/ProfileToolbar";
 import PreferencesEditor from "@/components/PreferencesEditor";
 import InterpretationGuide from "@/components/InterpretationGuide";
+import SlackConnect from "@/components/SlackConnect";
+import { getMySlackStatus } from "@/app/actions";
 import { getOrgQuestions, getUserAnswers } from "@/lib/prefs";
 import { prisma } from "@/lib/db";
 import { interpretEnabled, InterpretationResult } from "@/lib/interpret";
@@ -48,6 +50,8 @@ export default async function MyProfilePage({
     getOrgQuestions(user.orgId),
     getUserAnswers(user.id),
   ]);
+
+  const slackStatus = await getMySlackStatus();
 
   const aiOn = interpretEnabled();
   let interpretation: InterpretationResult | null = null;
@@ -109,6 +113,15 @@ export default async function MyProfilePage({
       <div className="mt-6">
         <PreferencesEditor questions={questions} initial={prefAnswers} />
       </div>
+
+      {slackStatus.enabled && (
+        <div className="mt-6">
+          <SlackConnect
+            connected={slackStatus.connected}
+            preMeetingEnabled={slackStatus.preMeetingEnabled}
+          />
+        </div>
+      )}
     </div>
   );
 }

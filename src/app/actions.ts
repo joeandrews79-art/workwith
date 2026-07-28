@@ -23,6 +23,9 @@ import { MEETING_TYPES } from "@/lib/meeting-types";
 import { getTeamRoster, getVisibleTeamMembers, getVisibleMembers } from "@/lib/team-data";
 import { teamStats, relBand } from "@/lib/team";
 import { DOMAIN_POLES } from "@/lib/ui";
+import { slackEnabled } from "@/lib/slack/env";
+import { lookupSlackUserByEmail } from "@/lib/slack/client";
+import { getSlackLinkByUser, upsertSlackLink, deleteSlackLink, setSlackPrefs } from "@/lib/slack/data";
 import { structureThought, MeetingProposal } from "@/lib/structure";
 import { buildAgenda, tightenAgenda } from "@/lib/agenda-ai";
 import { MeetingTypeCode } from "@/lib/meeting-types";
@@ -1402,5 +1405,62 @@ export async function setRole(userId: string, role: "ADMIN" | "MEMBER") {
 
   await prisma.user.update({ where: { id: userId }, data: { role } });
   revalidatePath("/admin");
+  return { ok: true };
+}
+
+/* ---- Slack connection (single-workspace MVP) ---------------------------- */
+
+export async function getMySlackStatus(): Promise<{
+  enabled: boolean;
+  connected: boolean;
+  preMeetingEnabled: boolean;
+}> {
+  // Short-circuit when Slack isn't configured so we never touch the SlackLink
+  // table before it exists (safe to deploy this branch with no Slack env set).
+  if (!slackEnabled()) return { enabled: false, connected: false, preMeetingEnabled: false };
+  const user = await getCurrentUser();
+  if (!user) return { enabled: false, connected: false, preMeetingEnabled: false };
+  const link = await getSlackLinkByUser(user.id);
+  return {
+    enabled: true,
+    connected: Boolean(link),
+    preMeetingEnabled: link?.preMeetingEnabled ?? true,
+  };
+}
+
+/** Link this user to Slack by matching their work email to a Slack account. */
+export async function connectSlack(): Promise<{ ok: true } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!slackEnabled()) return { error: "Slack isn't set up for this workspace yet." };
+  const slackUserId = await lookupSlackUserByEmail(user.email);
+  if (!slackUserId) {
+    return {
+      error:
+        "We couldn't find a Slack account with your work email. Make sure your Slack email matches the one you use here.",
+    };
+  }
+  await upsertSlackLink(user.id, slackUserId);
+  revalidatePath("/me");
+  return { ok: true };
+}
+
+export async function disconnectSlack(): Promise<{ ok: true } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  await deleteSlackLink(user.id);
+  revalidatePath("/me");
+  return { ok: true };
+}
+
+export async function setSlackPreMeeting(
+  enabled: boolean,
+): Promise<{ ok: true } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const link = await getSlackLinkByUser(user.id);
+  if (!link) return { error: "Connect Slack first." };
+  await setSlackPrefs(user.id, { preMeetingEnabled: enabled });
+  revalidatePath("/me");
   return { ok: true };
 }

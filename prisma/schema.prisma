@@ -75,8 +75,40 @@ model User {
   meetingsCreated  Meeting[]         @relation("MeetingCreator")
   meetingAttendance MeetingAttendee[]
   thoughts     Thought[]
+  slackLink    SlackLink?
 
   @@index([orgId])
+}
+
+// Links a WorkWith user to their Slack identity in the connected workspace.
+// Single-workspace MVP: the bot token + signing secret live in env; this table
+// only maps users and holds their notification preferences. Created when a user
+// clicks "Connect Slack" (we resolve their Slack id by email), removed on
+// disconnect. Treat as PII: only the user (or an admin) manages their own link.
+model SlackLink {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slackUserId      String // "U…" in the connected workspace
+  slackTeamId      String? // "T…" workspace id, for future multi-workspace
+  preMeetingEnabled Boolean @default(true) // DM me a working-style read before meetings
+  coachingEnabled  Boolean  @default(false) // periodic personal coaching DM (Phase 2)
+  createdAt        DateTime @default(now())
+
+  @@index([slackUserId])
+}
+
+// One row per (meeting, user) pre-meeting DM actually sent, so the scheduled
+// job never double-nudges. Cleaned up implicitly when the meeting is deleted.
+model SlackNudge {
+  id        String   @id @default(cuid())
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId    String
+  sentAt    DateTime @default(now())
+
+  @@unique([meetingId, userId])
+  @@index([meetingId])
 }
 
 /// A fleeting idea captured for meeting planning (Phase 2 item 3). Private to
@@ -126,6 +158,7 @@ model Meeting {
   updatedAt    DateTime @updatedAt
   attendees    MeetingAttendee[]
   agenda       AgendaItem[]
+  slackNudges  SlackNudge[]
 
   @@index([teamId])
 }

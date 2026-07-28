@@ -1,176 +1,275 @@
 @import "tailwindcss";
 
-/* WorkWith design tokens ----------------------------------------------------
-   Default theme = "daylight" (a clean LIGHT theme; set on <html> in layout).
-   Four dark variants remain (midnight/graphite/teal/ember) for anyone who
-   prefers dark; they share a global "stone" utility remap (scoped to exclude
-   daylight) so text/fills read correctly on dark without per-file juggling.
-   The @theme values below are the dark fallback used only if no theme matches.
---------------------------------------------------------------------------- */
+/* ============================================================================
+   WorkWith design foundation
+   ----------------------------------------------------------------------------
+   Two brand families, each in light + dark:
+     studio-light  studio-dark   — warm, human. Fraunces display + rosewood.
+     signal-light  signal-dark   — crisp, modern. Inter tight + indigo.
+
+   The theme id lives in one data-theme attribute on <html>. Prefix picks the
+   brand (accent, trait palette, fonts, radius); "-light"/"-dark" suffix picks
+   the neutral surfaces. Everything below is driven by semantic tokens, so a
+   screen never needs to know which theme is on.
+
+   Note on the cascade: Tailwind v4 emits utilities inside @layer, so the plain
+   (unlayered) rules further down override utility classes WITHOUT !important.
+   That is what lets the old stone-* remap hack go away cleanly.
+============================================================================ */
+
 @theme {
-  --color-brand-50: #16233f;
-  --color-brand-100: #1b2c4d;
-  --color-brand-200: #2f4d80;
-  --color-brand-500: #60a5fa;
-  --color-brand-600: #3b82f6;
-  --color-brand-700: #93c5fd;
-  --color-brand-800: #bfdbfe;
-
-  --color-ink: #e7ecf6;
-  --color-muted: #97a3ba;
-  --color-paper: #0a0f1e;
-  --color-surface: #141c30;
-  --color-elevated: #1b2542;
-  --color-border: #27324e;
-
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* -----------------------------------------------------------------------------
-   Themes. Applied via data-theme on <html>. Every theme is dark; they change
-   the page tint and accent ramp. Default = "midnight".
------------------------------------------------------------------------------ */
-:root[data-theme="midnight"] {
-  --color-paper: #0a0f1e;
-  --color-surface: #141c30;
-  --color-elevated: #1b2542;
-  --color-border: #27324e;
-  --color-brand-50: #16233f;
-  --color-brand-200: #2f4d80;
-  --color-brand-600: #3b82f6;
-  --color-brand-700: #93c5fd;
-  --bg-gradient: linear-gradient(135deg, #090d1a 0%, #24357a 100%);
-}
-/* Graphite: neutral slate canvas, cool steel-blue accent. */
-:root[data-theme="graphite"] {
-  --color-paper: #0d1117;
-  --color-surface: #161b24;
-  --color-elevated: #1e2530;
-  --color-border: #2a323f;
-  --color-brand-50: #1c2635;
-  --color-brand-200: #35506f;
-  --color-brand-600: #4f8bd6;
-  --color-brand-700: #a9cbf0;
-  --bg-gradient: linear-gradient(135deg, #0c1016 0%, #29405c 100%);
-}
-/* Deep teal: near-black canvas, vivid teal accent. */
-:root[data-theme="teal"] {
-  --color-paper: #08120f;
-  --color-surface: #0f1d1a;
-  --color-elevated: #16292a;
-  --color-border: #1f3730;
-  --color-brand-50: #10302a;
-  --color-brand-200: #1f6355;
-  --color-brand-600: #14b8a6;
-  --color-brand-700: #7ff0e0;
-  --bg-gradient: linear-gradient(135deg, #06100d 0%, #125447 100%);
-}
-/* Crimson: deep warm-charcoal canvas, bold red accent. (The internal id stays
-   "ember" so anyone who already selected this slot keeps it, now in red.) */
-:root[data-theme="ember"] {
-  --color-paper: #150c0d;
-  --color-surface: #221315;
-  --color-elevated: #2c181b;
-  --color-border: #3f2429;
-  --color-brand-50: #3a161a;
-  --color-brand-200: #8a3236;
-  --color-brand-600: #ef4444;
-  --color-brand-700: #fca5a5;
-  --bg-gradient: linear-gradient(135deg, #150b0d 0%, #5f1622 100%);
-}
-/* Daylight: a clean LIGHT theme. White cards on a soft blue-gray canvas, dark
-   ink, calm blue accent. The dark "stone" remap below is scoped OUT of this
-   theme, so the app's original light-built styling shows through. */
-:root[data-theme="daylight"] {
-  --color-paper: #f6f8fb;
-  --color-surface: #ffffff;
-  --color-elevated: #ffffff;
-  --color-border: #e4e8f0;
-  --color-ink: #1b2333;
-  --color-muted: #5c6880;
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #dce8fe;
-  --color-brand-200: #c3d6fb;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --bg-gradient: linear-gradient(135deg, #eef4ff 0%, #b9d0f4 100%);
+/* ---- Studio (warm) : light --------------------------------------------- */
+:root,
+:root[data-theme="studio-light"] {
+  --canvas: #f3efe9;
+  --surface: #fffefb;
+  --surface-2: #f6f1ea;
+  --elevated: #ffffff;
+  --fill-3: #ece4d8;
+  --line: #e8e0d4;
+  --line-strong: #dbd0c0;
+  --ink: #241f27;
+  --ink-strong: #16121a;
+  --muted: #6d6573;
+  --faint: #9a9199;
+
+  --accent: #b23a5b;
+  --accent-hover: #9d3050;
+  --on-accent: #ffffff;
+  --accent-text: #a32d4f;
+  --accent-soft: #f7e7ec;
+  --accent-soft-text: #8c2544;
+  --accent-border: #ecccd6;
+
+  --trait-e: #c14d6a;
+  --trait-a: #cf8a34;
+  --trait-c: #8a5fa3;
+  --trait-n: #3d8b83;
+  --trait-o: #b5603f;
+
+  --shadow-card: 0 1px 2px rgba(60, 30, 45, 0.05), 0 8px 24px rgba(60, 30, 45, 0.07);
+  --shadow-pop: 0 8px 30px rgba(60, 30, 45, 0.14);
+
+  --radius-card: 16px;
+  --radius-btn: 11px;
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
+/* ---- Studio (warm) : dark ---------------------------------------------- */
+:root[data-theme="studio-dark"] {
+  --canvas: #17131b;
+  --surface: #211b27;
+  --surface-2: #2a2331;
+  --elevated: #2a2331;
+  --fill-3: #372e40;
+  --line: #342c3d;
+  --line-strong: #453a4f;
+  --ink: #f1ecf3;
+  --ink-strong: #ffffff;
+  --muted: #a79db0;
+  --faint: #786e80;
+
+  --accent: #c9476a;
+  --accent-hover: #d85a7c;
+  --on-accent: #ffffff;
+  --accent-text: #ec9bb0;
+  --accent-soft: #37222b;
+  --accent-soft-text: #f0aec0;
+  --accent-border: #4d3340;
+
+  --trait-e: #e07189;
+  --trait-a: #e2a24f;
+  --trait-c: #b088cf;
+  --trait-n: #5cb3a8;
+  --trait-o: #d8845f;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 12px 34px rgba(0, 0, 0, 0.5);
+
+  --radius-card: 16px;
+  --radius-btn: 11px;
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Signal (crisp) : light -------------------------------------------- */
+:root[data-theme="signal-light"] {
+  --canvas: #eef1f6;
+  --surface: #ffffff;
+  --surface-2: #f2f5fa;
+  --elevated: #ffffff;
+  --fill-3: #e6ebf3;
+  --line: #e3e8f0;
+  --line-strong: #d3dae6;
+  --ink: #0e1524;
+  --ink-strong: #05080f;
+  --muted: #5a6478;
+  --faint: #8b95a8;
+
+  --accent: #4f46e5;
+  --accent-hover: #4038d4;
+  --on-accent: #ffffff;
+  --accent-text: #4239cf;
+  --accent-soft: #ecebfd;
+  --accent-soft-text: #3a32bf;
+  --accent-border: #cfccf7;
+
+  --trait-e: #4f46e5;
+  --trait-a: #2d8ce0;
+  --trait-c: #7c3aed;
+  --trait-n: #0ea5a0;
+  --trait-o: #38afc9;
+
+  --shadow-card: 0 1px 2px rgba(14, 21, 40, 0.06), 0 6px 18px rgba(14, 21, 40, 0.07);
+  --shadow-pop: 0 8px 30px rgba(14, 21, 40, 0.16);
+
+  --radius-card: 12px;
+  --radius-btn: 9px;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Signal (crisp) : dark --------------------------------------------- */
+:root[data-theme="signal-dark"] {
+  --canvas: #0b0f18;
+  --surface: #141a26;
+  --surface-2: #1b2230;
+  --elevated: #1b2230;
+  --fill-3: #27303f;
+  --line: #262f3e;
+  --line-strong: #34404f;
+  --ink: #e7ecf6;
+  --ink-strong: #ffffff;
+  --muted: #98a3b8;
+  --faint: #6a7688;
+
+  --accent: #6c63f5;
+  --accent-hover: #7d75f7;
+  --on-accent: #ffffff;
+  --accent-text: #a7a1f7;
+  --accent-soft: #21203a;
+  --accent-soft-text: #bcb8fa;
+  --accent-border: #332f52;
+
+  --trait-e: #7d75f5;
+  --trait-a: #5aa7ec;
+  --trait-c: #a06ff5;
+  --trait-n: #2bc4bd;
+  --trait-o: #5cc3db;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45), 0 10px 28px rgba(0, 0, 0, 0.4);
+  --shadow-pop: 0 12px 34px rgba(0, 0, 0, 0.55);
+
+  --radius-card: 12px;
+  --radius-btn: 9px;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Legacy aliases -------------------------------------------------------
+   Components still reference var(--color-*) inline. These late-bound aliases
+   resolve to whatever the active theme set, so no component needs editing.
+--------------------------------------------------------------------------- */
+:root {
+  --color-paper: var(--canvas);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-border: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-brand-50: var(--accent-soft);
+  --color-brand-100: var(--accent-soft);
+  --color-brand-200: var(--accent-border);
+  --color-brand-500: var(--accent);
+  --color-brand-600: var(--accent);
+  --color-brand-700: var(--accent-text);
+  --color-brand-800: var(--accent-text);
+  --bg-gradient: var(--canvas);
+}
+
+/* ---- Base ---------------------------------------------------------------- */
 html {
   -webkit-text-size-adjust: 100%;
 }
-
 body {
-  background-color: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-
-/* Two-color, corner-to-corner gradient canvas behind everything. Fixed so it
-   spans the viewport consistently as you scroll; cards sit solid on top. Each
-   theme supplies its own --bg-gradient. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: var(--bg-gradient, var(--color-paper));
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-soft-text);
 }
 
-/* -----------------------------------------------------------------------------
-   Dark remap of the Tailwind "stone" utilities used throughout the app. These
-   were written for a LIGHT theme (dark text / light fills); on the dark themes
-   we point them at dark values so every screen reads correctly without touching
-   each file. Scoped to NOT apply on "daylight", where the original light-theme
-   Tailwind values are exactly what we want.
------------------------------------------------------------------------------ */
-:root:not([data-theme="daylight"]) {
-  .text-stone-800 { color: #e7ecf6 !important; }
-  .text-stone-700 { color: #d4dcec !important; }
-  .text-stone-600 { color: #b7c2d6 !important; }
-  .text-stone-500 { color: #97a3ba !important; }
-  .text-stone-400 { color: #7d8aa2 !important; }
-  .text-stone-300 { color: #6b7893 !important; }
+/* ---- Neutral ramp remap (Tailwind stone-*) --------------------------------
+   The app was authored with stone-* utilities as its neutral ramp. Point them
+   at semantic tokens so they read correctly in every theme. Unlayered, so they
+   win over Tailwind's own utilities without !important.
+--------------------------------------------------------------------------- */
+.text-stone-800 { color: var(--ink-strong); }
+.text-stone-700 { color: var(--ink); }
+.text-stone-600 { color: var(--ink); }
+.text-stone-500 { color: var(--muted); }
+.text-stone-400 { color: var(--faint); }
+.text-stone-300 { color: var(--faint); }
 
-  .bg-stone-50 { background-color: #131a2b !important; }
-  .bg-stone-100 { background-color: #1c2540 !important; }
-  .bg-stone-200 { background-color: #273150 !important; }
-  .hover\:bg-stone-100:hover { background-color: #212b45 !important; }
+.bg-stone-50 { background-color: var(--surface-2); }
+.bg-stone-100 { background-color: var(--surface-2); }
+.bg-stone-200 { background-color: var(--fill-3); }
+.hover\:bg-stone-100:hover { background-color: var(--surface-2); }
 
-  .border-stone-100 { border-color: #212b45 !important; }
-  .border-stone-200 { border-color: #27324e !important; }
-  .border-stone-300 { border-color: #313d5c !important; }
+.border-stone-100 { border-color: var(--line); }
+.border-stone-200 { border-color: var(--line); }
+.border-stone-300 { border-color: var(--line-strong); }
 
-  /* Sidebar / bars written as translucent white: make them dark glass. */
-  .bg-white { background-color: var(--color-surface) !important; }
-  .bg-white\/70 { background-color: color-mix(in srgb, var(--color-surface) 82%, transparent) !important; }
-  .bg-white\/90 { background-color: color-mix(in srgb, var(--color-surface) 92%, transparent) !important; }
-}
+.bg-stone-500\/70 { background-color: color-mix(in srgb, var(--muted) 70%, transparent); }
+.bg-stone-200\/70 { background-color: color-mix(in srgb, var(--fill-3) 70%, transparent); }
 
-/* Daylight fixups: a few primitives were baked with dark-surface assumptions
-   (light label ink, near-black primary-button text, heavy dark card shadow).
-   Restore light-appropriate values under the light theme. */
-:root[data-theme="daylight"] {
-  .label { color: #475569; }
-  .btn-primary { color: #ffffff; }
-  .btn-secondary:hover { background: #eef1f6; }
-  .btn-ghost:hover { background: #eef1f6; color: var(--color-ink); }
-  .card {
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 14px rgba(16, 24, 40, 0.06);
-  }
-}
+/* Surfaces authored as white / translucent white become themed surfaces. */
+.bg-white { background-color: var(--surface); }
+.bg-white\/70 { background-color: color-mix(in srgb, var(--surface) 82%, transparent); }
+.bg-white\/90 { background-color: color-mix(in srgb, var(--surface) 92%, transparent); }
 
-/* Reusable primitives ------------------------------------------------------- */
+/* ---- Semantic state colours on dark themes --------------------------------
+   The light-tint state utilities (red/green/amber 50s) are authored for light
+   surfaces. On the dark themes, retint them so callouts stay coherent.
+--------------------------------------------------------------------------- */
+:root[data-theme$="-dark"] .bg-red-50 { background-color: #3a1d1f; }
+:root[data-theme$="-dark"] .bg-green-50 { background-color: #16301f; }
+:root[data-theme$="-dark"] .bg-amber-50,
+:root[data-theme$="-dark"] .bg-orange-50 { background-color: #33260f; }
+:root[data-theme$="-dark"] .bg-orange-100 { background-color: #3a2a12; }
+:root[data-theme$="-dark"] .bg-orange-50\/40 { background-color: color-mix(in srgb, #33260f 60%, transparent); }
+:root[data-theme$="-dark"] .text-red-700 { color: #fca5a5; }
+:root[data-theme$="-dark"] .text-red-600 { color: #f89a9a; }
+:root[data-theme$="-dark"] .text-red-400 { color: #ee9a9a; }
+:root[data-theme$="-dark"] .text-green-700 { color: #86efac; }
+:root[data-theme$="-dark"] .text-amber-700,
+:root[data-theme$="-dark"] .text-orange-700,
+:root[data-theme$="-dark"] .text-orange-800,
+:root[data-theme$="-dark"] .text-orange-600 { color: #fcd34d; }
+:root[data-theme$="-dark"] .border-red-200 { border-color: #5a2d2f; }
+:root[data-theme$="-dark"] .border-green-200 { border-color: #255036; }
+:root[data-theme$="-dark"] .border-orange-200 { border-color: #4a3416; }
+
+/* ---- Reusable primitives ------------------------------------------------- */
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 1rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .btn {
@@ -178,66 +277,67 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  font-family: var(--font-body);
   font-weight: 600;
-  border-radius: 0.625rem;
+  border-radius: var(--radius-btn);
   padding: 0.625rem 1rem;
   font-size: 0.9375rem;
   line-height: 1.25rem;
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s,
-    box-shadow 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
   cursor: pointer;
 }
 .btn:focus-visible {
-  outline: 2px solid var(--color-brand-600);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 .btn-primary {
-  background: var(--color-brand-600);
-  color: #0a0f1e;
-  font-weight: 700;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 650;
 }
 .btn-primary:hover {
-  background: color-mix(in srgb, var(--color-brand-600) 88%, #fff);
+  background: var(--accent-hover);
 }
 .btn-secondary {
-  background: var(--color-elevated);
-  color: var(--color-ink);
-  border: 1px solid var(--color-border);
+  background: var(--elevated);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
 }
 .btn-secondary:hover {
-  background: color-mix(in srgb, var(--color-elevated) 85%, #fff);
+  background: var(--surface-2);
 }
 .btn-ghost {
   background: transparent;
-  color: var(--color-muted);
+  color: var(--muted);
 }
 .btn-ghost:hover {
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  color: var(--color-ink);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 .btn-danger {
   background: transparent;
-  color: #fca5a5;
-  border: 1px solid #7f2c2c;
+  color: #d1556b;
+  border: 1px solid color-mix(in srgb, #d1556b 45%, transparent);
 }
 .btn-danger:hover {
-  background: rgba(220, 38, 38, 0.12);
+  background: color-mix(in srgb, #d1556b 12%, transparent);
 }
 
 .input {
   width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: 0.625rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-btn);
   padding: 0.625rem 0.75rem;
   font-size: 0.9375rem;
-  background: var(--color-elevated);
-  color: var(--color-ink);
+  font-family: var(--font-body);
+  background: var(--elevated);
+  color: var(--ink);
 }
 .input::placeholder {
-  color: var(--color-muted);
+  color: var(--faint);
 }
 .input:focus {
-  outline: 2px solid var(--color-brand-600);
+  outline: 2px solid var(--accent);
   outline-offset: 0;
   border-color: transparent;
 }
@@ -245,7 +345,7 @@ body::before {
 .label {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #c2ccdd;
+  color: var(--muted);
 }
 
 .pill {

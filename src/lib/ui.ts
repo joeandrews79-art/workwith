@@ -3,12 +3,15 @@
 import { DomainCode } from "./ipip";
 import { Band } from "./scoring";
 
+/** Trait colours resolve to per-theme CSS variables (defined in globals.css),
+ *  so the palette shifts with the active brand (warm for Studio, cool for
+ *  Signal). Safe because every consumer applies these via inline `style`. */
 export const DOMAIN_COLOR: Record<DomainCode, string> = {
-  E: "#ea580c", // social energy — orange
-  A: "#16a34a", // collaboration — green
-  C: "#2563eb", // structure & drive — blue
-  N: "#0891b2", // emotional steadiness — cyan
-  O: "#9333ea", // openness to change — purple
+  E: "var(--trait-e)", // social energy
+  A: "var(--trait-a)", // collaboration
+  C: "var(--trait-c)", // structure & drive
+  N: "var(--trait-n)", // emotional steadiness
+  O: "var(--trait-o)", // openness to change
 };
 
 export const BAND_LABEL: Record<Band, string> = {

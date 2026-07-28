@@ -38,14 +38,21 @@ export function initials(name: string): string {
     .join("");
 }
 
-/** Stable pastel avatar color from a name. */
-export function avatarColor(name: string): string {
+/** One of the theme's trait colours, chosen stably from a name. The avatar
+ *  helpers below mix it with the surface/ink tokens, so avatars stay on the
+ *  active palette and adapt to light/dark on their own. */
+const AVATAR_TRAITS = ["--trait-e", "--trait-a", "--trait-c", "--trait-n", "--trait-o"];
+function avatarTrait(name: string): string {
   let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
-  return `hsl(${h} 45% 88%)`;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return AVATAR_TRAITS[h % AVATAR_TRAITS.length];
 }
+
+/** Soft, on-palette avatar fill derived from a name (theme-aware). */
+export function avatarColor(name: string): string {
+  return `color-mix(in srgb, var(${avatarTrait(name)}) 20%, var(--surface))`;
+}
+/** Readable ink to pair with avatarColor, in the same hue family. */
 export function avatarInkColor(name: string): string {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
-  return `hsl(${h} 55% 32%)`;
+  return `color-mix(in srgb, var(${avatarTrait(name)}) 68%, var(--ink))`;
 }

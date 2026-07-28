@@ -333,7 +333,7 @@ function ProgressHeader({
   saving: "idle" | "saving" | "saved" | "error";
 }) {
   return (
-    <div className="sticky top-14 z-10 bg-paper/95 backdrop-blur py-3" style={{ background: "var(--color-paper)" }}>
+    <div className="sticky top-14 z-10 py-3" style={{ background: "var(--color-paper)" }}>
       <div className="flex items-center justify-between text-sm mb-1.5">
         <span className="font-medium">
           {answeredCount} of {total} answered

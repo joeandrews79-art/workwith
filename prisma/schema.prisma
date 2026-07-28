@@ -62,6 +62,7 @@ model User {
   email        String       @unique
   name         String
   title        String? // job title, e.g. "Head of Operations"
+  avatar       String? // optional profile photo as a small, resized data URL (replaces initials)
   passwordHash String
   role         String       @default("MEMBER") // ADMIN | MEMBER
   mustReset    Boolean      @default(false) // force password change on first login

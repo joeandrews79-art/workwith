@@ -13,6 +13,7 @@ export interface OverviewRow {
   id: string;
   name: string;
   title: string | null;
+  avatar: string | null;
   role: string; // org role: ADMIN | MEMBER
   teamRole?: "LEADER" | "MEMBER"; // per-team role, set by team-scoped loaders
   status: MemberStatus;
@@ -45,6 +46,7 @@ type UserWithData = {
   id: string;
   name: string;
   title: string | null;
+  avatar: string | null;
   role: string;
   profile: { shared: boolean; refreshedAt: Date | null } | null;
   assessments: { status: string; completedAt: Date | null; responses: string }[];
@@ -65,6 +67,7 @@ function toOverviewRow(u: UserWithData): OverviewRow {
     id: u.id,
     name: u.name,
     title: u.title,
+    avatar: u.avatar,
     role: u.role,
     status,
     shared: u.profile?.shared ?? false,

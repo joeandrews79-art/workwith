@@ -131,7 +131,7 @@ function LeaderView({
         <div className="card divide-y divide-stone-100 overflow-hidden">
           {rows.map((r) => (
             <div key={r.id} className="flex items-center gap-3 px-4 py-3">
-              <Avatar name={r.name} />
+              <Avatar name={r.name} avatar={r.avatar} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{r.name}</span>
@@ -196,7 +196,7 @@ function MemberView({
             const viewable = r.status === "completed" && (r.shared || r.id === viewerId);
             const Card = (
               <div className="card p-4 h-full flex items-start gap-3 transition-shadow hover:shadow-sm">
-                <Avatar name={r.name} size={11} />
+                <Avatar name={r.name} avatar={r.avatar} size={11} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="font-semibold truncate">{r.name}</span>
@@ -226,13 +226,18 @@ function MemberView({
   );
 }
 
-function Avatar({ name, size = 9 }: { name: string; size?: number }) {
+function Avatar({ name, avatar, size = 9 }: { name: string; avatar?: string | null; size?: number }) {
+  const px = `${size * 4}px`;
+  if (avatar) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={avatar} alt={name} className="rounded-full object-cover shrink-0" style={{ width: px, height: px }} />;
+  }
   return (
     <span
       className="grid place-items-center rounded-full font-bold shrink-0"
       style={{
-        width: `${size * 4}px`,
-        height: `${size * 4}px`,
+        width: px,
+        height: px,
         fontSize: size >= 11 ? "0.875rem" : "0.75rem",
         background: avatarColor(name),
         color: avatarInkColor(name),

@@ -52,6 +52,7 @@ export interface AssembledProfile {
   userId: string;
   name: string;
   title: string | null;
+  avatar: string | null;
   shared: boolean;
   refreshedAt: Date | null;
   stale: boolean;
@@ -104,6 +105,7 @@ export async function assembleProfile(userId: string): Promise<AssembledProfile 
     userId: user.id,
     name: user.name,
     title: user.title,
+    avatar: user.avatar,
     shared: user.profile?.shared ?? false,
     refreshedAt,
     stale: isStale(refreshedAt),

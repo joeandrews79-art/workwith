@@ -158,3 +158,11 @@ self-report Big Five, fully local.
 See the README "From local prototype to a hosted app with logins": Supabase
 Postgres + Supabase Auth + Netlify/Vercel + Postgres RLS. The data and auth seams
 are already isolated for this.
+
+## Phase 3 (deferred by owner 2026-07-28)
+
+- **Bulk onboarding**: one-time invite links (magic-link, mustReset exists) + CSV
+  bulk import so invited people self-serve their password and claim their
+  profile. Replaces the current one-at-a-time shared-temp-password invite.
+- **Avatars everywhere**: profile photos now show on the profile, dashboard, and
+  directory. Extend to meeting rosters and the Team map dots.

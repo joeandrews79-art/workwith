@@ -183,7 +183,7 @@ export default function AppShell({
 
       {/* Content */}
       <div className="md:pl-52">
-        <main className="max-w-5xl mx-auto px-4 py-6 sm:py-8">{children}</main>
+        <main className="max-w-5xl mx-auto px-5 py-6 sm:px-8 sm:py-8">{children}</main>
         <footer className="max-w-5xl mx-auto px-4 py-8 text-[11px] text-stone-400 leading-relaxed">
           WorkWith is a self-report reflection tool built on the public-domain Big
           Five (IPIP-NEO-120, Goldberg / Johnson 2014). It is not a clinical,

@@ -188,6 +188,47 @@ export async function saveNarrative(edited: Narrative) {
   return { ok: true };
 }
 
+const detailsSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  title: z.string().trim().max(120).optional().nullable(),
+});
+
+/** Edit your own name and title. */
+export async function updateMyDetails(
+  input: z.infer<typeof detailsSchema>,
+): Promise<{ ok: true } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  const parsed = detailsSchema.safeParse(input);
+  if (!parsed.success) return { error: "Please enter your name." };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { name: parsed.data.name, title: parsed.data.title || null },
+  });
+  revalidatePath("/me");
+  revalidatePath("/dashboard");
+  revalidatePath("/directory");
+  return { ok: true };
+}
+
+/** Set or clear your profile photo. Expects a small resized data URL, or null to remove. */
+export async function updateMyAvatar(
+  dataUrl: string | null,
+): Promise<{ ok: true } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (dataUrl !== null) {
+    if (!/^data:image\/(png|jpeg|webp);base64,/.test(dataUrl))
+      return { error: "That wasn't a supported image." };
+    if (dataUrl.length > 400_000) return { error: "That image is too large. Try a smaller one." };
+  }
+  await prisma.user.update({ where: { id: user.id }, data: { avatar: dataUrl } });
+  revalidatePath("/me");
+  revalidatePath("/dashboard");
+  revalidatePath("/directory");
+  return { ok: true };
+}
+
 export async function resetNarrative() {
   const user = await getCurrentUser();
   if (!user) return { error: "Not signed in." };

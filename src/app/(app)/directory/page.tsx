@@ -35,13 +35,18 @@ export default async function DirectoryPage() {
           const viewable = m.status === "completed" && (m.shared || m.id === user.id);
           const Card = (
             <div className="card p-4 h-full flex items-start gap-3 transition-shadow hover:shadow-sm">
-              <span
-                className="grid place-items-center w-11 h-11 rounded-full text-sm font-bold shrink-0"
-                style={{ background: avatarColor(m.name), color: avatarInkColor(m.name) }}
-                aria-hidden
-              >
-                {initials(m.name)}
-              </span>
+              {m.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={m.avatar} alt={m.name} className="w-11 h-11 rounded-full object-cover shrink-0" />
+              ) : (
+                <span
+                  className="grid place-items-center w-11 h-11 rounded-full text-sm font-bold shrink-0"
+                  style={{ background: avatarColor(m.name), color: avatarInkColor(m.name) }}
+                  aria-hidden
+                >
+                  {initials(m.name)}
+                </span>
+              )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="font-semibold truncate">{m.name}</span>

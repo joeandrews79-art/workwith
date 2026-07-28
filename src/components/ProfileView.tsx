@@ -1,8 +1,9 @@
 import { AssembledProfile } from "@/lib/profile";
 import { DomainCode, DOMAIN_ORDER, DOMAINS, FACETS } from "@/lib/ipip";
 import { SECTION_LABELS, SectionKey } from "@/lib/narrative";
-import { DOMAIN_COLOR, initials, avatarColor, avatarInkColor } from "@/lib/ui";
+import { DOMAIN_COLOR } from "@/lib/ui";
 import TraitBars from "@/components/TraitBars";
+import ProfileIdentity from "@/components/ProfileIdentity";
 import { formatDate } from "@/components/Bits";
 
 const SECTION_ORDER: SectionKey[] = [
@@ -37,27 +38,14 @@ export default function ProfileView({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start gap-4">
-        <span
-          className="grid place-items-center w-14 h-14 rounded-2xl text-lg font-bold shrink-0"
-          style={{ background: avatarColor(profile.name), color: avatarInkColor(profile.name) }}
-          aria-hidden
-        >
-          {initials(profile.name)}
-        </span>
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight">{profile.name}</h1>
-          <p className="text-stone-500">{profile.title ?? "Team member"}</p>
-          {profile.refreshedAt && (
-            <p className="text-xs text-stone-400 mt-1">
-              Last refreshed {formatDate(profile.refreshedAt)}
-              {profile.stale && (
-                <span className="text-orange-600 font-medium"> · refresh due</span>
-              )}
-            </p>
-          )}
-        </div>
-      </div>
+      <ProfileIdentity
+        name={profile.name}
+        title={profile.title}
+        avatar={profile.avatar}
+        refreshedLabel={profile.refreshedAt ? formatDate(profile.refreshedAt) : null}
+        stale={profile.stale}
+        owner={owner}
+      />
 
       {/* Summary */}
       {narrative && (

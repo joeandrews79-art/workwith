@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import AccountMenu from "@/components/AccountMenu";
 import TeamSwitcher from "@/components/TeamSwitcher";
 import CaptureButton from "@/components/CaptureButton";
+import HelpWidget from "@/components/HelpWidget";
 
 type IconKey =
   | "dashboard"
@@ -75,6 +76,7 @@ export default function AppShell({
   isAdmin,
   teams,
   activeTeamId,
+  helpAiEnabled = false,
   children,
 }: {
   name: string;
@@ -82,6 +84,7 @@ export default function AppShell({
   isAdmin: boolean;
   teams: { id: string; name: string; role: "LEADER" | "MEMBER" }[];
   activeTeamId: string | null;
+  helpAiEnabled?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -189,6 +192,8 @@ export default function AppShell({
           scores to Anthropic; no one else's data is sent.
         </footer>
       </div>
+
+      <HelpWidget aiEnabled={helpAiEnabled} isAdmin={isAdmin} />
     </div>
   );
 }

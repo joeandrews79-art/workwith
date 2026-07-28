@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { getActiveTeamContext } from "@/lib/active-team";
+import { helpEnabled } from "@/lib/help";
 import AppShell from "@/components/AppShell";
 
 export default async function AppLayout({
@@ -21,6 +22,7 @@ export default async function AppLayout({
       isAdmin={isAdmin(user)}
       teams={teams}
       activeTeamId={activeTeamId}
+      helpAiEnabled={helpEnabled()}
     >
       {children}
     </AppShell>

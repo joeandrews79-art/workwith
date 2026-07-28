@@ -38,6 +38,7 @@ import { generateInterpretation, interpretEnabled, InterpretationResult } from "
 import { extractMeetingFromImage, visionEnabled, VisionMediaType } from "@/lib/meeting-vision";
 import { timeInputToMinute } from "@/lib/calendar";
 import { generateMeetingIdeas, brainstormEnabled, MeetingIdea } from "@/lib/brainstorm";
+import { answerHelpQuestion, helpEnabled } from "@/lib/help";
 
 // --- Auth -------------------------------------------------------------------
 
@@ -1053,6 +1054,27 @@ export async function createMeetingFromIdea(
   });
   revalidatePath("/meeting");
   return { ok: true, id: meeting.id };
+}
+
+// --- Help assistant --------------------------------------------------------
+
+/** Answer a how-to question about the app, grounded in the user guide. */
+export async function askHelp(
+  question: string,
+): Promise<{ ok: true; answer: string } | { error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Not signed in." };
+  if (!helpEnabled())
+    return { error: "The help assistant is not turned on. Try the full guide instead." };
+  const q = question.trim();
+  if (q.length < 3) return { error: "Type a question first." };
+  if (q.length > 500) return { error: "Please keep it under 500 characters." };
+  try {
+    const answer = await answerHelpQuestion(q, isAdmin(user));
+    return { ok: true, answer };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not answer right now." };
+  }
 }
 
 /** Set a member's per-team role (leader vs member). Managers of the team only. */

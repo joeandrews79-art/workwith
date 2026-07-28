@@ -9,6 +9,7 @@ export interface GuideSection {
   title: string;
   adminOnly?: boolean;
   intro: string;
+  image?: string; // optional screenshot path under /public
   steps?: string[];
   tips?: string[];
 }
@@ -46,6 +47,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "profile",
     title: "Your profile",
+    image: "/guide/profile.png",
     intro:
       "Your profile turns your answers into a plain-language read of how you work: a summary, a 'how to work with me' section, your five Big Five traits, and 30 detailed facets.",
     steps: [
@@ -74,6 +76,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "team-map",
     title: "Team map",
+    image: "/guide/team-map.png",
     intro:
       "The Team map shows where everyone on your team lands across the Big Five, and where you sit in the mix.",
     steps: [
@@ -88,6 +91,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "compare",
     title: "Compare",
+    image: "/guide/compare.png",
     intro:
       "Compare shows where any group of people differ most, with talking points for a 1:1 or a group.",
     steps: [
@@ -100,6 +104,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "meetings",
     title: "Meetings and the calendar",
+    image: "/guide/meetings.png",
     intro:
       "The Meetings tab is a calendar of every meeting you are in, across all your teams. Plan a meeting to get working-style prep tuned to the room.",
     steps: [
@@ -148,6 +153,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "thoughts",
     title: "Thoughts and brainstorming meetings",
+    image: "/guide/thoughts.png",
     intro:
       "Thoughts is your private space to capture fleeting ideas and turn them into meetings. It also includes an AI brainstorm to help you figure out which meetings to run.",
     steps: [
@@ -161,6 +167,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "dashboard",
     title: "Your dashboard",
+    image: "/guide/dashboard.png",
     intro:
       "The Dashboard is your home base: your profile status, today's meetings, and how far along your team is.",
     steps: [

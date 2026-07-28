@@ -38,6 +38,16 @@ export default async function GuidePage() {
             <h2 className="text-lg font-semibold tracking-tight">{s.title}</h2>
             <p className="text-stone-600 mt-1 leading-relaxed">{s.intro}</p>
 
+            {s.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={s.image}
+                alt={`${s.title} screenshot`}
+                className="mt-3 w-full rounded-xl border"
+                style={{ borderColor: "var(--color-border)" }}
+              />
+            )}
+
             {s.steps && s.steps.length > 0 && (
               <ol className="mt-3 space-y-2">
                 {s.steps.map((step, i) => (

@@ -115,6 +115,106 @@ export function compareMembers(a: Member, b: Member): Difference[] {
   return diffs.sort((x, y) => y.gap - x.gap);
 }
 
+/* ---------------------------------------------------------------------------
+   Relational coaching: "how do I work with <person>?"
+   Deterministic and local (no AI, nothing leaves the app). Reuses the shared
+   profile data already visible on Compare, and turns the biggest style gaps
+   into advice directed at the viewer.
+--------------------------------------------------------------------------- */
+
+// Directed advice per domain, from the VIEWER's side. `theyHigh` = the other
+// person sits higher on this trait than the viewer; `theyLow` = lower. {n} is
+// the other person's first name.
+const ADVICE: Record<DomainCode, { theyHigh: string; theyLow: string }> = {
+  E: {
+    theyHigh:
+      "{n} thinks out loud and gets energy from live back-and-forth, while you do your best thinking with some quiet first. Give {n} a quick reaction in the moment so they are not left guessing, then ask for time to follow up once you have sat with it.",
+    theyLow:
+      "{n} processes before speaking and can find nonstop live discussion draining, while you think by talking. Send a note or agenda ahead so {n} can prepare, and leave real silence in the room for their take instead of filling it.",
+  },
+  A: {
+    theyHigh:
+      "{n} weighs how a decision lands on people and leans toward consensus, while you lead with the outcome. Say the warm part out loud before the blunt part, and frame a hard call as a shared problem rather than a verdict.",
+    theyLow:
+      "{n} is direct and outcome-first and will tell you straight, while you read the room more. Take their bluntness as respect, not friction, and give them your real position in one plain sentence before you add the nuance.",
+  },
+  C: {
+    theyHigh:
+      "{n} likes a plan and clear next steps, while you work in bursts and adapt as you go. Put the plan in writing and flag changes early, so your flexibility does not read as unreliability to them.",
+    theyLow:
+      "{n} works flexibly and can feel boxed in by heavy process, while you want the plan pinned down. Agree on the few things that truly must be fixed, and leave the rest open so they have room to move.",
+  },
+  N: {
+    theyHigh:
+      "{n} stays even under pressure, while you read stress early and feel it. Do not mistake their calm for not caring, and name it plainly when a deadline or conflict is getting to you so they can adjust.",
+    theyLow:
+      "{n} feels pressure early and reads stress in the room, while you stay level. Give them a heads-up before big changes and a little more reassurance under a tight deadline, since what feels routine to you may not to them.",
+  },
+  O: {
+    theyHigh:
+      "{n} likes to explore new approaches and rethink things, while you trust what already works. Hear the new idea out before you weigh the risk, and ask them to pressure-test it against the proven path rather than shutting it down.",
+    theyLow:
+      "{n} trusts proven methods and can find constant experimenting unsettling, while you like to try new angles. Bring a change with a clear reason and a small first step, so it feels like a considered move and not churn.",
+  },
+};
+
+export interface RelationalMove {
+  trait: string;
+  text: string;
+}
+
+export interface RelationalGuide {
+  otherName: string;
+  headline: string;
+  read: string;
+  moves: RelationalMove[];
+  commonGround: string | null;
+}
+
+/** Advice for the viewer on working with one teammate, from their style gaps. */
+export function workingWith(viewer: Member, other: Member): RelationalGuide {
+  const first = other.name.trim().split(/\s+/)[0];
+  const diffs = compareMembers(viewer, other); // sorted widest gap first
+
+  const significant = diffs.filter((d) => d.gap >= 8);
+  const top = (significant.length ? significant : []).slice(0, 3);
+
+  const moves: RelationalMove[] = top.map((d) => {
+    const otherHigher =
+      other.domains[d.domain].friendlyScore > viewer.domains[d.domain].friendlyScore;
+    const text = (otherHigher ? ADVICE[d.domain].theyHigh : ADVICE[d.domain].theyLow).replace(
+      /\{n\}/g,
+      first,
+    );
+    return { trait: d.friendlyLabel, text };
+  });
+
+  // Common ground: the trait where you sit closest, if it is genuinely close.
+  const closest = diffs[diffs.length - 1];
+  const commonGround =
+    closest && closest.gap <= 10
+      ? `You land close together on ${closest.friendlyLabel.toLowerCase()}, which is easy shared ground.`
+      : null;
+
+  let headline: string;
+  let read: string;
+  if (moves.length === 0) {
+    headline = `You and ${first} work in pretty similar ways.`;
+    read =
+      "Your styles line up across the board, so friction is unlikely to come from how you each work. The thing to watch is the blind spot two similar people can share, so invite a different view on the calls that matter.";
+  } else {
+    const t1 = top[0].friendlyLabel.toLowerCase();
+    const t2 = top[1]?.friendlyLabel.toLowerCase();
+    headline = `The biggest gap between you and ${first} is ${t1}.`;
+    read =
+      `Where you two are furthest apart is ${t1}${t2 ? ` and ${t2}` : ""}. ` +
+      `That is not a problem, it just tells you where a little translation goes a long way.` +
+      (commonGround ? ` ${commonGround}` : "");
+  }
+
+  return { otherName: other.name, headline, read, moves, commonGround };
+}
+
 export interface DiscussionPoint {
   title: string;
   detail: string;

@@ -2,6 +2,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { assembleProfile } from "@/lib/profile";
 import { coachEnabled, type CoachingPlan } from "@/lib/coach";
+import { getActiveTeamContext } from "@/lib/active-team";
+import { getVisibleTeamMembers } from "@/lib/team-data";
+import type { Member } from "@/lib/team";
 import { formatDate } from "@/components/Bits";
 import Coach from "@/components/Coach";
 
@@ -11,6 +14,17 @@ export default async function CoachPage() {
   const user = (await getCurrentUser())!;
   const profile = await assembleProfile(user.id);
   const hasProfile = Boolean(profile && profile.domains);
+
+  // Teammates with visible profiles, for the "how do I work with…" front door.
+  // Deterministic and local, so this works even without an AI key.
+  let viewerMember: Member | null = null;
+  let teammates: Member[] = [];
+  const { activeTeam } = await getActiveTeamContext(user.id);
+  if (activeTeam && hasProfile) {
+    const members = await getVisibleTeamMembers(activeTeam.id, user.id);
+    viewerMember = members.find((m) => m.id === user.id) ?? null;
+    teammates = members.filter((m) => m.id !== user.id);
+  }
 
   let initialPlan: CoachingPlan | null = null;
   let generatedAt: string | null = null;
@@ -44,6 +58,8 @@ export default async function CoachPage() {
         enabled={coachEnabled()}
         initialPlan={initialPlan}
         generatedAt={generatedAt}
+        viewer={viewerMember}
+        teammates={teammates}
       />
     </div>
   );

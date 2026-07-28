@@ -98,6 +98,12 @@ const RPT_CSS = `
 .rpt-pref dd{font-size:14.5px;margin:0;color:#1b2333;font-weight:500;}
 .rpt-foot{margin-top:30px;padding-top:14px;border-top:1px solid #e2e7f0;font-size:11.5px;color:#8a95a8;line-height:1.5;}
 .rpt-avoid-break{break-inside:avoid;}
+@media screen and (max-width:640px){
+  .rpt-paper{padding:24px 18px;}
+  .rpt-name{font-size:25px;}
+  .rpt-facets{grid-template-columns:1fr;gap:8px 0;}
+  .rpt-facet-name{white-space:normal;}
+}
 @media print{
   body::before{display:none !important;}
   .rpt-screen{background:#fff !important;padding:0;}

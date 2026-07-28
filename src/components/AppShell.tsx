@@ -7,6 +7,7 @@ import AccountMenu from "@/components/AccountMenu";
 import TeamSwitcher from "@/components/TeamSwitcher";
 import CaptureButton from "@/components/CaptureButton";
 import HelpWidget from "@/components/HelpWidget";
+import ChunkReloader from "@/components/ChunkReloader";
 
 type IconKey =
   | "dashboard"
@@ -194,6 +195,7 @@ export default function AppShell({
       </div>
 
       <HelpWidget aiEnabled={helpAiEnabled} isAdmin={isAdmin} />
+      <ChunkReloader />
     </div>
   );
 }

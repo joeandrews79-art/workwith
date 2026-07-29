@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { generateMyTeamRead } from "@/app/actions";
 import type { TeamReadResult } from "@/lib/team-read";
 
@@ -16,6 +16,7 @@ export default function TeamReadCard({
   const [read, setRead] = useState<TeamReadResult | null>(initial);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const autoRan = useRef(false);
 
   function run() {
     setError(null);
@@ -25,6 +26,18 @@ export default function TeamReadCard({
       else setRead(res.read);
     });
   }
+
+  // The team changed since this read was written. Refresh it automatically,
+  // once, so the user always sees an up-to-date read without lifting a finger.
+  useEffect(() => {
+    if (stale && read && canGenerate && !autoRan.current) {
+      autoRan.current = true;
+      run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stale, canGenerate]);
+
+  const updating = stale && pending;
 
   if (!read) {
     return (
@@ -61,7 +74,9 @@ export default function TeamReadCard({
       </div>
       {stale && (
         <p className="text-xs mt-1.5" style={{ color: "var(--color-brand-700)" }}>
-          Your team has changed since this was written. Refresh for an up-to-date read.
+          {updating
+            ? "Your team changed. Updating your read…"
+            : "Your team has changed since this was written. Refresh for an up-to-date read."}
         </p>
       )}
       <p className="text-sm text-stone-600 mt-2 leading-relaxed">{read.summary}</p>

@@ -36,7 +36,14 @@ import {
   CoachingPlan,
   CoachAnswer,
 } from "@/lib/coach";
-import { generateTeamRead, teamReadEnabled, TeamReadResult, TeamReadTrait } from "@/lib/team-read";
+import {
+  generateTeamRead,
+  teamReadEnabled,
+  TeamReadResult,
+  TeamReadTrait,
+  teamSignature,
+  parseTeamReadStore,
+} from "@/lib/team-read";
 import { generateInterpretation, interpretEnabled, InterpretationResult } from "@/lib/interpret";
 import { extractMeetingFromImage, visionEnabled, VisionMediaType } from "@/lib/meeting-vision";
 import { timeInputToMinute } from "@/lib/calendar";
@@ -346,11 +353,10 @@ export async function setActiveTeam(teamId: string) {
   });
   if (!membership) return { error: "You're not on that team." };
   await writeActiveTeamCookie(teamId);
-  revalidatePath("/dashboard");
-  revalidatePath("/directory");
-  revalidatePath("/compare");
-  revalidatePath("/team-map");
-  revalidatePath("/meeting");
+  // One layout-level revalidation refreshes every team-scoped view and the
+  // sidebar in a single pass. The caller no longer needs a second router
+  // refresh, which was doubling the work (and the wait) on each switch.
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -1344,9 +1350,29 @@ export async function generateMyTeamRead(): Promise<
       teamSize: members.length,
       traits,
     });
+    // Store per team, stamped with the current makeup+scores signature, so it
+    // survives team switches and is only recomputed when the team changes.
+    const existing = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { teamRead: true, teamReadTeamId: true, teamReadAt: true },
+    });
+    const store = parseTeamReadStore(
+      existing?.teamRead ?? null,
+      existing?.teamReadTeamId ?? null,
+      existing?.teamReadAt ?? null,
+    );
+    store[activeTeam.id] = {
+      read,
+      sig: teamSignature(members),
+      at: new Date().toISOString(),
+    };
     await prisma.profile.update({
       where: { userId: user.id },
-      data: { teamRead: JSON.stringify(read), teamReadAt: new Date(), teamReadTeamId: activeTeam.id },
+      data: {
+        teamRead: JSON.stringify(store),
+        teamReadAt: new Date(),
+        teamReadTeamId: activeTeam.id,
+      },
     });
     revalidatePath("/team-map");
     return { ok: true, read, teamId: activeTeam.id };

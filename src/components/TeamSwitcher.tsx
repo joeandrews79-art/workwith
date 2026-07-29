@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { setActiveTeam } from "@/app/actions";
 
 interface TeamRef {
@@ -21,9 +20,9 @@ export default function TeamSwitcher({
   teams: TeamRef[];
   activeTeamId: string | null;
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [optimisticId, setOptimisticId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,15 +35,19 @@ export default function TeamSwitcher({
 
   if (teams.length === 0) return null;
 
-  const active = teams.find((t) => t.id === activeTeamId) ?? teams[0];
+  const active =
+    teams.find((t) => t.id === (optimisticId ?? activeTeamId)) ?? teams[0];
   const canSwitch = teams.length > 1;
 
   function choose(id: string) {
     setOpen(false);
     if (id === active.id) return;
+    // Show the new team immediately; the server action's layout revalidation
+    // re-renders the page content in a single round trip (no extra refresh).
+    setOptimisticId(id);
     startTransition(async () => {
-      await setActiveTeam(id);
-      router.refresh();
+      const res = await setActiveTeam(id);
+      if (res && "error" in res) setOptimisticId(null); // revert on failure
     });
   }
 

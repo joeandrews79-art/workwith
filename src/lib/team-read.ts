@@ -13,9 +13,11 @@
  */
 
 import "server-only";
+import crypto from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import { Band } from "./scoring";
-import { RelBand } from "./team";
+import { RelBand, Member } from "./team";
+import { DOMAIN_ORDER } from "./ipip";
 import { ORG_CONTEXT } from "./ai";
 
 export function teamReadEnabled(): boolean {
@@ -140,4 +142,65 @@ Write ${input.firstName}'s team read: a one-line headline naming how they sit in
     summary: parsed.summary ?? "",
     tips: Array.isArray(parsed.tips) ? parsed.tips : [],
   };
+}
+
+/* ---- Per-team caching + change detection -------------------------------- */
+
+/**
+ * A stable fingerprint of the inputs a team read depends on: which members are
+ * on the team and their (rounded) trait scores. If nobody is added or removed
+ * and no one's scores change, the signature is identical, so a cached read is
+ * still valid. A retake or a roster change flips it, which is exactly when the
+ * read should be recomputed.
+ */
+export function teamSignature(members: Member[]): string {
+  const basis = members
+    .map(
+      (m) =>
+        `${m.id}:` +
+        DOMAIN_ORDER.map((d) => Math.round(m.domains[d].friendlyScore)).join(","),
+    )
+    .sort()
+    .join("|");
+  return crypto.createHash("sha1").update(basis).digest("hex").slice(0, 16);
+}
+
+export interface TeamReadEntry {
+  read: TeamReadResult;
+  sig: string | null; // null = legacy entry with unknown signature
+  at: string; // ISO timestamp
+}
+
+/** Map of teamId -> cached read, stored (as JSON) in Profile.teamRead. */
+export type TeamReadStore = Record<string, TeamReadEntry>;
+
+/**
+ * Parse the stored team-read blob into a per-team map. Migrates the old
+ * single-read format (a bare TeamReadResult) into a map entry for the team it
+ * was generated against, so an existing read is not lost on upgrade.
+ */
+export function parseTeamReadStore(
+  json: string | null,
+  legacyTeamId: string | null,
+  legacyAt: Date | null,
+): TeamReadStore {
+  if (!json) return {};
+  try {
+    const obj = JSON.parse(json) as unknown;
+    if (obj && typeof obj === "object" && "headline" in (obj as Record<string, unknown>)) {
+      // Legacy single read.
+      if (legacyTeamId)
+        return {
+          [legacyTeamId]: {
+            read: obj as TeamReadResult,
+            sig: null,
+            at: legacyAt?.toISOString() ?? "",
+          },
+        };
+      return {};
+    }
+    return (obj as TeamReadStore) ?? {};
+  } catch {
+    return {};
+  }
 }

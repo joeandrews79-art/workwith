@@ -28,6 +28,7 @@ export default async function CoachPage() {
 
   let initialPlan: CoachingPlan | null = null;
   let generatedAt: string | null = null;
+  let stale = false; // older than a week → refresh (picks up this week's meetings)
   if (hasProfile) {
     const row = await prisma.profile.findUnique({
       where: { userId: user.id },
@@ -37,6 +38,8 @@ export default async function CoachPage() {
       try {
         initialPlan = JSON.parse(row.coaching) as CoachingPlan;
         generatedAt = row.coachingAt ? formatDate(row.coachingAt) : null;
+        const WEEK = 7 * 24 * 60 * 60 * 1000;
+        stale = row.coachingAt ? Date.now() - row.coachingAt.getTime() > WEEK : true;
       } catch {
         initialPlan = null;
       }
@@ -58,6 +61,7 @@ export default async function CoachPage() {
         enabled={coachEnabled()}
         initialPlan={initialPlan}
         generatedAt={generatedAt}
+        stale={stale}
         viewer={viewerMember}
         teammates={teammates}
       />

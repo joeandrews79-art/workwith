@@ -46,7 +46,9 @@ import {
 } from "@/lib/team-read";
 import { generateInterpretation, interpretEnabled, InterpretationResult } from "@/lib/interpret";
 import { extractMeetingFromImage, visionEnabled, VisionMediaType } from "@/lib/meeting-vision";
-import { timeInputToMinute } from "@/lib/calendar";
+import { timeInputToMinute, todayKey, addDays, WEEKDAY_SHORT } from "@/lib/calendar";
+import { getMyMeetings } from "@/lib/meeting-data";
+import { meetingType } from "@/lib/meeting-types";
 import { generateMeetingIdeas, brainstormEnabled, MeetingIdea } from "@/lib/brainstorm";
 import { answerHelpQuestion, helpEnabled } from "@/lib/help";
 
@@ -1248,12 +1250,39 @@ async function myCoachInput(userId: string, orgId: string, name: string) {
   const profile = await assembleProfile(userId);
   if (!profile || !profile.domains) return null;
   const prefs = await getAnsweredPreferences(orgId, userId);
+
+  // Upcoming meetings this week, so the coach can make experiments timely.
+  // Privacy: only type + attendee first names + rough day, never titles/goals.
+  const today = todayKey();
+  const weekEnd = addDays(today, 7);
+  const meetings = (await getMyMeetings(userId))
+    .filter(
+      (m) =>
+        m.scheduledFor &&
+        m.scheduledFor.getTime() >= today.getTime() &&
+        m.scheduledFor.getTime() <= weekEnd.getTime(),
+    )
+    .slice(0, 6)
+    .map((m) => {
+      const days = Math.round((m.scheduledFor!.getTime() - today.getTime()) / 86_400_000);
+      const whenLabel =
+        days <= 0 ? "today" : days === 1 ? "tomorrow" : WEEKDAY_SHORT[m.scheduledFor!.getUTCDay()];
+      return {
+        typeLabel: meetingType(m.type).label,
+        withNames: m.attendees
+          .filter((a) => a.id !== userId)
+          .map((a) => a.name.trim().split(/\s+/)[0]),
+        whenLabel,
+      };
+    });
+
   return {
     firstName: name.trim().split(/\s+/)[0] || name,
     domains: profile.domains,
     facets: profile.facets,
     narrative: profile.narrative,
     prefs: prefs.map((p) => ({ prompt: p.prompt, answer: p.display })),
+    meetings,
   };
 }
 

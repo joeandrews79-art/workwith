@@ -49,12 +49,22 @@ export interface PrefBrief {
   answer: string;
 }
 
+/** An upcoming meeting the coach can tailor experiments to. Deliberately NOT
+ *  the title or goal (which could be sensitive): only the type, who's in it by
+ *  first name, and roughly when. */
+export interface CoachMeeting {
+  typeLabel: string;
+  withNames: string[];
+  whenLabel: string;
+}
+
 interface CoachInput {
   firstName: string;
   domains: Record<DomainCode, DomainScore>;
   facets: FacetScore[];
   narrative: Narrative | null;
   prefs: PrefBrief[];
+  meetings: CoachMeeting[];
 }
 
 const COACH_SYSTEM = `${ORG_CONTEXT}
@@ -64,6 +74,7 @@ You are now acting as a warm, sharp working-style coach for ONE Riser, speaking 
 Coaching rules (firm):
 - Frame everything as a preference and a lever, never as a flaw, deficit, or ranking. A strong trait and its opposite are both useful in different moments.
 - Be specific and behavioral. Every growth edge must come with concrete experiments the person could actually try this week, tied to real Rise8 situations (remote and async work, direct feedback, high autonomy, outcomes in production).
+- If they have upcoming meetings listed, tie at least one experiment to a specific one, naming its type and who is in it (for example "in your 1:1 with Priya this week, try..."). Make it timely and real. If they have no meetings listed, keep the experiments general and do NOT invent meetings or names.
 - Ground each point in their actual scores and their own words. Do not invent traits they do not have.
 - Speak plainly and directly, a little warmer than casual, never corporate or therapeutic.
 - Do NOT use em dashes anywhere. Use periods, commas, or parentheses. This is firm.
@@ -142,7 +153,7 @@ const ANSWER_SCHEMA = {
 
 /** Build the grounded, plain-text brief of this person's profile. */
 function profileBrief(input: CoachInput): string {
-  const { firstName, domains, facets, narrative, prefs } = input;
+  const { firstName, domains, facets, narrative, prefs, meetings } = input;
 
   const domainLines = DOMAIN_ORDER.map((d) => {
     const s = domains[d];
@@ -181,6 +192,18 @@ Frustrations: ${sec.frustrations}`;
       prefs.map((p) => `- ${p.prompt} ${p.answer}`).join("\n")
     : "";
 
+  const meetingText = meetings.length
+    ? "\nTheir upcoming meetings this week (tie at least one experiment to one of these; use only what is stated):\n" +
+      meetings
+        .map(
+          (m) =>
+            `- ${m.whenLabel}: ${m.typeLabel}${
+              m.withNames.length ? " with " + m.withNames.join(", ") : ""
+            }`,
+        )
+        .join("\n")
+    : "\nThey have no meetings scheduled this week, so keep the experiments general to their work.";
+
   return `Person: ${firstName}
 
 Scores are 0 to 100 in the FRIENDLY direction, so higher is more of the friendly label (for Emotional steadiness, higher means calmer under pressure). Bands: low is under 40, high is over 60, otherwise moderate.
@@ -190,7 +213,7 @@ ${domainLines}
 
 Standout facets (scores are in the direction of the facet name, e.g. high Anxiety means more anxious, high Self-Discipline means more disciplined):
 ${standout || "- None strongly one way or the other."}
-${narrativeText}${prefText}`;
+${narrativeText}${prefText}${meetingText}`;
 }
 
 function client(): Anthropic {

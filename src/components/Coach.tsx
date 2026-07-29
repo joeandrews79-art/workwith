@@ -156,6 +156,7 @@ export default function Coach({
   enabled,
   initialPlan,
   generatedAt,
+  stale,
   viewer,
   teammates,
 }: {
@@ -163,11 +164,13 @@ export default function Coach({
   enabled: boolean;
   initialPlan: CoachingPlan | null;
   generatedAt: string | null;
+  stale: boolean;
   viewer: Member | null;
   teammates: Member[];
 }) {
   const [plan, setPlan] = useState<CoachingPlan | null>(initialPlan);
   const [when, setWhen] = useState<string | null>(generatedAt);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [question, setQuestion] = useState("");
@@ -176,16 +179,16 @@ export default function Coach({
   const [askError, setAskError] = useState<string | null>(null);
   const autoRan = useRef(false);
 
-  // Fully automatic: write the plan the first time it's missing. A retake
-  // clears it, so it regenerates itself on the next visit. (generate is a
-  // hoisted function declaration below.)
+  // Fully automatic: write the plan when it's missing, and refresh it weekly
+  // (stale) so it always reflects this week's meetings. A retake also clears it.
+  // (generate is a hoisted function declaration below.)
   useEffect(() => {
-    if (enabled && hasProfile && !plan && !autoRan.current) {
+    if (enabled && hasProfile && (!plan || stale) && !autoRan.current) {
       autoRan.current = true;
       generate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, hasProfile]);
+  }, [enabled, hasProfile, stale]);
 
   if (!hasProfile) {
     return (
@@ -204,7 +207,9 @@ export default function Coach({
 
   async function generate() {
     setError(null);
+    setBusy(true);
     const res = await generateMyCoaching();
+    setBusy(false);
     if ("error" in res) setError(res.error);
     else {
       setPlan(res.plan);
@@ -262,6 +267,11 @@ export default function Coach({
           </div>
         ) : (
           <>
+            {busy && (
+              <p className="text-xs" style={{ color: "var(--accent-text)" }}>
+                Refreshing this week&apos;s plan…
+              </p>
+            )}
             <div className="card p-6">
               <div className="flex items-start gap-3">
                 <span

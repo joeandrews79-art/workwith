@@ -58,6 +58,21 @@ export interface CoachMeeting {
   whenLabel: string;
 }
 
+/** Where the person sits on their active team, per trait. AGGREGATE ONLY (team
+ *  average + the viewer's position), matching the team read's privacy boundary:
+ *  no teammate is ever named. Null when they have no team to compare against. */
+export interface CoachTeamTrait {
+  friendly: string;
+  you: number;
+  teamMean: number;
+  rel: string; // "above" | "around" | "below" the team
+}
+export interface CoachTeam {
+  teamName: string;
+  size: number;
+  traits: CoachTeamTrait[];
+}
+
 interface CoachInput {
   firstName: string;
   domains: Record<DomainCode, DomainScore>;
@@ -65,6 +80,30 @@ interface CoachInput {
   narrative: Narrative | null;
   prefs: PrefBrief[];
   meetings: CoachMeeting[];
+  team: CoachTeam | null;
+}
+
+/* ---- Per-team caching --------------------------------------------------
+   The plan is team-aware, so it is cached per active team (keyed by team id,
+   or "_none" when the person has no team). Weekly refresh keeps each current.
+------------------------------------------------------------------------- */
+export interface CoachEntry {
+  plan: CoachingPlan;
+  at: string; // ISO timestamp
+}
+export type CoachStore = Record<string, CoachEntry>;
+
+/** Parse the stored coaching blob into a per-team map. The old single-plan
+ *  format (a bare CoachingPlan) is discarded so it regenerates per team. */
+export function parseCoachStore(json: string | null): CoachStore {
+  if (!json) return {};
+  try {
+    const obj = JSON.parse(json) as Record<string, unknown>;
+    if (obj && typeof obj === "object" && ("headline" in obj || "growthEdges" in obj)) return {};
+    return (obj as CoachStore) ?? {};
+  } catch {
+    return {};
+  }
 }
 
 const COACH_SYSTEM = `${ORG_CONTEXT}
@@ -75,6 +114,7 @@ Coaching rules (firm):
 - Frame everything as a preference and a lever, never as a flaw, deficit, or ranking. A strong trait and its opposite are both useful in different moments.
 - Be specific and behavioral. Every growth edge must come with concrete experiments the person could actually try this week, tied to real Rise8 situations (remote and async work, direct feedback, high autonomy, outcomes in production).
 - If they have upcoming meetings listed, tie at least one experiment to a specific one, naming its type and who is in it (for example "in your 1:1 with Priya this week, try..."). Make it timely and real. If they have no meetings listed, keep the experiments general and do NOT invent meetings or names.
+- If their position on their team is provided, use where they sit relative to the group (the anchor on structure, the quiet one in a loud room, the sceptic among optimists) to shape the advice toward working well in THAT team. Use the aggregate position only, and never name or invent a specific teammate. If no team position is provided, do not reference a team.
 - Ground each point in their actual scores and their own words. Do not invent traits they do not have.
 - Speak plainly and directly, a little warmer than casual, never corporate or therapeutic.
 - Do NOT use em dashes anywhere. Use periods, commas, or parentheses. This is firm.
@@ -153,7 +193,7 @@ const ANSWER_SCHEMA = {
 
 /** Build the grounded, plain-text brief of this person's profile. */
 function profileBrief(input: CoachInput): string {
-  const { firstName, domains, facets, narrative, prefs, meetings } = input;
+  const { firstName, domains, facets, narrative, prefs, meetings, team } = input;
 
   const domainLines = DOMAIN_ORDER.map((d) => {
     const s = domains[d];
@@ -204,6 +244,18 @@ Frustrations: ${sec.frustrations}`;
         .join("\n")
     : "\nThey have no meetings scheduled this week, so keep the experiments general to their work.";
 
+  const teamText = team
+    ? `\nWhere they sit on their team "${team.teamName}" (${team.size} people, aggregate only, no teammate named):\n` +
+      team.traits
+        .map(
+          (t) =>
+            `- ${t.friendly}: you ${Math.round(t.you)}, team average ${Math.round(
+              t.teamMean,
+            )}, you sit ${t.rel} the team.`,
+        )
+        .join("\n")
+    : "\nThey have no team with enough shared profiles to compare, so do not reference team position.";
+
   return `Person: ${firstName}
 
 Scores are 0 to 100 in the FRIENDLY direction, so higher is more of the friendly label (for Emotional steadiness, higher means calmer under pressure). Bands: low is under 40, high is over 60, otherwise moderate.
@@ -213,7 +265,7 @@ ${domainLines}
 
 Standout facets (scores are in the direction of the facet name, e.g. high Anxiety means more anxious, high Self-Discipline means more disciplined):
 ${standout || "- None strongly one way or the other."}
-${narrativeText}${prefText}${meetingText}`;
+${narrativeText}${prefText}${teamText}${meetingText}`;
 }
 
 function client(): Anthropic {

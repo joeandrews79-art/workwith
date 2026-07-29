@@ -35,6 +35,8 @@ import {
   askCoach,
   CoachingPlan,
   CoachAnswer,
+  CoachTeam,
+  parseCoachStore,
 } from "@/lib/coach";
 import {
   generateTeamRead,
@@ -1276,14 +1278,41 @@ async function myCoachInput(userId: string, orgId: string, name: string) {
       };
     });
 
-  return {
+  // Where they sit on their ACTIVE team, aggregate only (no teammate named).
+  // The plan is cached under this team's key so switching teams shows the right
+  // one (mirrors the team read).
+  let team: CoachTeam | null = null;
+  let teamKey = "_none";
+  const { activeTeam } = await getActiveTeamContext(userId);
+  if (activeTeam) {
+    teamKey = activeTeam.id;
+    const members = await getVisibleTeamMembers(activeTeam.id, userId);
+    const viewer = members.find((m) => m.id === userId);
+    if (members.length >= 2 && viewer) {
+      const stats = teamStats(members);
+      team = {
+        teamName: activeTeam.name,
+        size: members.length,
+        traits: DOMAIN_ORDER.map((d) => ({
+          friendly: DOMAINS[d].friendly,
+          you: viewer.domains[d].friendlyScore,
+          teamMean: stats[d].mean,
+          rel: relBand(viewer.domains[d].friendlyScore, stats[d]),
+        })),
+      };
+    }
+  }
+
+  const input = {
     firstName: name.trim().split(/\s+/)[0] || name,
     domains: profile.domains,
     facets: profile.facets,
     narrative: profile.narrative,
     prefs: prefs.map((p) => ({ prompt: p.prompt, answer: p.display })),
     meetings,
+    team,
   };
+  return { input, teamKey };
 }
 
 /** Generate (or refresh) my coaching plan and cache it on my profile. */
@@ -1295,15 +1324,22 @@ export async function generateMyCoaching(): Promise<
   if (!coachEnabled())
     return { error: "Coaching is not turned on. An admin needs to set ANTHROPIC_API_KEY." };
 
-  const input = await myCoachInput(user.id, user.orgId, user.name);
-  if (!input)
+  const built = await myCoachInput(user.id, user.orgId, user.name);
+  if (!built)
     return { error: "Complete your assessment first so your coach has something to work with." };
 
   try {
-    const plan = await generateCoaching(input);
+    const plan = await generateCoaching(built.input);
+    // Store per active team so switching teams keeps each team's plan.
+    const existing = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { coaching: true },
+    });
+    const store = parseCoachStore(existing?.coaching ?? null);
+    store[built.teamKey] = { plan, at: new Date().toISOString() };
     await prisma.profile.update({
       where: { userId: user.id },
-      data: { coaching: JSON.stringify(plan), coachingAt: new Date() },
+      data: { coaching: JSON.stringify(store), coachingAt: new Date() },
     });
     revalidatePath("/coach");
     return { ok: true, plan };
@@ -1325,12 +1361,12 @@ export async function askMyCoach(
   if (q.length < 5) return { error: "Tell your coach a little more about the situation." };
   if (q.length > 1000) return { error: "Please keep it under 1000 characters." };
 
-  const input = await myCoachInput(user.id, user.orgId, user.name);
-  if (!input)
+  const built = await myCoachInput(user.id, user.orgId, user.name);
+  if (!built)
     return { error: "Complete your assessment first so your coach has something to work with." };
 
   try {
-    const answer = await askCoach({ ...input, question: q });
+    const answer = await askCoach({ ...built.input, question: q });
     return { ok: true, answer };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Coaching request failed." };

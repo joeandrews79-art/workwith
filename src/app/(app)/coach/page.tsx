@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { assembleProfile } from "@/lib/profile";
-import { coachEnabled, type CoachingPlan } from "@/lib/coach";
+import { coachEnabled, parseCoachStore, type CoachingPlan } from "@/lib/coach";
 import { getActiveTeamContext } from "@/lib/active-team";
 import { getVisibleTeamMembers } from "@/lib/team-data";
 import type { Member } from "@/lib/team";
@@ -26,23 +26,22 @@ export default async function CoachPage() {
     teammates = members.filter((m) => m.id !== user.id);
   }
 
+  // Coaching is team-aware, so it's cached per active team (keyed by team id).
+  const teamKey = activeTeam?.id ?? "_none";
   let initialPlan: CoachingPlan | null = null;
   let generatedAt: string | null = null;
-  let stale = false; // older than a week → refresh (picks up this week's meetings)
+  let stale = false; // older than a week → refresh (picks up team + this week's meetings)
   if (hasProfile) {
     const row = await prisma.profile.findUnique({
       where: { userId: user.id },
-      select: { coaching: true, coachingAt: true },
+      select: { coaching: true },
     });
-    if (row?.coaching) {
-      try {
-        initialPlan = JSON.parse(row.coaching) as CoachingPlan;
-        generatedAt = row.coachingAt ? formatDate(row.coachingAt) : null;
-        const WEEK = 7 * 24 * 60 * 60 * 1000;
-        stale = row.coachingAt ? Date.now() - row.coachingAt.getTime() > WEEK : true;
-      } catch {
-        initialPlan = null;
-      }
+    const entry = parseCoachStore(row?.coaching ?? null)[teamKey];
+    if (entry) {
+      initialPlan = entry.plan;
+      generatedAt = formatDate(new Date(entry.at));
+      const WEEK = 7 * 24 * 60 * 60 * 1000;
+      stale = Date.now() - Date.parse(entry.at) > WEEK;
     }
   }
 
@@ -57,6 +56,7 @@ export default async function CoachPage() {
       </header>
 
       <Coach
+        key={teamKey}
         hasProfile={hasProfile}
         enabled={coachEnabled()}
         initialPlan={initialPlan}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { generateMyCoaching, askMyCoach } from "@/app/actions";
 import type { CoachingPlan, CoachAnswer } from "@/lib/coach";
@@ -168,13 +168,24 @@ export default function Coach({
 }) {
   const [plan, setPlan] = useState<CoachingPlan | null>(initialPlan);
   const [when, setWhen] = useState<string | null>(generatedAt);
-  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
   const [answer, setAnswer] = useState<CoachAnswer | null>(null);
   const [askError, setAskError] = useState<string | null>(null);
+  const autoRan = useRef(false);
+
+  // Fully automatic: write the plan the first time it's missing. A retake
+  // clears it, so it regenerates itself on the next visit. (generate is a
+  // hoisted function declaration below.)
+  useEffect(() => {
+    if (enabled && hasProfile && !plan && !autoRan.current) {
+      autoRan.current = true;
+      generate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, hasProfile]);
 
   if (!hasProfile) {
     return (
@@ -192,10 +203,8 @@ export default function Coach({
   }
 
   async function generate() {
-    setGenerating(true);
     setError(null);
     const res = await generateMyCoaching();
-    setGenerating(false);
     if ("error" in res) setError(res.error);
     else {
       setPlan(res.plan);
@@ -242,14 +251,13 @@ export default function Coach({
             >
               <SparkIcon />
             </div>
-            <h3 className="text-lg font-bold">Get your personal coaching plan</h3>
+            <h3 className="text-lg font-bold">
+              {error ? "Your coaching plan" : "Your coach is reading your profile…"}
+            </h3>
             <p className="text-stone-500 mt-2 max-w-md mx-auto">
-              Your coach reads your working-style profile and gives you strengths to
-              lean into and a few concrete experiments to try this week.
+              Building your strengths to lean into and a few concrete experiments to try
+              this week, from your working-style profile.
             </p>
-            <button className="btn btn-primary mt-6" onClick={generate} disabled={generating}>
-              {generating ? "Your coach is thinking…" : "Generate my plan"}
-            </button>
             {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
           </div>
         ) : (
@@ -300,14 +308,9 @@ export default function Coach({
               </div>
             )}
 
-            <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
-              <p className="text-xs text-stone-400">
-                {when ? `Generated ${when}. ` : ""}Grounded in your own profile. Private to you.
-              </p>
-              <button className="btn btn-secondary py-1.5 text-sm" onClick={generate} disabled={generating}>
-                {generating ? "Thinking…" : "Regenerate"}
-              </button>
-            </div>
+            <p className="text-xs text-stone-400 pt-1">
+              {when ? `Generated ${when}. ` : ""}Grounded in your own profile. Private to you.
+            </p>
             {error && <p className="text-sm text-red-400">{error}</p>}
           </>
         )}

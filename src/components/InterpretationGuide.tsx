@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { generateMyInterpretation } from "@/app/actions";
 import type { InterpretationResult } from "@/lib/interpret";
 
@@ -12,8 +12,9 @@ const LEVEL_STYLE: Record<string, string> = {
 
 export default function InterpretationGuide({ initial }: { initial: InterpretationResult | null }) {
   const [guide, setGuide] = useState<InterpretationResult | null>(initial);
-  const [pending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const autoRan = useRef(false);
 
   function run() {
     setError(null);
@@ -24,29 +25,32 @@ export default function InterpretationGuide({ initial }: { initial: Interpretati
     });
   }
 
+  // Fully automatic: write the read the first time it's missing. A retake
+  // clears it, so it regenerates itself on the next visit.
+  useEffect(() => {
+    if (!guide && !autoRan.current) {
+      autoRan.current = true;
+      run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <section className="card p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="font-semibold flex items-center gap-2"><Spark /> What your scores mean</h2>
-          <p className="text-sm text-stone-500 mt-0.5">
-            A plain-language read of each trait, so your results are clear, not just numbers.
-          </p>
-        </div>
-        {guide && (
-          <button className="btn btn-ghost py-1 px-2 text-xs shrink-0" disabled={pending} onClick={run}>
-            {pending ? "…" : "Refresh"}
-          </button>
-        )}
+      <div>
+        <h2 className="font-semibold flex items-center gap-2"><Spark /> What your scores mean</h2>
+        <p className="text-sm text-stone-500 mt-0.5">
+          A plain-language read of each trait, so your results are clear, not just numbers.
+        </p>
       </div>
 
       {error && <p className="text-sm text-red-700 mt-3">{error}</p>}
 
       {!guide ? (
         <div className="mt-4">
-          <button className="btn btn-primary" disabled={pending} onClick={run}>
-            {pending ? "Writing…" : "Explain my scores"}
-          </button>
+          <p className="text-sm text-stone-500">
+            {error ? "" : "Writing your read…"}
+          </p>
           <p className="text-[11px] text-stone-400 mt-2">
             Written by Claude from your own scores only. Nothing about anyone else is sent.
           </p>

@@ -37,8 +37,6 @@ export default function TeamReadCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stale, canGenerate]);
 
-  const updating = stale && pending;
-
   if (!read) {
     return (
       <div
@@ -64,19 +62,12 @@ export default function TeamReadCard({
 
   return (
     <div className="card p-5" style={{ borderColor: "var(--color-brand-200)" }}>
-      <div className="flex items-start justify-between gap-3">
-        <p className="font-semibold flex items-center gap-2">
-          <Spark /> {read.headline}
-        </p>
-        <button className="btn btn-ghost py-1 px-2 text-xs shrink-0" disabled={pending} onClick={run}>
-          {pending ? "…" : "Refresh"}
-        </button>
-      </div>
-      {stale && (
+      <p className="font-semibold flex items-center gap-2">
+        <Spark /> {read.headline}
+      </p>
+      {pending && (
         <p className="text-xs mt-1.5" style={{ color: "var(--color-brand-700)" }}>
-          {updating
-            ? "Your team changed. Updating your read…"
-            : "Your team has changed since this was written. Refresh for an up-to-date read."}
+          Your team changed. Updating your read…
         </p>
       )}
       <p className="text-sm text-stone-600 mt-2 leading-relaxed">{read.summary}</p>

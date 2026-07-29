@@ -27,10 +27,11 @@ export default function TeamReadCard({
     });
   }
 
-  // The team changed since this read was written. Refresh it automatically,
-  // once, so the user always sees an up-to-date read without lifting a finger.
+  // Fully automatic: generate the read the first time it's missing, and refresh
+  // it whenever the team has changed (stale). No manual button. Runs once per
+  // mount; the card is keyed by team so a switch remounts and re-evaluates.
   useEffect(() => {
-    if (stale && read && canGenerate && !autoRan.current) {
+    if (canGenerate && (!read || stale) && !autoRan.current) {
       autoRan.current = true;
       run();
     }
@@ -40,22 +41,17 @@ export default function TeamReadCard({
   if (!read) {
     return (
       <div
-        className="card p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between"
+        className="card p-5"
         style={{ background: "var(--color-brand-50)", borderColor: "var(--color-brand-200)" }}
       >
-        <div>
-          <p className="font-semibold flex items-center gap-2">
-            <Spark /> Your team read
-          </p>
-          <p className="text-sm text-stone-600 mt-1 max-w-xl">
-            A short, personal read of where you sit in this team and how to work well given that
-            position. Uses your scores and the team's averages only, no teammate is named.
-          </p>
-          {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
-        </div>
-        <button className="btn btn-primary shrink-0" disabled={pending || !canGenerate} onClick={run}>
-          {pending ? "Reading…" : "Generate"}
-        </button>
+        <p className="font-semibold flex items-center gap-2">
+          <Spark /> {error ? "Your team read" : "Generating your team read…"}
+        </p>
+        <p className="text-sm text-stone-600 mt-1 max-w-xl">
+          A short, personal read of where you sit in this team and how to work well given that
+          position. Uses your scores and the team's averages only, no teammate is named.
+        </p>
+        {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
       </div>
     );
   }

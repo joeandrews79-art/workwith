@@ -21,10 +21,10 @@ export default function TraitBars({
           <div key={d}>
             <div className="flex items-baseline justify-between mb-1.5">
               <span className="text-sm font-semibold">{DOMAINS[d].friendly}</span>
-              <span className="text-xs font-mono text-stone-500">{Math.round(score)}</span>
+              <span className="text-xs font-mono text-muted">{Math.round(score)}</span>
             </div>
             <div
-              className="relative h-2.5 rounded-full bg-stone-100"
+              className="relative h-2.5 rounded-full bg-surface-2"
               role="meter"
               aria-valuenow={Math.round(score)}
               aria-valuemin={0}
@@ -37,14 +37,14 @@ export default function TraitBars({
               />
               {teamMean && (
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 w-0.5 h-4 bg-stone-500/70 rounded"
+                  className="absolute top-1/2 -translate-y-1/2 w-0.5 h-4 bg-muted/70 rounded"
                   style={{ left: `calc(${teamMean[d]}% - 1px)` }}
                   title={`Team average: ${Math.round(teamMean[d])}`}
                 />
               )}
             </div>
             {!compact && (
-              <div className="flex justify-between mt-1 text-[11px] text-stone-400">
+              <div className="flex justify-between mt-1 text-[11px] text-faint">
                 <span>{DOMAIN_POLES[d].low}</span>
                 <span>{DOMAIN_POLES[d].high}</span>
               </div>
@@ -53,8 +53,8 @@ export default function TraitBars({
         );
       })}
       {teamMean && (
-        <p className="text-[11px] text-stone-400 flex items-center gap-1.5">
-          <span className="inline-block w-0.5 h-3 bg-stone-500/70 rounded" />
+        <p className="text-[11px] text-faint flex items-center gap-1.5">
+          <span className="inline-block w-0.5 h-3 bg-muted/70 rounded" />
           Marker shows the team average for comparison.
         </p>
       )}

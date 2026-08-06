@@ -45,7 +45,7 @@ export default async function MeetingDetailPage({
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <Link href="/meeting" className="text-sm text-stone-500 hover:text-stone-700">← Meetings</Link>
+        <Link href="/meeting" className="text-sm text-muted hover:text-ink">← Meetings</Link>
         {canManage && <MeetingActions meetingId={detail.id} title={detail.title} />}
       </div>
 
@@ -57,7 +57,7 @@ export default async function MeetingDetailPage({
           >
             {t.label}
           </span>
-          <span className="text-xs text-stone-400">
+          <span className="text-xs text-faint">
             {detail.scheduledFor ? formatDate(detail.scheduledFor) : "No date set"}
             {detail.scheduledFor && detail.startMinute != null && (
               <> · {fmtTimeRange(detail.startMinute, detail.durationMin)}</>
@@ -65,7 +65,7 @@ export default async function MeetingDetailPage({
           </span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight">{detail.title}</h1>
-        {detail.goal && <p className="text-stone-600 mt-1">{detail.goal}</p>}
+        {detail.goal && <p className="text-ink-soft mt-1">{detail.goal}</p>}
 
         <div className="mt-4">
           <p className="label mb-2">In the room · {detail.attendees.length}</p>
@@ -73,7 +73,7 @@ export default async function MeetingDetailPage({
             {detail.attendees.map((a) => (
               <span
                 key={a.id}
-                className="flex items-center gap-1.5 rounded-full border border-stone-200 pl-1 pr-2.5 py-1 text-sm"
+                className="flex items-center gap-1.5 rounded-full border border-line-strong pl-1 pr-2.5 py-1 text-sm"
                 title={a.hasProfile ? undefined : "No profile yet"}
               >
                 <span
@@ -84,7 +84,7 @@ export default async function MeetingDetailPage({
                   {initials(a.name)}
                 </span>
                 {a.name}
-                {a.id === detail.createdById && <span className="text-[10px] text-stone-400">· organizer</span>}
+                {a.id === detail.createdById && <span className="text-[10px] text-faint">· organizer</span>}
               </span>
             ))}
           </div>
@@ -114,10 +114,10 @@ export default async function MeetingDetailPage({
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" /></svg>
               <h2 className="font-semibold">{t.label}</h2>
             </div>
-            <p className="text-sm text-stone-600 mb-3">{t.framing}</p>
+            <p className="text-sm text-ink-soft mb-3">{t.framing}</p>
             <ul className="space-y-2.5">
               {t.lens.map((p, i) => (
-                <li key={i} className="flex gap-2.5 text-sm text-stone-800">
+                <li key={i} className="flex gap-2.5 text-sm text-ink-strong">
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--color-brand-600)" }} />
                   <span className="leading-relaxed">{p}</span>
                 </li>
@@ -126,7 +126,7 @@ export default async function MeetingDetailPage({
           </section>
           <div className="card p-6 text-center">
             <p className="font-semibold">Complete your profile for personalized prep</p>
-            <p className="text-sm text-stone-500 mt-1 mb-4">
+            <p className="text-sm text-muted mt-1 mb-4">
               Finish the assessment and this meeting will also show how the room
               reads and how you specifically should show up.
             </p>
@@ -151,16 +151,16 @@ function AgendaReadOnly({ items }: { items: AgendaItemView[] }) {
     <section className="card p-5">
       <div className="flex items-center gap-2 mb-3">
         <h2 className="font-semibold">Agenda</h2>
-        {total > 0 && <span className="text-xs text-stone-400">{total} min total</span>}
+        {total > 0 && <span className="text-xs text-faint">{total} min total</span>}
       </div>
       <ol className="space-y-2">
         {items.map((a, i) => (
           <li key={a.id} className="flex items-start gap-2 text-sm">
-            <span className="text-stone-400 tabular-nums">{i + 1}.</span>
-            <span className="text-stone-700 flex-1">{a.topic}</span>
-            {a.minutes ? <span className="text-xs text-stone-400 shrink-0">{a.minutes}m</span> : null}
-            <span className="pill bg-stone-100 text-stone-500 text-[10px] shrink-0">{PURPOSE_LABEL[a.purpose] ?? a.purpose}</span>
-            {a.ownerName && <span className="text-[11px] text-stone-400 shrink-0">{a.ownerName}</span>}
+            <span className="text-faint tabular-nums">{i + 1}.</span>
+            <span className="text-ink flex-1">{a.topic}</span>
+            {a.minutes ? <span className="text-xs text-faint shrink-0">{a.minutes}m</span> : null}
+            <span className="pill bg-surface-2 text-muted text-[10px] shrink-0">{PURPOSE_LABEL[a.purpose] ?? a.purpose}</span>
+            {a.ownerName && <span className="text-[11px] text-faint shrink-0">{a.ownerName}</span>}
           </li>
         ))}
       </ol>

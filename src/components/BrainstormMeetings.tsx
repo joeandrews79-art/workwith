@@ -60,7 +60,7 @@ export default function BrainstormMeetings() {
   return (
     <section className="card p-5" style={{ borderColor: "var(--color-brand-200)" }}>
       <h2 className="font-semibold flex items-center gap-2"><Spark /> Brainstorm meetings</h2>
-      <p className="text-sm text-stone-500 mt-0.5 mb-3">
+      <p className="text-sm text-muted mt-0.5 mb-3">
         Not sure what meeting you need? Describe what you're trying to move forward and Claude will
         suggest a few concrete meetings you could run.
       </p>
@@ -74,10 +74,10 @@ export default function BrainstormMeetings() {
         <button className="btn btn-primary" disabled={pending || prompt.trim().length < 5} onClick={generate}>
           {pending && !ideas ? "Thinking…" : ideas ? "Regenerate" : "Suggest meetings"}
         </button>
-        <span className="text-[11px] text-stone-400">Sends your prompt and teammate names to Claude. No profiles are sent.</span>
+        <span className="text-[11px] text-faint">Sends your prompt and teammate names to Claude. No profiles are sent.</span>
       </div>
 
-      {error && <p className="text-sm text-red-700 mt-3">{error}</p>}
+      {error && <p className="text-sm text-danger mt-3">{error}</p>}
 
       {ideas && ideas.length > 0 && (
         <div className="mt-4 space-y-3">
@@ -87,10 +87,10 @@ export default function BrainstormMeetings() {
                 <span className="font-medium">{idea.title}</span>
                 <span className="pill text-[10px]" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}>{idea.meetingTypeLabel}</span>
               </div>
-              {idea.goal && <p className="text-sm text-stone-600 mt-1">{idea.goal}</p>}
-              {idea.why && <p className="text-xs text-stone-400 mt-1">{idea.why}</p>}
+              {idea.goal && <p className="text-sm text-ink-soft mt-1">{idea.goal}</p>}
+              {idea.why && <p className="text-xs text-faint mt-1">{idea.why}</p>}
               {idea.attendeeNames.length > 0 && (
-                <p className="text-xs text-stone-500 mt-2">Suggested: {idea.attendeeNames.join(", ")}</p>
+                <p className="text-xs text-muted mt-2">Suggested: {idea.attendeeNames.join(", ")}</p>
               )}
               <div className="flex items-center gap-2 mt-3">
                 <button
@@ -113,7 +113,7 @@ export default function BrainstormMeetings() {
         </div>
       )}
       {ideas && ideas.length === 0 && (
-        <p className="text-sm text-stone-500 mt-3">No ideas came back. Try describing the situation a little differently.</p>
+        <p className="text-sm text-muted mt-3">No ideas came back. Try describing the situation a little differently.</p>
       )}
     </section>
   );

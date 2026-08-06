@@ -74,7 +74,7 @@ export default function TeamRosterEditor({
       </div>
 
       {error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">
           {error}
         </p>
       )}
@@ -86,9 +86,9 @@ export default function TeamRosterEditor({
           {leaderCount > 0 && ` · ${leaderCount} leader${leaderCount > 1 ? "s" : ""}`}
         </p>
         {members.length === 0 ? (
-          <p className="text-sm text-stone-500">No one on this team yet. Add someone below.</p>
+          <p className="text-sm text-muted">No one on this team yet. Add someone below.</p>
         ) : (
-          <ul className="divide-y divide-stone-100 border border-stone-100 rounded-lg overflow-hidden">
+          <ul className="divide-y divide-line border border-line rounded-lg overflow-hidden">
             {members.map((m) => (
               <li key={m.id} className="flex items-center gap-3 px-3 py-2.5">
                 <span
@@ -100,7 +100,7 @@ export default function TeamRosterEditor({
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium truncate text-sm">{m.name}</div>
-                  <div className="text-xs text-stone-500 truncate">{m.title ?? "Team member"}</div>
+                  <div className="text-xs text-muted truncate">{m.title ?? "Team member"}</div>
                 </div>
                 <select
                   className="input py-1 px-2 text-xs shrink-0"
@@ -116,7 +116,7 @@ export default function TeamRosterEditor({
                   <option value="LEADER">Leader</option>
                 </select>
                 <button
-                  className="btn btn-ghost py-1 px-2 text-xs text-red-700"
+                  className="btn btn-ghost py-1 px-2 text-xs text-danger"
                   disabled={pending}
                   onClick={() => run(() => removeTeamMember(teamId, m.id))}
                   aria-label={`Remove ${m.name} from ${teamName}`}
@@ -162,9 +162,9 @@ export default function TeamRosterEditor({
       </div>
 
       {canDelete && (
-        <div className="pt-2 border-t border-stone-100">
+        <div className="pt-2 border-t border-line">
           <button
-            className="btn btn-ghost text-xs text-red-700"
+            className="btn btn-ghost text-xs text-danger"
             disabled={pending}
             onClick={() => {
               if (confirm(`Delete "${teamName}"? People stay in the org and on their other teams.`))

@@ -24,19 +24,19 @@ export default function TodayMeetings({ meetings }: { meetings: TodayMeetingItem
     <section>
       <div className="flex items-baseline justify-between gap-3 mb-3">
         <h2 className="font-semibold">Today's meetings</h2>
-        <Link href="/meeting" className="text-sm text-stone-500 hover:text-stone-700">Open calendar</Link>
+        <Link href="/meeting" className="text-sm text-muted hover:text-ink">Open calendar</Link>
       </div>
       {mine.length === 0 ? (
-        <div className="card p-5 text-sm text-stone-500">Nothing on your calendar today.</div>
+        <div className="card p-5 text-sm text-muted">Nothing on your calendar today.</div>
       ) : (
-        <div className="card divide-y divide-stone-100 overflow-hidden">
+        <div className="card divide-y divide-line overflow-hidden">
           {mine.map((m) => (
-            <Link key={m.id} href={`/meeting/${m.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-stone-50 transition-colors">
+            <Link key={m.id} href={`/meeting/${m.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-surface-2 transition-colors">
               <div className="w-24 shrink-0 text-sm tabular-nums">
                 {m.startMinute != null ? (
                   <span className="font-medium">{fmtTime(m.startMinute)}</span>
                 ) : (
-                  <span className="text-stone-400">All day</span>
+                  <span className="text-faint">All day</span>
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -44,12 +44,12 @@ export default function TodayMeetings({ meetings }: { meetings: TodayMeetingItem
                   <span className="font-medium truncate">{m.title}</span>
                   <span className="pill text-[10px]" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}>{m.typeLabel}</span>
                 </div>
-                <div className="text-xs text-stone-500 mt-0.5">
+                <div className="text-xs text-muted mt-0.5">
                   {m.startMinute != null && <>{fmtTimeRange(m.startMinute, m.durationMin)} · </>}
                   {m.people} {m.people === 1 ? "person" : "people"} · {m.teamName}
                 </div>
               </div>
-              <span className="text-sm text-stone-400 shrink-0 hidden sm:inline">Prep →</span>
+              <span className="text-sm text-faint shrink-0 hidden sm:inline">Prep →</span>
             </Link>
           ))}
         </div>

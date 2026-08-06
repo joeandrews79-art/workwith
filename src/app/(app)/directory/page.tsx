@@ -19,9 +19,9 @@ export default async function DirectoryPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight">{activeTeam.name}</h1>
-            <span className="text-sm text-stone-400">{members.length} people</span>
+            <span className="text-sm text-faint">{members.length} people</span>
           </div>
-          <p className="text-stone-500 mt-1">
+          <p className="text-muted mt-1">
             Open anyone's shared profile to see how they work.
           </p>
         </div>
@@ -52,10 +52,10 @@ export default async function DirectoryPage() {
                   <span className="font-semibold truncate">{m.name}</span>
                   {m.teamRole === "LEADER" && <LeaderPill />}
                   {m.id === user.id && (
-                    <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>
+                    <span className="pill bg-surface-2 text-muted text-[10px]">You</span>
                   )}
                 </div>
-                <p className="text-sm text-stone-500 truncate">{m.title ?? "Team member"}</p>
+                <p className="text-sm text-muted truncate">{m.title ?? "Team member"}</p>
                 <div className="flex flex-wrap items-center gap-1.5 mt-2">
                   {/* Members see share state (so they know what they can open);
                       per-person completion status stays a leader-level detail. */}

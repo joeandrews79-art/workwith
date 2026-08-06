@@ -29,7 +29,7 @@ export default async function MyProfilePage({
     return (
       <div className="max-w-md mx-auto text-center py-16">
         <h1 className="text-xl font-bold">You haven't completed your profile</h1>
-        <p className="text-stone-500 mt-2">
+        <p className="text-muted mt-2">
           Take the 10-to-15 minute assessment to generate your working-style
           profile.
         </p>
@@ -73,7 +73,7 @@ export default async function MyProfilePage({
     <div className="max-w-3xl mx-auto">
       {isAdmin(user) && (
         <div className="card p-3 mb-5 flex items-center justify-between gap-3">
-          <p className="text-sm text-stone-600">
+          <p className="text-sm text-ink-soft">
             You're viewing your <strong>member profile</strong>.
           </p>
           <Link href="/admin" className="btn btn-secondary py-1.5 text-sm">
@@ -89,7 +89,7 @@ export default async function MyProfilePage({
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m22 4-10 10.01-3-3" /></svg>
           <div>
             <p className="font-semibold text-sm">Your profile is ready</p>
-            <p className="text-sm text-stone-600">
+            <p className="text-sm text-ink-soft">
               Review it below, tweak any wording that doesn't sound like you, then
               share it with your team.
             </p>

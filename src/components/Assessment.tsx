@@ -207,20 +207,19 @@ export default function Assessment({
         <ProgressHeader answeredCount={answeredCount} total={total} pct={pct} saving={saving} />
         <div className="card p-6 sm:p-8 text-center mt-4">
           <div
-            className="mx-auto w-12 h-12 rounded-full grid place-items-center mb-4 text-white"
-            style={{ background: "#16a34a" }}
+            className="mx-auto w-12 h-12 rounded-full grid place-items-center mb-4 bg-success-solid text-on-success-solid"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
               <path d="M20 6 9 17l-5-5" />
             </svg>
           </div>
           <h2 className="text-xl font-bold">All {total} statements answered</h2>
-          <p className="text-stone-500 mt-2">
+          <p className="text-muted mt-2">
             Finish to generate your working-style profile. You can review and
             lightly edit the wording before you share it.
           </p>
           {error && (
-            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-4">
+            <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2 mt-4">
               {error}
             </p>
           )}
@@ -248,14 +247,14 @@ export default function Assessment({
       <ProgressHeader answeredCount={answeredCount} total={total} pct={pct} saving={saving} />
 
       <div className="card p-6 sm:p-8 mt-4">
-        <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-4">
+        <p className="text-xs font-semibold text-faint uppercase tracking-wide mb-4">
           Statement {idx + 1} of {total}
         </p>
         <fieldset>
           <legend className="text-lg sm:text-xl font-semibold leading-snug mb-1">
             {statement(item.text)}
           </legend>
-          <p className="text-sm text-stone-400 mb-5">
+          <p className="text-sm text-faint mb-5">
             How accurately does this describe you, generally?
           </p>
           <div className="grid gap-2">
@@ -314,7 +313,7 @@ export default function Assessment({
         </div>
       </div>
 
-      <p className="text-center text-xs text-stone-400 mt-4">
+      <p className="text-center text-xs text-faint mt-4">
         Tip: press keys 1 to 5 to answer, or use the arrow keys to move.
       </p>
     </div>
@@ -348,7 +347,7 @@ function ProgressHeader({
                 : `${pct}%`}
         </span>
       </div>
-      <div className="h-1.5 rounded-full bg-stone-200 overflow-hidden">
+      <div className="h-1.5 rounded-full bg-fill-3 overflow-hidden">
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${pct}%`, background: "var(--color-brand-600)" }}

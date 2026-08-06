@@ -75,7 +75,7 @@ export default function NarrativeEditor({
         <button className="btn btn-ghost" onClick={resetAll} disabled={pending}>
           Reset to auto-generated
         </button>
-        {saved && <span className="text-sm text-green-700">Saved</span>}
+        {saved && <span className="text-sm text-success">Saved</span>}
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ export default function ProfileToolbar({
             style={{ background: isShared ? "var(--color-brand-600)" : "#d6d3d1" }}
           >
             <span
-              className="inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow"
+              className="inline-block h-5 w-5 transform rounded-full bg-surface transition-transform shadow"
               style={{ transform: isShared ? "translateX(22px)" : "translateX(2px)" }}
             />
           </span>
@@ -58,7 +58,7 @@ export default function ProfileToolbar({
             <span className="block text-sm font-semibold">
               {isShared ? "Shared with your team" : "Private to you"}
             </span>
-            <span className="block text-xs text-stone-500">
+            <span className="block text-xs text-muted">
               {isShared
                 ? "Teammates can view this profile"
                 : "Turn on to let teammates see it"}
@@ -86,11 +86,11 @@ export default function ProfileToolbar({
       </div>
 
       {confirmDelete && (
-        <div className="mt-4 border-t border-stone-100 pt-4">
-          <p className="text-sm text-stone-700 font-medium">
+        <div className="mt-4 border-t border-line pt-4">
+          <p className="text-sm text-ink font-medium">
             Delete your assessment and profile data?
           </p>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             This permanently removes your responses, scores, and profile. Your
             login stays, and you can retake the assessment anytime. This cannot be
             undone.

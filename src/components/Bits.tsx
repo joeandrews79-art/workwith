@@ -12,9 +12,9 @@ export function formatDate(d: Date | string | null): string {
 
 export function StatusPill({ status }: { status: MemberStatus }) {
   const map: Record<MemberStatus, { label: string; cls: string }> = {
-    completed: { label: "Completed", cls: "bg-green-50 text-green-700" },
-    in_progress: { label: "In progress", cls: "bg-amber-50 text-amber-700" },
-    not_started: { label: "Not started", cls: "bg-stone-100 text-stone-500" },
+    completed: { label: "Completed", cls: "bg-success-soft text-success" },
+    in_progress: { label: "In progress", cls: "bg-warn-soft text-warn" },
+    not_started: { label: "Not started", cls: "bg-surface-2 text-muted" },
   };
   const s = map[status];
   return <span className={`pill ${s.cls}`}>{s.label}</span>;
@@ -26,7 +26,7 @@ export function SharePill({ shared }: { shared: boolean }) {
       Shared
     </span>
   ) : (
-    <span className="pill bg-stone-100 text-stone-500">Private</span>
+    <span className="pill bg-surface-2 text-muted">Private</span>
   );
 }
 
@@ -35,7 +35,7 @@ export function NoTeam() {
   return (
     <div className="card p-8 text-center max-w-md mx-auto mt-8">
       <p className="font-semibold">You're not on a team yet</p>
-      <p className="text-sm text-stone-500 mt-1">
+      <p className="text-sm text-muted mt-1">
         Ask an admin to add you to a team. Once you're on one, your dashboard and
         team views will appear here.
       </p>
@@ -58,7 +58,7 @@ export function LeaderPill() {
 
 export function StaleFlag() {
   return (
-    <span className="pill bg-orange-50 text-orange-700" title="Older than 12 months">
+    <span className="pill bg-warn-soft text-warn" title="Older than 12 months">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
         <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
       </svg>

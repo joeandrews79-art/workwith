@@ -24,7 +24,7 @@ export default async function NewMeetingPage() {
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Plan a meeting</h1>
-          <p className="text-stone-500 mt-1">For {activeTeam.name}.</p>
+          <p className="text-muted mt-1">For {activeTeam.name}.</p>
         </div>
         <Link href="/meeting" className="btn btn-secondary py-1.5 text-sm shrink-0">
           Back to meetings
@@ -34,7 +34,7 @@ export default async function NewMeetingPage() {
       {!viewer ? (
         <div className="card p-6 text-center">
           <p className="font-semibold">Complete your own profile first</p>
-          <p className="text-sm text-stone-500 mt-1 mb-4">
+          <p className="text-sm text-muted mt-1 mb-4">
             Meeting prep is tuned to your profile, so you'll need to finish the
             assessment before planning one.
           </p>

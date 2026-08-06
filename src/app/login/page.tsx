@@ -12,15 +12,14 @@ export default function LoginPage() {
         <div className="text-center mb-7">
           <div className="inline-flex items-center gap-2 text-2xl font-bold tracking-tight">
             <span
-              className="inline-grid place-items-center w-9 h-9 rounded-xl text-white"
-              style={{ background: "var(--color-brand-600)" }}
+              className="inline-grid place-items-center w-9 h-9 rounded-xl bg-accent text-on-accent"
               aria-hidden
             >
               W
             </span>
             <span>WorkWith</span>
           </div>
-          <p className="text-sm text-stone-500 mt-2">
+          <p className="text-sm text-muted mt-2">
             Understand how your team works, on purpose.
           </p>
         </div>
@@ -56,7 +55,7 @@ export default function LoginPage() {
           </div>
 
           {state?.error && (
-            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">
               {state.error}
             </p>
           )}
@@ -66,7 +65,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-[11px] text-stone-400 text-center leading-relaxed">
+        <p className="mt-6 text-[11px] text-faint text-center leading-relaxed">
           WorkWith is a self-report reflection tool based on the public-domain
           Big Five (IPIP-NEO-120). It is not a clinical, diagnostic, or hiring
           assessment.

@@ -28,7 +28,7 @@ export default async function AssessmentPage() {
       <div className="max-w-xl mx-auto">
         <RetakeIntro lastCompleted={formatDate(completed.completedAt)} />
         <p className="text-center mt-4">
-          <Link href="/me" className="text-sm text-stone-500 underline">
+          <Link href="/me" className="text-sm text-muted underline">
             Back to my profile
           </Link>
         </p>
@@ -53,7 +53,7 @@ export default async function AssessmentPage() {
     <div>
       <header className="max-w-xl mx-auto mb-2">
         <h1 className="text-xl font-bold">Your working-style assessment</h1>
-        <p className="text-stone-500 text-sm mt-1">
+        <p className="text-muted text-sm mt-1">
           Answer honestly about how you generally are, not how you would like to
           be. About 10 to 15 minutes. Your progress saves automatically.
         </p>

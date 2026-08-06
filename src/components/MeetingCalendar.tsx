@@ -139,7 +139,7 @@ export default function MeetingCalendar({
       {meetings.length === 0 && (
         <div className="card p-8 text-center">
           <p className="font-semibold">No meetings yet</p>
-          <p className="text-sm text-stone-500 mt-1 mb-4">
+          <p className="text-sm text-muted mt-1 mb-4">
             Plan your first one for {teamName}. Pick a type, add who's coming, and you'll
             get a prep read on how to show up.
           </p>
@@ -177,7 +177,7 @@ function MonthView({
     <div className="card overflow-hidden p-0">
       <div className="grid grid-cols-7 border-b" style={{ borderColor: "var(--color-brand-200)" }}>
         {WEEKDAY_SHORT.map((d) => (
-          <div key={d} className="px-2 py-2 text-center text-xs font-medium text-stone-500">{d}</div>
+          <div key={d} className="px-2 py-2 text-center text-xs font-medium text-muted">{d}</div>
         ))}
       </div>
       <div className="grid grid-cols-7">
@@ -199,7 +199,7 @@ function MonthView({
             >
               <div className="flex justify-end">
                 <span
-                  className={`grid place-items-center text-xs h-6 w-6 rounded-full ${isToday ? "font-bold" : "text-stone-500"}`}
+                  className={`grid place-items-center text-xs h-6 w-6 rounded-full ${isToday ? "font-bold" : "text-muted"}`}
                   style={isToday ? { background: "var(--color-brand-600)", color: "#fff" } : undefined}
                 >
                   {day.getUTCDate()}
@@ -210,7 +210,7 @@ function MonthView({
                   <MonthChip key={m.id} m={m} onPick={onPick} />
                 ))}
                 {list.length > 3 && (
-                  <div className="text-[10px] text-stone-400 pl-1">+{list.length - 3} more</div>
+                  <div className="text-[10px] text-faint pl-1">+{list.length - 3} more</div>
                 )}
               </div>
             </div>
@@ -263,7 +263,7 @@ function TimelineView({
           const isToday = ymd(d) === todayY;
           return (
             <div key={ymd(d)} className="px-2 py-2 text-center border-l" style={{ borderColor: "var(--color-brand-200)" }}>
-              <div className="text-[11px] text-stone-500">{WEEKDAY_SHORT[d.getUTCDay()]}</div>
+              <div className="text-[11px] text-muted">{WEEKDAY_SHORT[d.getUTCDay()]}</div>
               <div
                 className={`mx-auto mt-0.5 grid place-items-center h-7 w-7 rounded-full text-sm ${isToday ? "font-bold" : ""}`}
                 style={isToday ? { background: "var(--color-brand-600)", color: "#fff" } : undefined}
@@ -278,7 +278,7 @@ function TimelineView({
       {/* All-day (dated, timeless) row */}
       {hasAllDay && (
         <div className="grid border-b" style={{ gridTemplateColumns: `3rem repeat(${days.length}, 1fr)`, borderColor: "var(--color-brand-200)" }}>
-          <div className="px-1 py-1.5 text-[10px] text-stone-400 text-right pr-2">all-day</div>
+          <div className="px-1 py-1.5 text-[10px] text-faint text-right pr-2">all-day</div>
           {days.map((d) => {
             const list = (byDay.get(ymd(d)) ?? []).filter((m) => m.startMinute == null);
             return (
@@ -305,7 +305,7 @@ function TimelineView({
         {/* Hour gutter */}
         <div className="relative" style={{ height: GRID_HEIGHT }}>
           {DAY_HOURS.map((h, i) => (
-            <div key={h} className="absolute right-1.5 text-[10px] text-stone-400 -translate-y-1/2" style={{ top: i * HOUR_PX }}>
+            <div key={h} className="absolute right-1.5 text-[10px] text-faint -translate-y-1/2" style={{ top: i * HOUR_PX }}>
               {hourLabel(h)}
             </div>
           ))}
@@ -384,7 +384,7 @@ function UnscheduledTray({ meetings, onPick }: { meetings: CalendarMeeting[]; on
     <div className="card p-4">
       <div className="flex items-center gap-2 mb-2">
         <h3 className="font-semibold text-sm">Unscheduled</h3>
-        <span className="text-xs text-stone-400">{meetings.length} without a date</span>
+        <span className="text-xs text-faint">{meetings.length} without a date</span>
       </div>
       <div className="flex flex-wrap gap-2">
         {meetings.map((m) => (
@@ -468,12 +468,12 @@ function DetailModal({ meeting, onClose }: { meeting: CalendarMeeting; onClose: 
           <div className="min-w-0">
             <span className="pill text-[10px]" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}>{meeting.typeLabel}</span>
             <h2 className="text-lg font-bold tracking-tight mt-1.5">{meeting.title}</h2>
-            <p className="text-sm text-stone-500 mt-0.5">
+            <p className="text-sm text-muted mt-0.5">
               {when}
               {meeting.teamName && <> · {meeting.teamName}</>}
             </p>
           </div>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 text-xl leading-none" aria-label="Close">×</button>
+          <button onClick={onClose} className="text-faint hover:text-ink-soft text-xl leading-none" aria-label="Close">×</button>
         </div>
 
         <div>
@@ -512,13 +512,13 @@ function DetailModal({ meeting, onClose }: { meeting: CalendarMeeting; onClose: 
               <button className="btn btn-primary py-1 px-3 text-sm" disabled={pending} onClick={save}>{pending ? "Saving…" : "Save"}</button>
               <button className="btn btn-ghost py-1 px-3 text-sm" disabled={pending} onClick={() => setEditing(false)}>Back</button>
               {date && (
-                <button className="btn btn-ghost py-1 px-3 text-sm text-stone-500" disabled={pending} onClick={() => { setDate(""); setTime(""); }}>Clear date</button>
+                <button className="btn btn-ghost py-1 px-3 text-sm text-muted" disabled={pending} onClick={() => { setDate(""); setTime(""); }}>Clear date</button>
               )}
             </div>
           </div>
         )}
 
-        {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
+        {error && <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">{error}</p>}
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <Link href={`/meeting/${meeting.id}`} className="btn btn-primary py-1.5 px-3 text-sm">Open</Link>
@@ -529,7 +529,7 @@ function DetailModal({ meeting, onClose }: { meeting: CalendarMeeting; onClose: 
             <Link href={`/meeting/${meeting.id}/edit`} className="btn btn-ghost py-1.5 px-3 text-sm">Edit details</Link>
           )}
           {meeting.canManage && (
-            <button className="btn btn-ghost py-1.5 px-3 text-sm text-red-700 ml-auto" disabled={pending} onClick={cancelMeeting}>
+            <button className="btn btn-ghost py-1.5 px-3 text-sm text-danger ml-auto" disabled={pending} onClick={cancelMeeting}>
               {pending ? "…" : "Cancel meeting"}
             </button>
           )}

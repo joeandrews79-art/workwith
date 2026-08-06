@@ -27,11 +27,11 @@ export default async function QuestionsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <Link href="/admin" className="text-sm text-stone-500 hover:underline">← Admin</Link>
+        <Link href="/admin" className="text-sm text-muted hover:underline">← Admin</Link>
       </div>
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Working-preference questions</h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-muted mt-1">
           These are the quick, plain-language questions everyone answers about how
           they like to work. They're separate from the Big Five assessment and are
           shown directly on each profile. Edit them to fit how your team works, and

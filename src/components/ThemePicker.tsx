@@ -38,7 +38,7 @@ export default function ThemePicker() {
 
   return (
     <div className="px-3 py-2">
-      <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wide mb-2">
+      <p className="text-[11px] font-semibold text-faint uppercase tracking-wide mb-2">
         Appearance
       </p>
 
@@ -67,7 +67,7 @@ export default function ThemePicker() {
                 <span className="block text-[13px] font-semibold leading-tight" style={{ color: on ? "var(--accent-text)" : "var(--color-ink)" }}>
                   {b.label}
                 </span>
-                <span className="block text-[11px] leading-tight text-stone-400">{b.blurb}</span>
+                <span className="block text-[11px] leading-tight text-faint">{b.blurb}</span>
               </span>
             </button>
           );

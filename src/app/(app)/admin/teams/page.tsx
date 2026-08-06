@@ -23,9 +23,9 @@ export default async function AdminTeamsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight">Teams</h1>
-            <span className="pill bg-stone-800 text-white text-[10px]">Admin mode</span>
+            <span className="pill bg-ink text-canvas text-[10px]">Admin mode</span>
           </div>
-          <p className="text-stone-500 mt-1">
+          <p className="text-muted mt-1">
             Create teams, move people between them, and name each team's leader. A
             person can be on more than one team, and can lead one while just being a
             member of another.

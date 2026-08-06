@@ -47,7 +47,7 @@ function WorkingWith({ viewer, teammates }: { viewer: Member; teammates: Member[
   return (
     <section className="card p-5 sm:p-6">
       <h2 className="text-lg font-bold">Working with a teammate</h2>
-      <p className="text-sm text-stone-500 mt-1">
+      <p className="text-sm text-muted mt-1">
         Pick someone on your team to see where your styles differ, and a few concrete
         things to try. Built from their shared profile, right here, nothing sent anywhere.
       </p>
@@ -82,13 +82,13 @@ function WorkingWith({ viewer, teammates }: { viewer: Member; teammates: Member[
       </div>
 
       {guide && (
-        <div className="mt-5 pt-5 border-t border-stone-100">
+        <div className="mt-5 pt-5 border-t border-line">
           <p className="text-lg font-semibold leading-snug">{guide.headline}</p>
-          <p className="text-sm text-stone-600 mt-2 leading-relaxed">{guide.read}</p>
+          <p className="text-sm text-ink-soft mt-2 leading-relaxed">{guide.read}</p>
 
           {guide.moves.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-xs font-bold uppercase tracking-wide text-stone-400 mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wide text-faint mb-3">
                 Try these
               </h3>
               <ul className="space-y-3">
@@ -97,7 +97,7 @@ function WorkingWith({ viewer, teammates }: { viewer: Member; teammates: Member[
                     <NumberBadge n={i + 1} />
                     <span className="text-sm leading-relaxed">
                       <span className="font-semibold">{m.trait}. </span>
-                      <span className="text-stone-600">{m.text}</span>
+                      <span className="text-ink-soft">{m.text}</span>
                     </span>
                   </li>
                 ))}
@@ -123,7 +123,7 @@ function GrowthEdge({ edge }: { edge: CoachingPlan["growthEdges"][number] }) {
   return (
     <div className="card p-5">
       <p className="font-semibold">{edge.title}</p>
-      <p className="text-sm text-stone-500 mt-1 leading-relaxed">{edge.why}</p>
+      <p className="text-sm text-muted mt-1 leading-relaxed">{edge.why}</p>
       {count > 0 && (
         <>
           <button
@@ -194,7 +194,7 @@ export default function Coach({
     return (
       <div className="card p-8 text-center">
         <h2 className="text-lg font-bold">Your coach needs your profile first</h2>
-        <p className="text-stone-500 mt-2 max-w-md mx-auto">
+        <p className="text-muted mt-2 max-w-md mx-auto">
           Take the 10-to-15 minute working-style assessment. Your coach uses it to
           give advice that actually fits how you work.
         </p>
@@ -241,7 +241,7 @@ export default function Coach({
 
         {!enabled ? (
           <div className="card p-5">
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-muted">
               Personal coaching on your own profile uses Claude. An admin needs to set{" "}
               <code style={{ color: "var(--accent-text)" }}>ANTHROPIC_API_KEY</code> in
               the app environment to switch it on. Working with a teammate, above, works
@@ -259,11 +259,11 @@ export default function Coach({
             <h3 className="text-lg font-bold">
               {error ? "Your coaching plan" : "Your coach is reading your profile…"}
             </h3>
-            <p className="text-stone-500 mt-2 max-w-md mx-auto">
+            <p className="text-muted mt-2 max-w-md mx-auto">
               Building your strengths to lean into and a few concrete experiments to try
               this week, from your working-style profile.
             </p>
-            {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
+            {error && <p className="text-sm text-danger-muted mt-3">{error}</p>}
           </div>
         ) : (
           <>
@@ -281,7 +281,7 @@ export default function Coach({
                   <SparkIcon />
                 </span>
                 <div>
-                  <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
+                  <p className="text-xs font-semibold text-faint uppercase tracking-wide">
                     In a sentence
                   </p>
                   <p className="text-lg font-semibold leading-snug mt-1">{plan.headline}</p>
@@ -291,14 +291,14 @@ export default function Coach({
 
             {plan.strengths.length > 0 && (
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wide text-stone-400 mb-3">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-faint mb-3">
                   Lean into these
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {plan.strengths.map((s, i) => (
                     <div key={i} className="card p-4">
                       <p className="font-semibold text-sm">{s.title}</p>
-                      <p className="text-sm text-stone-500 mt-1 leading-relaxed">{s.detail}</p>
+                      <p className="text-sm text-muted mt-1 leading-relaxed">{s.detail}</p>
                     </div>
                   ))}
                 </div>
@@ -307,7 +307,7 @@ export default function Coach({
 
             {plan.growthEdges.length > 0 && (
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wide text-stone-400 mb-3">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-faint mb-3">
                   Growth edges to try
                 </h3>
                 <div className="space-y-3">
@@ -318,10 +318,10 @@ export default function Coach({
               </div>
             )}
 
-            <p className="text-xs text-stone-400 pt-1">
+            <p className="text-xs text-faint pt-1">
               {when ? `Generated ${when}. ` : ""}Grounded in your own profile. Private to you.
             </p>
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className="text-sm text-danger-muted">{error}</p>}
           </>
         )}
       </section>
@@ -330,7 +330,7 @@ export default function Coach({
       {enabled && (
         <section className="card p-5">
           <h2 className="font-bold">Ask your coach</h2>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             Describe a real situation. For example: &ldquo;I keep clashing with a
             teammate who wants everything decided in a meeting,&rdquo; or &ldquo;I want
             to delegate more but struggle to let go.&rdquo;
@@ -350,7 +350,7 @@ export default function Coach({
               </button>
             </div>
           </form>
-          {askError && <p className="text-sm text-red-400 mt-1">{askError}</p>}
+          {askError && <p className="text-sm text-danger-muted mt-1">{askError}</p>}
           {answer && (
             <div className="mt-2 rounded-xl p-4" style={{ background: "var(--color-elevated)" }}>
               <p className="text-sm leading-relaxed">{answer.advice}</p>

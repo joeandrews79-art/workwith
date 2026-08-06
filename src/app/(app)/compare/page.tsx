@@ -16,14 +16,14 @@ export default async function ComparePage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Compare</h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-muted mt-1">
           Pick any two or more people to see where your styles differ, with talking points
           for a 1:1 or a group.
         </p>
       </header>
 
       {members.length < 2 ? (
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-muted">
           You need at least two completed, shared profiles to compare.
         </p>
       ) : (

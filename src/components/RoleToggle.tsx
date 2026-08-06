@@ -37,7 +37,7 @@ export default function RoleToggle({
       >
         {pending ? "…" : isAdmin ? "Remove admin" : "Make admin"}
       </button>
-      {error && <span className="text-[11px] text-red-600 mt-1 max-w-[180px] text-right">{error}</span>}
+      {error && <span className="text-[11px] text-danger mt-1 max-w-[180px] text-right">{error}</span>}
     </div>
   );
 }

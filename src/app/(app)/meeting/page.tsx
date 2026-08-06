@@ -44,7 +44,7 @@ export default async function MeetingsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Meetings</h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-muted mt-1">
           Every meeting you're in, across your teams, on one calendar. New meetings are
           planned for {activeTeam.name}.
         </p>

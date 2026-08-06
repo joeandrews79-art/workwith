@@ -67,7 +67,7 @@ export default function TeamSpectrum({
             {discussion.map((p, i) => (
               <div key={i} className="card p-4">
                 <p className="font-medium text-sm">{p.title}</p>
-                <p className="text-sm text-stone-500 mt-1 leading-relaxed">{p.detail}</p>
+                <p className="text-sm text-muted mt-1 leading-relaxed">{p.detail}</p>
               </div>
             ))}
           </div>
@@ -79,13 +79,13 @@ export default function TeamSpectrum({
 
 function Legend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
       <span className="flex items-center gap-1.5">
         <span className="w-3 h-3 rounded-full" style={{ background: "var(--color-brand-600)", boxShadow: "0 0 0 2px var(--color-brand-100)" }} />You
       </span>
-      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-stone-400" />Teammate</span>
-      <span className="flex items-center gap-1.5"><span className="inline-block w-0.5 h-3.5 bg-stone-600" />Team average</span>
-      <span className="flex items-center gap-1.5"><span className="w-5 h-3 rounded-sm bg-stone-200" />Team spread</span>
+      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-faint" />Teammate</span>
+      <span className="flex items-center gap-1.5"><span className="inline-block w-0.5 h-3.5 bg-muted" />Team average</span>
+      <span className="flex items-center gap-1.5"><span className="w-5 h-3 rounded-sm bg-fill-3" />Team spread</span>
     </div>
   );
 }
@@ -103,7 +103,7 @@ function SpectrumView({ members, stats }: { members: SpectrumMember[]; stats: Re
           <div key={d}>
             <div className="flex items-baseline justify-between mb-1.5">
               <span className="font-medium text-sm">{DOMAINS[d].friendly}</span>
-              <span className="text-[11px] text-stone-400">{poles.low} — {poles.high}</span>
+              <span className="text-[11px] text-faint">{poles.low} — {poles.high}</span>
             </div>
             <div
               className="relative h-7 rounded-md"
@@ -127,7 +127,7 @@ function SpectrumView({ members, stats }: { members: SpectrumMember[]; stats: Re
                     label={m.isViewer ? "You" : m.name}
                     score={Math.round(v)}
                     size={m.isViewer ? 16 : 11}
-                    background={m.isViewer ? "var(--color-brand-600)" : "#a8a29e"}
+                    background={m.isViewer ? "var(--color-brand-600)" : "var(--faint)"}
                     ring={m.isViewer ? "0 0 0 3px var(--color-brand-100)" : undefined}
                     border={m.isViewer ? undefined : "1.5px solid var(--color-elevated)"}
                     z={m.isViewer ? 3 : 2}
@@ -172,7 +172,7 @@ export function SpectrumDot({
       />
       <span
         className="pointer-events-none absolute left-1/2 bottom-full mb-1.5 -translate-x-1/2 whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium opacity-0 transition-opacity group-hover:opacity-100"
-        style={{ background: "#111827", color: "#fff", zIndex: 40 }}
+        style={{ background: "var(--ink)", color: "var(--canvas)", zIndex: 40 }}
       >
         {label} · {score}
       </span>
@@ -194,13 +194,13 @@ function MapView({ members }: { members: SpectrumMember[] }) {
     <div className="card p-5">
       <div className="flex flex-wrap gap-3 mb-4">
         <label className="text-sm flex items-center gap-2">
-          <span className="text-stone-500">Across</span>
+          <span className="text-muted">Across</span>
           <select className="input py-1 text-sm w-auto" value={x} onChange={(e) => setX(e.target.value as DomainCode)}>
             {DOMAIN_ORDER.map((d) => <option key={d} value={d}>{DOMAINS[d].friendly}</option>)}
           </select>
         </label>
         <label className="text-sm flex items-center gap-2">
-          <span className="text-stone-500">Up</span>
+          <span className="text-muted">Up</span>
           <select className="input py-1 text-sm w-auto" value={y} onChange={(e) => setY(e.target.value as DomainCode)}>
             {DOMAIN_ORDER.map((d) => <option key={d} value={d}>{DOMAINS[d].friendly}</option>)}
           </select>
@@ -225,7 +225,7 @@ function MapView({ members }: { members: SpectrumMember[] }) {
                   cx={cx}
                   cy={cy}
                   r={m.isViewer ? 9 : 6}
-                  fill={m.isViewer ? "var(--color-brand-600)" : "#9ca3af"}
+                  fill={m.isViewer ? "var(--color-brand-600)" : "var(--faint)"}
                   stroke={m.isViewer ? "var(--color-brand-100)" : "var(--color-elevated)"}
                   strokeWidth={m.isViewer ? 3 : 1.5}
                 >
@@ -259,13 +259,13 @@ function WhereYouStand({ viewer, stats }: { viewer: SpectrumMember; stats: Recor
     <div className="card p-5">
       <h2 className="font-semibold mb-1">Where you sit</h2>
       {standouts.length === 0 ? (
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-muted">
           You land close to the team average on every trait. You're a steady middle across the board,
           which can make you a natural bridge between the more extreme styles.
         </p>
       ) : (
         <>
-          <p className="text-sm text-stone-500 mb-3">
+          <p className="text-sm text-muted mb-3">
             The traits where you stand apart from your team, and what that tends to mean at work.
           </p>
           <ul className="space-y-2.5">

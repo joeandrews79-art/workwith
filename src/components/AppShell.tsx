@@ -113,11 +113,9 @@ export default function AppShell({
           <Link
             key={l.href}
             href={l.href}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-            style={
-              on
-                ? { background: "var(--color-brand-50)", color: "var(--color-brand-700)" }
-                : { color: "var(--color-muted)" }
+            className={
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors " +
+              (on ? "bg-accent-soft text-accent-soft-text" : "text-muted")
             }
           >
             <Icon name={l.icon} />
@@ -130,7 +128,7 @@ export default function AppShell({
 
   const Brand = () => (
     <Link href="/dashboard" className="flex items-center gap-2 font-bold tracking-tight px-4 h-14 shrink-0">
-      <span className="inline-grid place-items-center w-7 h-7 rounded-lg text-white text-sm" style={{ background: "var(--color-brand-600)" }} aria-hidden>W</span>
+      <span className="inline-grid place-items-center w-7 h-7 rounded-lg bg-accent text-on-accent text-sm" aria-hidden>W</span>
       <span>WorkWith</span>
     </Link>
   );
@@ -138,25 +136,25 @@ export default function AppShell({
   return (
     <div className="min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 w-52 flex-col border-r border-stone-200 bg-white/70 backdrop-blur z-20">
+      <aside className="hidden md:flex fixed inset-y-0 left-0 w-52 flex-col border-r border-line-strong bg-surface/80 backdrop-blur z-20">
         <Brand />
         <TeamSwitcher teams={teams} activeTeamId={activeTeamId} />
         <div className="px-2 pt-2">
           <CaptureButton />
         </div>
         <NavLinks />
-        <div className="border-t border-stone-100 p-2">
+        <div className="border-t border-line p-2">
           <AccountMenu name={name} email={email} isAdmin={isAdmin} openUp showName />
         </div>
       </aside>
 
       {/* Mobile top bar */}
-      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-3 border-b border-stone-200 bg-white/90 backdrop-blur">
+      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-3 border-b border-line-strong bg-surface/90 backdrop-blur">
         <button className="btn btn-ghost py-1.5 px-2" onClick={() => setOpen(true)} aria-label="Open menu" aria-expanded={open}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
         </button>
         <Link href="/dashboard" className="flex items-center gap-2 font-bold">
-          <span className="inline-grid place-items-center w-7 h-7 rounded-lg text-white text-sm" style={{ background: "var(--color-brand-600)" }} aria-hidden>W</span>
+          <span className="inline-grid place-items-center w-7 h-7 rounded-lg bg-accent text-on-accent text-sm" aria-hidden>W</span>
           WorkWith
         </Link>
         <AccountMenu name={name} email={email} isAdmin={isAdmin} />
@@ -166,7 +164,7 @@ export default function AppShell({
       {open && (
         <div className="md:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} aria-hidden />
-          <div className="absolute inset-y-0 left-0 w-64 bg-white flex flex-col shadow-xl">
+          <div className="absolute inset-y-0 left-0 w-64 bg-surface flex flex-col shadow-xl">
             <div className="flex items-center justify-between pr-3">
               <Brand />
               <button className="btn btn-ghost py-1.5 px-2" onClick={() => setOpen(false)} aria-label="Close menu">
@@ -185,7 +183,7 @@ export default function AppShell({
       {/* Content */}
       <div className="md:pl-52">
         <main className="max-w-5xl mx-auto px-5 py-6 sm:px-8 sm:py-8">{children}</main>
-        <footer className="max-w-5xl mx-auto px-4 py-8 text-[11px] text-stone-400 leading-relaxed">
+        <footer className="max-w-5xl mx-auto px-4 py-8 text-[11px] text-faint leading-relaxed">
           WorkWith is a self-report reflection tool built on the public-domain Big
           Five (IPIP-NEO-120, Goldberg / Johnson 2014). It is not a clinical,
           diagnostic, or hiring assessment. Your raw answers stay in this app. AI

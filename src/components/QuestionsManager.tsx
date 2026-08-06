@@ -67,15 +67,15 @@ export default function QuestionsManager({
         <div className="space-y-6 mt-4">
           {domains.map((d) => (
             <div key={d}>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-2">{d}</h3>
-              <div className="card divide-y divide-stone-100 overflow-hidden">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-faint mb-2">{d}</h3>
+              <div className="card divide-y divide-line overflow-hidden">
                 {questions
                   .filter((q) => q.domain === d)
                   .map((q) => (
                     <div key={q.id} className="flex items-start gap-3 px-4 py-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium">{q.prompt}</p>
-                        <p className="text-xs text-stone-400 mt-0.5">
+                        <p className="text-xs text-faint mt-0.5">
                           {KINDS.find((k) => k.v === q.kind)?.label ?? q.kind}
                           {q.options.length > 0 && ` · ${q.options.join(", ")}`}
                         </p>
@@ -156,7 +156,7 @@ function QuestionEditor({
         <label className="label">Help text (optional)</label>
         <input className="input" value={helpText} onChange={(e) => setHelpText(e.target.value)} />
       </div>
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex gap-2">
         <button className="btn btn-primary py-1.5 text-sm" onClick={save} disabled={pending}>{pending ? "Saving…" : "Save question"}</button>
         <button className="btn btn-ghost py-1.5 text-sm" onClick={onClose}>Cancel</button>
@@ -197,9 +197,9 @@ function AiAssist({ enabled }: { enabled: boolean }) {
 
   if (!enabled) {
     return (
-      <div className="card p-4 bg-stone-50 text-sm text-stone-500">
-        <p className="font-semibold text-stone-600 mb-1">✨ AI question assistant</p>
-        <p>To let Claude suggest and refine questions, add <code className="text-stone-700">ANTHROPIC_API_KEY</code> to your <code className="text-stone-700">.env</code> and restart. It uses Claude Opus and only sends question text and your org context, never anyone's answers.</p>
+      <div className="card p-4 bg-surface-2 text-sm text-muted">
+        <p className="font-semibold text-ink-soft mb-1">✨ AI question assistant</p>
+        <p>To let Claude suggest and refine questions, add <code className="text-ink">ANTHROPIC_API_KEY</code> to your <code className="text-ink">.env</code> and restart. It uses Claude Opus and only sends question text and your org context, never anyone's answers.</p>
       </div>
     );
   }
@@ -207,22 +207,22 @@ function AiAssist({ enabled }: { enabled: boolean }) {
   return (
     <div className="card p-4" style={{ borderColor: "var(--color-brand-200)" }}>
       <p className="font-semibold flex items-center gap-2 mb-1"><span aria-hidden>✨</span> Ask Claude for questions</p>
-      <p className="text-sm text-stone-500 mb-3">Describe what you want and Claude will draft questions aligned to your values and voice. For example: "Add three questions about async communication for a remote team" or "Make the feedback questions blunter to fit our culture."</p>
+      <p className="text-sm text-muted mb-3">Describe what you want and Claude will draft questions aligned to your values and voice. For example: "Add three questions about async communication for a remote team" or "Make the feedback questions blunter to fit our culture."</p>
       <textarea className="input" rows={2} value={instruction} onChange={(e) => setInstruction(e.target.value)} placeholder="What should I help with?" />
       <div className="mt-2">
         <button className="btn btn-primary py-1.5 text-sm" onClick={ask} disabled={pending || !instruction.trim()}>
           {pending ? "Thinking…" : "Suggest questions"}
         </button>
       </div>
-      {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
-      {notes && <p className="text-sm text-stone-600 mt-3 italic">{notes}</p>}
+      {error && <p className="text-sm text-danger mt-2">{error}</p>}
+      {notes && <p className="text-sm text-ink-soft mt-3 italic">{notes}</p>}
       {suggestions.length > 0 && (
         <div className="mt-3 space-y-2">
           {suggestions.map((s, i) => (
-            <div key={i} className="border border-stone-200 rounded-lg p-3">
+            <div key={i} className="border border-line-strong rounded-lg p-3">
               <p className="text-sm font-medium">{s.prompt}</p>
-              <p className="text-xs text-stone-400 mt-0.5">{s.domain} · {s.kind}{s.options.length ? ` · ${s.options.join(", ")}` : ""}</p>
-              {s.rationale && <p className="text-xs text-stone-500 mt-1">{s.rationale}</p>}
+              <p className="text-xs text-faint mt-0.5">{s.domain} · {s.kind}{s.options.length ? ` · ${s.options.join(", ")}` : ""}</p>
+              {s.rationale && <p className="text-xs text-muted mt-1">{s.rationale}</p>}
               <button className="btn btn-secondary py-1 px-2.5 text-xs mt-2" onClick={() => add(s)} disabled={pending}>Add to questions</button>
             </div>
           ))}

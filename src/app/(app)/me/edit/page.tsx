@@ -17,12 +17,12 @@ export default async function EditNarrativePage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-4">
-        <Link href="/me" className="text-sm text-stone-500 hover:underline">
+        <Link href="/me" className="text-sm text-muted hover:underline">
           ← Back to my profile
         </Link>
       </div>
       <h1 className="text-2xl font-bold tracking-tight">Personalize your wording</h1>
-      <p className="text-stone-500 mt-1 mb-6">
+      <p className="text-muted mt-1 mb-6">
         Edit anything that doesn't sound like you. Leave a field blank to keep the
         auto-generated version. Your scores don't change, only the words.
       </p>

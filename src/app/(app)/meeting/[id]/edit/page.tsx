@@ -48,7 +48,7 @@ export default async function EditMeetingPage({
       {!viewer ? (
         <div className="card p-6 text-center">
           <p className="font-semibold">Complete your own profile first</p>
-          <p className="text-sm text-stone-500 mt-1 mb-4">
+          <p className="text-sm text-muted mt-1 mb-4">
             Meeting prep is tuned to your profile, so finish the assessment to edit
             with the live preview.
           </p>

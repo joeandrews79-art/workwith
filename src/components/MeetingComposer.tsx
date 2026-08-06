@@ -163,7 +163,7 @@ export default function MeetingComposer({
       {visionEnabled && mode === "create" && (
         <section className="card p-5" style={{ borderColor: "var(--color-brand-200)" }}>
           <h2 className="font-semibold mb-1 flex items-center gap-2"><Spark /> Start from a screenshot</h2>
-          <p className="text-sm text-stone-500 mb-3">
+          <p className="text-sm text-muted mb-3">
             Have a calendar invite? Drop in a screenshot and Claude will read the title, date,
             time, and attendees to pre-fill this for you.
           </p>
@@ -198,7 +198,7 @@ export default function MeetingComposer({
             <span className="text-sm font-medium">
               {importing ? "Reading your screenshot…" : dragActive ? "Drop the image here" : "Drag an image here, or click to upload"}
             </span>
-            <span className="text-xs text-stone-400">PNG or JPG of a calendar event or invite</span>
+            <span className="text-xs text-faint">PNG or JPG of a calendar event or invite</span>
           </label>
           <p
             className="text-xs mt-3 rounded-lg px-3 py-2"
@@ -208,7 +208,7 @@ export default function MeetingComposer({
             sensitive, restricted, or CUI. Everything it fills in is yours to review and edit before saving.
           </p>
           {importError && (
-            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2">{importError}</p>
+            <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2 mt-2">{importError}</p>
           )}
           {importNote && (
             <p className="text-sm mt-2 rounded-lg px-3 py-2" style={{ background: "rgba(34,197,94,0.12)", color: "#166534" }}>{importNote}</p>
@@ -219,7 +219,7 @@ export default function MeetingComposer({
       {/* Type picker */}
       <section className="card p-5">
         <h2 className="font-semibold mb-1">What kind of meeting?</h2>
-        <p className="text-sm text-stone-500 mb-4">
+        <p className="text-sm text-muted mb-4">
           The type shapes the prep, from a decision-focused leadership session to a
           listen-first customer call.
         </p>
@@ -239,7 +239,7 @@ export default function MeetingComposer({
                 }}
               >
                 <div className="font-medium text-sm">{t.label}</div>
-                <div className="text-xs text-stone-500 mt-0.5">{t.description}</div>
+                <div className="text-xs text-muted mt-0.5">{t.description}</div>
               </button>
             );
           })}
@@ -300,19 +300,19 @@ export default function MeetingComposer({
           </div>
         </div>
         {!date && (
-          <p className="text-xs text-stone-400 -mt-2">Set a date to add a start time. Undated meetings show in the calendar's “Unscheduled” tray.</p>
+          <p className="text-xs text-faint -mt-2">Set a date to add a start time. Undated meetings show in the calendar's “Unscheduled” tray.</p>
         )}
       </section>
 
       {/* Attendees */}
       <section className="card p-5">
         <h2 className="font-semibold mb-1">Who's in the meeting?</h2>
-        <p className="text-sm text-stone-500 mb-4">
+        <p className="text-sm text-muted mb-4">
           Pick the people joining. You're included automatically. External guests
           (like a customer) don't need to be here, the type prep covers them.
         </p>
         {others.length === 0 ? (
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-muted">
             No shared profiles yet to add. Once teammates share, they'll show up here.
           </p>
         ) : (
@@ -355,11 +355,11 @@ export default function MeetingComposer({
           <MeetingBriefView brief={brief} />
         </section>
       ) : (
-        <p className="text-sm text-stone-500">Pick a meeting type to see your prep.</p>
+        <p className="text-sm text-muted">Pick a meeting type to see your prep.</p>
       )}
 
       {error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+        <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">{error}</p>
       )}
 
       <div className="flex items-center gap-3">

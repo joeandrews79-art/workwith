@@ -48,8 +48,8 @@ export default function AccountMenu({
         onClick={() => setOpen((o) => !o)}
         className={
           showName
-            ? "w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-stone-100"
-            : "flex items-center gap-1.5 rounded-full pl-0.5 pr-1 py-0.5 hover:bg-stone-100"
+            ? "w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-surface-2"
+            : "flex items-center gap-1.5 rounded-full pl-0.5 pr-1 py-0.5 hover:bg-surface-2"
         }
         aria-haspopup="menu"
         aria-expanded={open}
@@ -65,13 +65,13 @@ export default function AccountMenu({
         {showName && (
           <span className="min-w-0 flex-1 text-left">
             <span className="block text-sm font-medium truncate leading-tight">{name}</span>
-            <span className="block text-[11px] text-stone-500 leading-tight">Account · sign out</span>
+            <span className="block text-[11px] text-muted leading-tight">Account · sign out</span>
           </span>
         )}
         {isAdmin && inAdmin && !showName && (
-          <span className="pill bg-stone-800 text-white text-[10px] hidden sm:inline-flex">Admin mode</span>
+          <span className="pill bg-ink text-canvas text-[10px] hidden sm:inline-flex">Admin mode</span>
         )}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-stone-400 shrink-0" aria-hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-faint shrink-0" aria-hidden>
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
@@ -83,15 +83,15 @@ export default function AccountMenu({
         >
           <div className="px-3 py-2">
             <p className="text-sm font-semibold truncate">{name}</p>
-            <p className="text-xs text-stone-500 truncate">{email}</p>
+            <p className="text-xs text-muted truncate">{email}</p>
           </div>
-          <div className="h-px bg-stone-100 my-1" />
+          <div className="h-px bg-surface-2 my-1" />
 
           {isAdmin && (
             <button
               role="menuitem"
               onClick={() => go(inAdmin ? "/dashboard" : "/admin")}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-100 flex items-center gap-2"
+              className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-surface-2 flex items-center gap-2"
               style={{ color: "var(--color-brand-700)" }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -104,7 +104,7 @@ export default function AccountMenu({
           <Link
             role="menuitem"
             href="/me"
-            className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-stone-100 flex items-center gap-2 text-stone-700"
+            className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-surface-2 flex items-center gap-2 text-ink"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -113,14 +113,14 @@ export default function AccountMenu({
             My profile
           </Link>
 
-          <div className="h-px bg-stone-100 my-1" />
+          <div className="h-px bg-surface-2 my-1" />
           <ThemePicker />
-          <div className="h-px bg-stone-100 my-1" />
+          <div className="h-px bg-surface-2 my-1" />
           <form action={logoutAction}>
             <button
               role="menuitem"
               type="submit"
-              className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-stone-100 flex items-center gap-2 text-stone-700"
+              className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-surface-2 flex items-center gap-2 text-ink"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />

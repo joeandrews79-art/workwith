@@ -52,7 +52,7 @@ export default function InviteForm({
             {teams.map((t, i) => (
               <label
                 key={t.id}
-                className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer select-none border border-stone-200 rounded-lg px-3 py-1.5"
+                className="flex items-center gap-2 text-sm text-ink cursor-pointer select-none border border-line-strong rounded-lg px-3 py-1.5"
               >
                 <input
                   type="checkbox"
@@ -66,24 +66,24 @@ export default function InviteForm({
               </label>
             ))}
           </div>
-          <p className="text-xs text-stone-400">
+          <p className="text-xs text-faint">
             Pick one or more. You can move people between teams later.
           </p>
         </fieldset>
       )}
 
-      <label className="flex items-center gap-2.5 text-sm text-stone-700 cursor-pointer select-none">
+      <label className="flex items-center gap-2.5 text-sm text-ink cursor-pointer select-none">
         <input type="checkbox" name="role" value="ADMIN" className="w-4 h-4 accent-current" style={{ accentColor: "var(--color-brand-600)" }} />
         Make this person an admin (can manage members and settings)
       </label>
 
       {state?.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">
           {state.error}
         </p>
       )}
       {state?.ok && state.message && (
-        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-success bg-success-soft border border-success-border rounded-lg px-3 py-2">
           {state.message}
         </p>
       )}
@@ -92,7 +92,7 @@ export default function InviteForm({
         <button className="btn btn-primary" disabled={pending}>
           {pending ? "Adding…" : "Add member"}
         </button>
-        <p className="text-xs text-stone-400">
+        <p className="text-xs text-faint">
           They'll be asked to change the temporary password on first sign-in.
         </p>
       </div>

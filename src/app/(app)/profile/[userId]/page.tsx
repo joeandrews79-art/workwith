@@ -35,7 +35,7 @@ export default async function ProfilePage({
     return (
       <div className="max-w-md mx-auto text-center py-16">
         <h1 className="text-xl font-bold">This profile isn't shared</h1>
-        <p className="text-stone-500 mt-2">
+        <p className="text-muted mt-2">
           {target.name} hasn't shared their working-style profile with the team yet.
         </p>
         <Link href="/directory" className="btn btn-secondary mt-6">
@@ -58,7 +58,7 @@ export default async function ProfilePage({
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-4 flex items-center justify-between">
-        <Link href="/directory" className="text-sm text-stone-500 hover:underline">
+        <Link href="/directory" className="text-sm text-muted hover:underline">
           ← Team
         </Link>
         <Link href={`/compare?a=${viewer.id}&b=${target.id}`} className="btn btn-secondary py-1.5 text-sm">

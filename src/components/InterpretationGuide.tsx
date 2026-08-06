@@ -39,28 +39,28 @@ export default function InterpretationGuide({ initial }: { initial: Interpretati
     <section className="card p-5">
       <div>
         <h2 className="font-semibold flex items-center gap-2"><Spark /> What your scores mean</h2>
-        <p className="text-sm text-stone-500 mt-0.5">
+        <p className="text-sm text-muted mt-0.5">
           A plain-language read of each trait, so your results are clear, not just numbers.
         </p>
       </div>
 
-      {error && <p className="text-sm text-red-700 mt-3">{error}</p>}
+      {error && <p className="text-sm text-danger mt-3">{error}</p>}
 
       {!guide ? (
         <div className="mt-4">
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-muted">
             {error ? "" : "Writing your read…"}
           </p>
-          <p className="text-[11px] text-stone-400 mt-2">
+          <p className="text-[11px] text-faint mt-2">
             Written by Claude from your own scores only. Nothing about anyone else is sent.
           </p>
         </div>
       ) : (
         <div className="mt-3">
-          {guide.intro && <p className="text-sm text-stone-600 leading-relaxed">{guide.intro}</p>}
+          {guide.intro && <p className="text-sm text-ink-soft leading-relaxed">{guide.intro}</p>}
           <ul className="mt-3 space-y-3">
             {guide.traits.map((t, i) => (
-              <li key={i} className="border-t border-stone-100 pt-3 first:border-t-0 first:pt-0">
+              <li key={i} className="border-t border-line pt-3 first:border-t-0 first:pt-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">{t.name}</span>
                   <span
@@ -70,11 +70,11 @@ export default function InterpretationGuide({ initial }: { initial: Interpretati
                     {t.level}
                   </span>
                 </div>
-                <p className="text-sm text-stone-600 mt-1 leading-relaxed">{t.meaning}</p>
+                <p className="text-sm text-ink-soft mt-1 leading-relaxed">{t.meaning}</p>
               </li>
             ))}
           </ul>
-          <p className="text-[11px] text-stone-400 mt-3">Written by Claude from your own scores.</p>
+          <p className="text-[11px] text-faint mt-3">Written by Claude from your own scores.</p>
         </div>
       )}
     </section>

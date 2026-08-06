@@ -53,7 +53,7 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-bold tracking-tight">{activeTeam.name}</h1>
             {canLead && <LeaderPill />}
           </div>
-          <p className="text-stone-500 mt-1">
+          <p className="text-muted mt-1">
             {canLead
               ? "Where your team stands on completing and sharing working-style profiles."
               : "Your team and how far along everyone is, together."}
@@ -106,18 +106,18 @@ function LeaderView({
       </section>
 
       {stale.length > 0 && (
-        <section className="card p-5 border-orange-200 bg-orange-50/40">
+        <section className="card p-5 border-warn-border bg-warn-soft/60">
           <h2 className="font-semibold flex items-center gap-2 mb-2">
             <StaleFlag /> Annual refresh needed
           </h2>
-          <p className="text-sm text-stone-600 mb-3">
+          <p className="text-sm text-ink-soft mb-3">
             These profiles are older than 12 months. Ask them to retake the
             10-to-15 minute assessment so their profile stays accurate.
           </p>
           <ul className="flex flex-wrap gap-2">
             {stale.map((r) => (
               <li key={r.id}>
-                <Link href={`/profile/${r.id}`} className="pill bg-white border border-orange-200 text-orange-800 hover:bg-orange-100">
+                <Link href={`/profile/${r.id}`} className="pill bg-surface border border-warn-border text-warn hover:bg-warn-soft">
                   {r.name} · last {formatDate(r.refreshedAt)}
                 </Link>
               </li>
@@ -128,7 +128,7 @@ function LeaderView({
 
       <section>
         <h2 className="font-semibold mb-3">Completion by person</h2>
-        <div className="card divide-y divide-stone-100 overflow-hidden">
+        <div className="card divide-y divide-line overflow-hidden">
           {rows.map((r) => (
             <div key={r.id} className="flex items-center gap-3 px-4 py-3">
               <Avatar name={r.name} avatar={r.avatar} />
@@ -136,9 +136,9 @@ function LeaderView({
                 <div className="flex items-center gap-2">
                   <span className="font-medium truncate">{r.name}</span>
                   {r.teamRole === "LEADER" && <LeaderPill />}
-                  {r.id === viewerId && <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>}
+                  {r.id === viewerId && <span className="pill bg-surface-2 text-muted text-[10px]">You</span>}
                 </div>
-                <div className="text-xs text-stone-500 truncate">
+                <div className="text-xs text-muted truncate">
                   {r.title ?? "Team member"}
                   {r.status === "completed" && ` · last refreshed ${formatDate(r.refreshedAt)}`}
                   {r.status === "in_progress" && ` · ${r.answered}/${TOTAL_ITEMS} answered`}
@@ -188,7 +188,7 @@ function MemberView({
 
       <section>
         <h2 className="font-semibold mb-1">Who's on the team</h2>
-        <p className="text-sm text-stone-500 mb-3">
+        <p className="text-sm text-muted mb-3">
           Open anyone who has shared their profile to see how they like to work.
         </p>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -201,9 +201,9 @@ function MemberView({
                   <div className="flex items-center gap-1.5">
                     <span className="font-semibold truncate">{r.name}</span>
                     {r.teamRole === "LEADER" && <LeaderPill />}
-                    {r.id === viewerId && <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>}
+                    {r.id === viewerId && <span className="pill bg-surface-2 text-muted text-[10px]">You</span>}
                   </div>
-                  <p className="text-sm text-stone-500 truncate">{r.title ?? "Team member"}</p>
+                  <p className="text-sm text-muted truncate">{r.title ?? "Team member"}</p>
                   {viewable && (
                     <div className="mt-2">
                       <SharePill shared />
@@ -255,7 +255,7 @@ function YourStatus({ me }: { me: OverviewRow }) {
       <section className="card p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
         <div>
           <h2 className="font-semibold">Your profile is ready</h2>
-          <p className="text-sm text-stone-500 mt-0.5">
+          <p className="text-sm text-muted mt-0.5">
             Last refreshed {formatDate(me.refreshedAt)}.{" "}
             {me.shared ? "It is shared with your team." : "It is currently private."}
           </p>
@@ -275,7 +275,7 @@ function YourStatus({ me }: { me: OverviewRow }) {
         <h2 className="font-semibold">
           {me.status === "in_progress" ? "Pick up where you left off" : "Start your working-style profile"}
         </h2>
-        <p className="text-sm text-stone-600 mt-0.5">
+        <p className="text-sm text-ink-soft mt-0.5">
           {me.status === "in_progress"
             ? `You have answered ${me.answered} of ${TOTAL_ITEMS}. Your progress is saved.`
             : "About 10 to 15 minutes. Your answers save as you go."}
@@ -304,14 +304,14 @@ function Metric({
   const barColor = tone === "warn" ? "#ea580c" : tone === "ok" ? "#16a34a" : "var(--color-brand-600)";
   return (
     <div className="card p-5">
-      <div className="text-sm text-stone-500">{label}</div>
+      <div className="text-sm text-muted">{label}</div>
       <div className="text-3xl font-bold mt-1 tabular-nums">{value}</div>
       {pct != null && (
-        <div className="h-1.5 rounded-full bg-stone-100 mt-3 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-surface-2 mt-3 overflow-hidden">
           <div className="h-full rounded-full" style={{ width: `${pct}%`, background: barColor }} />
         </div>
       )}
-      <div className="text-xs text-stone-400 mt-2">{sub}</div>
+      <div className="text-xs text-faint mt-2">{sub}</div>
     </div>
   );
 }

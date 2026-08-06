@@ -47,11 +47,11 @@ export default function TeamReadCard({
         <p className="font-semibold flex items-center gap-2">
           <Spark /> {error ? "Your team read" : "Generating your team read…"}
         </p>
-        <p className="text-sm text-stone-600 mt-1 max-w-xl">
+        <p className="text-sm text-ink-soft mt-1 max-w-xl">
           A short, personal read of where you sit in this team and how to work well given that
           position. Uses your scores and the team's averages only, no teammate is named.
         </p>
-        {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
+        {error && <p className="text-sm text-danger mt-2">{error}</p>}
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function TeamReadCard({
           Your team changed. Updating your read…
         </p>
       )}
-      <p className="text-sm text-stone-600 mt-2 leading-relaxed">{read.summary}</p>
+      <p className="text-sm text-ink-soft mt-2 leading-relaxed">{read.summary}</p>
       {read.tips.length > 0 && (
         <ul className="mt-4 space-y-2.5">
           {read.tips.map((t, i) => (
@@ -83,8 +83,8 @@ export default function TeamReadCard({
           ))}
         </ul>
       )}
-      {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
-      <p className="text-[11px] text-stone-400 mt-3">
+      {error && <p className="text-sm text-danger mt-2">{error}</p>}
+      <p className="text-[11px] text-faint mt-3">
         Written by Claude from your scores and the team's averages. No teammate's data was sent.
       </p>
     </div>

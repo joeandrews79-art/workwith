@@ -29,7 +29,7 @@ export default function CreateTeamForm() {
         {pending ? "Creating…" : "Create team"}
       </button>
       {state?.error && (
-        <p className="text-sm text-red-700 w-full basis-full">{state.error}</p>
+        <p className="text-sm text-danger w-full basis-full">{state.error}</p>
       )}
     </form>
   );

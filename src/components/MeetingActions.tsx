@@ -27,7 +27,7 @@ export default function MeetingActions({
 
   return (
     <div className="flex items-center gap-2">
-      {error && <span className="text-xs text-red-700">{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
       <button
         className="btn btn-secondary py-1.5 px-3 text-sm"
         onClick={() => router.push(`/meeting/${meetingId}/edit`)}
@@ -36,7 +36,7 @@ export default function MeetingActions({
         Edit
       </button>
       <button
-        className="btn btn-ghost py-1.5 px-3 text-sm text-red-700"
+        className="btn btn-ghost py-1.5 px-3 text-sm text-danger"
         onClick={remove}
         disabled={pending}
       >

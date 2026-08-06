@@ -26,10 +26,10 @@ export default function ThoughtRowActions({
 
   return (
     <div className="flex items-center gap-1">
-      {err && <span className="text-xs text-red-700 mr-1">{err}</span>}
+      {err && <span className="text-xs text-danger mr-1">{err}</span>}
       {status !== "archived" ? (
         <button
-          className="btn btn-ghost py-1 px-2 text-xs text-stone-500"
+          className="btn btn-ghost py-1 px-2 text-xs text-muted"
           disabled={pending}
           onClick={() => run(() => setThoughtStatus(id, "archived"))}
         >
@@ -37,7 +37,7 @@ export default function ThoughtRowActions({
         </button>
       ) : (
         <button
-          className="btn btn-ghost py-1 px-2 text-xs text-stone-500"
+          className="btn btn-ghost py-1 px-2 text-xs text-muted"
           disabled={pending}
           onClick={() => run(() => setThoughtStatus(id, "captured"))}
         >
@@ -45,7 +45,7 @@ export default function ThoughtRowActions({
         </button>
       )}
       <button
-        className="btn btn-ghost py-1 px-2 text-xs text-red-700"
+        className="btn btn-ghost py-1 px-2 text-xs text-danger"
         disabled={pending}
         onClick={() => {
           if (confirm("Delete this thought?")) run(() => deleteThought(id));

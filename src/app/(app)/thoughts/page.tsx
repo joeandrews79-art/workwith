@@ -23,9 +23,9 @@ export default async function ThoughtsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Thoughts</h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-muted mt-1">
           Use{" "}
-          <span className="font-medium text-stone-600">+ Capture a thought</span>{" "}
+          <span className="font-medium text-ink-soft">+ Capture a thought</span>{" "}
           to jot a fleeting idea, then turn it into a structured meeting when
           you're ready. Only you can see these until they become a meeting.
         </p>
@@ -36,7 +36,7 @@ export default async function ThoughtsPage() {
       {sorted.length === 0 ? (
         <div className="card p-8 text-center">
           <p className="font-semibold">Nothing captured yet</p>
-          <p className="text-sm text-stone-500 mt-1 mb-4">
+          <p className="text-sm text-muted mt-1 mb-4">
             Next time you think "I need to talk to someone about this," capture it
             here in one line and structure it later.
           </p>
@@ -60,33 +60,33 @@ function ThoughtCard({ t }: { t: ThoughtView }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="font-medium">{t.text}</p>
-          {t.detail && <p className="text-sm text-stone-500 mt-0.5 line-clamp-2">{t.detail}</p>}
+          {t.detail && <p className="text-sm text-muted mt-0.5 line-clamp-2">{t.detail}</p>}
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            {t.teamName && <span className="pill bg-stone-100 text-stone-500 text-[10px]">{t.teamName}</span>}
+            {t.teamName && <span className="pill bg-surface-2 text-muted text-[10px]">{t.teamName}</span>}
             {t.aboutName && (
               <span className="pill text-[10px]" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}>
                 About {t.aboutName}
               </span>
             )}
             {t.meetingType && (
-              <span className="pill bg-stone-100 text-stone-500 text-[10px]">{meetingType(t.meetingType).label}</span>
+              <span className="pill bg-surface-2 text-muted text-[10px]">{meetingType(t.meetingType).label}</span>
             )}
-            <span className="text-[11px] text-stone-400">{formatDate(t.createdAt)}</span>
+            <span className="text-[11px] text-faint">{formatDate(t.createdAt)}</span>
           </div>
         </div>
         <ThoughtRowActions id={t.id} status={t.status} />
       </div>
 
-      <div className="mt-3 pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
+      <div className="mt-3 pt-3 border-t border-line flex items-center justify-between gap-3">
         {t.status === "planned" && t.meetingId ? (
-          <p className="text-sm text-stone-600">
+          <p className="text-sm text-ink-soft">
             Planned as{" "}
             <Link href={`/meeting/${t.meetingId}`} className="font-medium" style={{ color: "var(--color-brand-700)" }}>
               {t.meetingTitle ?? "a meeting"}
             </Link>
           </p>
         ) : (
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-muted">
             {t.proposal ? "Structured and ready to become a meeting." : "Not structured yet."}
           </p>
         )}

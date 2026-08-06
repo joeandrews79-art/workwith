@@ -20,7 +20,7 @@ export default async function WelcomePage() {
     <main className="min-h-screen px-4 py-10">
       <div className="max-w-lg mx-auto">
         <div className="flex items-center gap-2 mb-6 justify-center">
-          <span className="inline-grid place-items-center w-8 h-8 rounded-lg text-white text-sm font-bold" style={{ background: "var(--color-brand-600)" }}>W</span>
+          <span className="inline-grid place-items-center w-8 h-8 rounded-lg bg-accent text-on-accent text-sm font-bold">W</span>
           <span className="font-bold text-lg">WorkWith</span>
         </div>
         <WelcomeWizard

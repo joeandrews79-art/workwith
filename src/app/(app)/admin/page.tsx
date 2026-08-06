@@ -21,9 +21,9 @@ export default async function AdminPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
-            <span className="pill bg-stone-800 text-white text-[10px]">Admin mode</span>
+            <span className="pill bg-ink text-canvas text-[10px]">Admin mode</span>
           </div>
-          <p className="text-stone-500 mt-1">Manage who's on the team.</p>
+          <p className="text-muted mt-1">Manage who's on the team.</p>
         </div>
         <Link href="/me" className="btn btn-secondary py-1.5 text-sm shrink-0">
           Switch to member view
@@ -33,24 +33,24 @@ export default async function AdminPage() {
       <Link href="/admin/teams" className="card p-4 flex items-center justify-between gap-3 hover:shadow-sm transition-shadow">
         <div>
           <p className="font-semibold text-sm">Teams</p>
-          <p className="text-sm text-stone-500">Create teams, move people between them, and name each team's leader.</p>
+          <p className="text-sm text-muted">Create teams, move people between them, and name each team's leader.</p>
         </div>
-        <span className="text-stone-400" aria-hidden>→</span>
+        <span className="text-faint" aria-hidden>→</span>
       </Link>
 
       <Link href="/admin/questions" className="card p-4 flex items-center justify-between gap-3 hover:shadow-sm transition-shadow">
         <div>
           <p className="font-semibold text-sm">Working-preference questions</p>
-          <p className="text-sm text-stone-500">Edit the quick "how I work" questions your team answers. Claude can help you write them.</p>
+          <p className="text-sm text-muted">Edit the quick "how I work" questions your team answers. Claude can help you write them.</p>
         </div>
-        <span className="text-stone-400" aria-hidden>→</span>
+        <span className="text-faint" aria-hidden>→</span>
       </Link>
 
       <InviteForm teams={await getOrgTeams(user!.orgId)} />
 
       <section>
         <h2 className="font-semibold mb-3">Members · {rows.length}</h2>
-        <div className="card divide-y divide-stone-100 overflow-hidden">
+        <div className="card divide-y divide-line overflow-hidden">
           {rows.map((r) => (
             <div key={r.id} className="flex items-center gap-3 px-4 py-3">
               <span
@@ -72,10 +72,10 @@ export default async function AdminPage() {
                     </span>
                   )}
                   {r.id === user!.id && (
-                    <span className="pill bg-stone-100 text-stone-500 text-[10px]">You</span>
+                    <span className="pill bg-surface-2 text-muted text-[10px]">You</span>
                   )}
                 </div>
-                <div className="text-xs text-stone-500 truncate">{r.title ?? "Team member"}</div>
+                <div className="text-xs text-muted truncate">{r.title ?? "Team member"}</div>
               </div>
               <div className="hidden sm:block">
                 <StatusPill status={r.status} />

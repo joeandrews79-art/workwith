@@ -12,7 +12,7 @@ export default async function GuidePage() {
     <div className="max-w-3xl mx-auto space-y-8">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">User guide</h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-muted mt-1">
           What every part of WorkWith does, and step by step how to use it. Stuck on
           something specific? Use the help button in the bottom-right corner to ask.
         </p>
@@ -36,7 +36,7 @@ export default async function GuidePage() {
         {sections.map((s) => (
           <section key={s.id} id={s.id} className="scroll-mt-20">
             <h2 className="text-lg font-semibold tracking-tight">{s.title}</h2>
-            <p className="text-stone-600 mt-1 leading-relaxed">{s.intro}</p>
+            <p className="text-ink-soft mt-1 leading-relaxed">{s.intro}</p>
 
             {s.image && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -58,7 +58,7 @@ export default async function GuidePage() {
                     >
                       {i + 1}
                     </span>
-                    <span className="text-stone-700">{step}</span>
+                    <span className="text-ink">{step}</span>
                   </li>
                 ))}
               </ol>
@@ -67,7 +67,7 @@ export default async function GuidePage() {
             {s.tips && s.tips.length > 0 && (
               <ul className="mt-3 space-y-1.5">
                 {s.tips.map((tip, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-stone-500 leading-relaxed">
+                  <li key={i} className="flex gap-2 text-sm text-muted leading-relaxed">
                     <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--color-brand-600)" }} aria-hidden />
                     <span>{tip}</span>
                   </li>

@@ -42,7 +42,7 @@ export default function GroupCompare({
       {/* People picker */}
       <section className="card p-5">
         <h2 className="font-semibold mb-1">Who do you want to compare?</h2>
-        <p className="text-sm text-stone-500 mb-4">Pick two or more people with a shared profile.</p>
+        <p className="text-sm text-muted mb-4">Pick two or more people with a shared profile.</p>
         <div className="flex flex-wrap gap-2">
           {members.map((m) => {
             const on = selected.has(m.id);
@@ -75,7 +75,7 @@ export default function GroupCompare({
       </section>
 
       {chosen.length < 2 ? (
-        <p className="text-sm text-stone-500">Pick at least two people to see the comparison.</p>
+        <p className="text-sm text-muted">Pick at least two people to see the comparison.</p>
       ) : (
         <>
           {/* Legend */}
@@ -98,11 +98,11 @@ export default function GroupCompare({
                 <div key={d}>
                   <div className="flex items-baseline justify-between mb-1.5">
                     <span className="font-medium text-sm">{DOMAINS[d].friendly}</span>
-                    <span className="text-[11px] text-stone-400">{poles.low} — {poles.high}</span>
+                    <span className="text-[11px] text-faint">{poles.low} — {poles.high}</span>
                   </div>
                   <div className="relative h-7 rounded-md" style={{ background: "var(--color-elevated)", border: "0.5px solid var(--color-border)" }}>
                     <div
-                      className="absolute inset-y-0 rounded bg-stone-200/70"
+                      className="absolute inset-y-0 rounded bg-fill-3/70"
                       style={{ left: `${st.min}%`, width: `${Math.max(st.max - st.min, 0)}%` }}
                     />
                     {chosen.map((m) => {
@@ -148,9 +148,9 @@ function PairDifferences({ a, b }: { a: Member; b: Member }) {
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: DOMAIN_COLOR[d.domain] }} />
               <h3 className="font-semibold text-sm">{d.friendlyLabel}</h3>
-              <span className="text-xs text-stone-400 ml-auto">{Math.round(d.gap)} points apart</span>
+              <span className="text-xs text-faint ml-auto">{Math.round(d.gap)} points apart</span>
             </div>
-            <p className="text-sm text-stone-600 leading-relaxed">{d.talkingPoint}</p>
+            <p className="text-sm text-ink-soft leading-relaxed">{d.talkingPoint}</p>
           </div>
         ))}
       </div>
@@ -167,7 +167,7 @@ function GroupDifferences({ members }: { members: Member[] }) {
         {points.map((p, i) => (
           <div key={i} className="card p-4">
             <p className="font-medium text-sm">{p.title}</p>
-            <p className="text-sm text-stone-500 mt-1 leading-relaxed">{p.detail}</p>
+            <p className="text-sm text-muted mt-1 leading-relaxed">{p.detail}</p>
           </div>
         ))}
       </div>

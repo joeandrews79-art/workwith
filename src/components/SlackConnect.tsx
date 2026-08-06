@@ -66,7 +66,7 @@ export default function SlackConnect({
           <h2 className="font-semibold">Slack</h2>
           {!isConnected ? (
             <>
-              <p className="text-sm text-stone-500 mt-1">
+              <p className="text-sm text-muted mt-1">
                 Connect Slack to look up a teammate with <code style={{ color: "var(--accent-text)" }}>/workwith</code>{" "}
                 and get a working-style read on the room before a meeting. We match your Slack
                 account by your work email. Only style guidance on shared profiles is ever sent,
@@ -78,7 +78,7 @@ export default function SlackConnect({
             </>
           ) : (
             <>
-              <p className="text-sm text-stone-500 mt-1">
+              <p className="text-sm text-muted mt-1">
                 Connected. Use <code style={{ color: "var(--accent-text)" }}>/workwith me</code> or{" "}
                 <code style={{ color: "var(--accent-text)" }}>/workwith Priya</code> in Slack.
               </p>
@@ -92,13 +92,13 @@ export default function SlackConnect({
                   style={{ background: preMeeting ? "var(--accent)" : "var(--fill-3)" }}
                 >
                   <span
-                    className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform"
+                    className="absolute top-0.5 w-5 h-5 rounded-full bg-surface transition-transform"
                     style={{ transform: preMeeting ? "translateX(18px)" : "translateX(2px)" }}
                   />
                 </button>
                 <span className="text-sm">
                   <span className="font-medium">Pre-meeting DMs.</span>{" "}
-                  <span className="text-stone-500">
+                  <span className="text-muted">
                     Get a short read on how to work with each attendee before a scheduled meeting.
                   </span>
                 </span>
@@ -108,7 +108,7 @@ export default function SlackConnect({
               </button>
             </>
           )}
-          {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
+          {error && <p className="text-sm text-danger-muted mt-2">{error}</p>}
         </div>
       </div>
     </section>

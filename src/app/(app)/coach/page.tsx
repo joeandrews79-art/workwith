@@ -49,7 +49,7 @@ export default async function CoachPage() {
     <div className="max-w-3xl mx-auto">
       <header className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Coach</h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-muted mt-1">
           Personal, practical advice for working with the grain of who you are, and
           flexing on purpose where it helps.
         </p>

@@ -28,7 +28,7 @@ export default async function ManageTeamPage() {
         <h1 className="text-2xl font-bold tracking-tight">Manage team</h1>
         <div className="card p-6">
           <p className="font-semibold">You don't lead {activeTeam.name}</p>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             You can only manage teams you lead.{" "}
             {ledTeams.length
               ? "Switch to one of the teams you lead using the team switcher in the sidebar:"
@@ -37,7 +37,7 @@ export default async function ManageTeamPage() {
           {ledTeams.length > 0 && (
             <ul className="mt-3 flex flex-wrap gap-2">
               {ledTeams.map((t) => (
-                <li key={t.id} className="pill bg-stone-100 text-stone-600">{t.name}</li>
+                <li key={t.id} className="pill bg-surface-2 text-ink-soft">{t.name}</li>
               ))}
             </ul>
           )}
@@ -58,7 +58,7 @@ export default async function ManageTeamPage() {
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Manage {activeTeam.name}</h1>
-          <p className="text-stone-500 mt-1">
+          <p className="text-muted mt-1">
             Add or remove people, rename the team, and choose who leads it.
           </p>
         </div>
@@ -75,7 +75,7 @@ export default async function ManageTeamPage() {
         canDelete={false}
       />
 
-      <p className="text-xs text-stone-400">
+      <p className="text-xs text-faint">
         Managing another team? Switch teams with the picker at the top of the
         sidebar.
       </p>

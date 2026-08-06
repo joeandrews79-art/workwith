@@ -58,12 +58,12 @@ export default function WelcomeWizard({
     return (
       <div className="card p-7 text-center">
         <h1 className="text-2xl font-bold">Welcome, {firstName}</h1>
-        <p className="text-stone-600 mt-3 leading-relaxed">
+        <p className="text-ink-soft mt-3 leading-relaxed">
           WorkWith helps your team understand how each of you works best, so
           friction gets understood instead of guessed at. Setup takes about 15
           minutes and it's three quick steps.
         </p>
-        <div className="text-left text-sm text-stone-500 mt-5 space-y-2">
+        <div className="text-left text-sm text-muted mt-5 space-y-2">
           <p>1. Take a short assessment.</p>
           <p>2. Review the profile it writes for you.</p>
           <p>3. Share it with your team.</p>
@@ -99,7 +99,7 @@ export default function WelcomeWizard({
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-sm">{s.title}</p>
-              <p className="text-sm text-stone-500 mt-0.5">{s.body}</p>
+              <p className="text-sm text-muted mt-0.5">{s.body}</p>
               {s.cta && (
                 <Link href={s.cta.href} className="btn btn-secondary py-1.5 text-sm mt-2">
                   {s.cta.label}
@@ -114,7 +114,7 @@ export default function WelcomeWizard({
         <button className="btn btn-primary w-full" onClick={finish} disabled={pending}>
           {pending ? "Finishing…" : allDone ? "Finish setup" : "Go to my dashboard"}
         </button>
-        <p className="text-center text-xs text-stone-400 mt-2">
+        <p className="text-center text-xs text-faint mt-2">
           You can always come back to any of these from the app.
         </p>
       </div>

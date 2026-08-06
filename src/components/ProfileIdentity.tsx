@@ -106,8 +106,7 @@ export default function ProfileIdentity({
               onClick={() => fileRef.current?.click()}
               disabled={pending}
               aria-label="Change photo"
-              className="absolute -bottom-1.5 -right-1.5 grid place-items-center w-6 h-6 rounded-full text-white shadow"
-              style={{ background: "var(--color-brand-600)" }}
+              className="absolute -bottom-1.5 -right-1.5 grid place-items-center w-6 h-6 rounded-full bg-accent text-on-accent shadow"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
             </button>
@@ -134,26 +133,26 @@ export default function ProfileIdentity({
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl font-bold tracking-tight">{name}</h1>
               {owner && (
-                <button className="text-xs text-stone-400 hover:text-stone-600 underline" onClick={() => setEditing(true)}>
+                <button className="text-xs text-faint hover:text-ink-soft underline" onClick={() => setEditing(true)}>
                   Edit
                 </button>
               )}
             </div>
-            <p className="text-stone-500">{title || "Team member"}</p>
+            <p className="text-muted">{title || "Team member"}</p>
             {refreshedLabel && (
-              <p className="text-xs text-stone-400 mt-1">
+              <p className="text-xs text-faint mt-1">
                 Last refreshed {refreshedLabel}
-                {stale && <span className="text-orange-600 font-medium"> · refresh due</span>}
+                {stale && <span className="text-warn font-medium"> · refresh due</span>}
               </p>
             )}
             {owner && avatar && (
-              <button className="text-xs text-stone-400 hover:text-stone-600 underline mt-1" disabled={pending} onClick={removePhoto}>
+              <button className="text-xs text-faint hover:text-ink-soft underline mt-1" disabled={pending} onClick={removePhoto}>
                 Remove photo
               </button>
             )}
           </>
         )}
-        {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
+        {error && <p className="text-sm text-danger mt-2">{error}</p>}
       </div>
     </div>
   );

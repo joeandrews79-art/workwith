@@ -12,9 +12,10 @@
    the neutral surfaces. Everything below is driven by semantic tokens, so a
    screen never needs to know which theme is on.
 
-   Note on the cascade: Tailwind v4 emits utilities inside @layer, so the plain
-   (unlayered) rules further down override utility classes WITHOUT !important.
-   That is what lets the old stone-* remap hack go away cleanly.
+   Components name roles, not colours: text-muted, border-line, bg-surface-2,
+   text-danger. Those utilities are generated from the tokens below via
+   @theme inline, so there is no remap layer reinterpreting Tailwind's palette
+   after the fact and no colour literal in a component to drift out of theme.
 ============================================================================ */
 
 @theme {
@@ -34,6 +35,7 @@
   --line-strong: #dbd0c0;
   --ink: #241f27;
   --ink-strong: #16121a;
+  --ink-soft: #453e4a;
   --muted: #6d6573;
   --faint: #9a9199;
 
@@ -71,6 +73,7 @@
   --line-strong: #453a4f;
   --ink: #f1ecf3;
   --ink-strong: #ffffff;
+  --ink-soft: #cdc5d2;
   --muted: #a79db0;
   --faint: #786e80;
 
@@ -108,6 +111,7 @@
   --line-strong: #d3dae6;
   --ink: #0e1524;
   --ink-strong: #05080f;
+  --ink-soft: #333d51;
   --muted: #5a6478;
   --faint: #8b95a8;
 
@@ -145,6 +149,7 @@
   --line-strong: #34404f;
   --ink: #e7ecf6;
   --ink-strong: #ffffff;
+  --ink-soft: #c0c9d9;
   --muted: #98a3b8;
   --faint: #6a7688;
 
@@ -169,6 +174,109 @@
   --radius-btn: 9px;
   --font-display: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ---- State palette --------------------------------------------------------
+   Danger / success / warning are not brand-tinted, so they key off the mode
+   suffix only rather than being restated in all four theme blocks. Each state
+   has four roles: a strong foreground, a softer foreground for de-emphasised
+   cases, a tinted background, and a border for that background.
+
+   The dark values are the ones the old retint block produced, so dark themes
+   render exactly as before — the difference is that they now come from tokens
+   instead of overriding Tailwind's red/green/amber utilities after the fact.
+--------------------------------------------------------------------------- */
+:root,
+:root[data-theme$="-light"] {
+  --danger: #b42318;
+  --danger-muted: #d98a83;
+  --danger-soft: #fef3f2;
+  --danger-border: #fecdca;
+
+  --success: #067647;
+  --success-soft: #ecfdf3;
+  --success-border: #abefc6;
+  /* Solid fill for a filled success badge. Distinct from --success, which is a
+     foreground colour and inverts between modes; white must stay legible on
+     this one in both. */
+  --success-solid: #15803d;
+  --on-success-solid: #ffffff;
+
+  --warn: #b54708;
+  --warn-soft: #fffaeb;
+  --warn-border: #fedf89;
+}
+
+:root[data-theme$="-dark"] {
+  --danger: #fca5a5;
+  --danger-muted: #c98b8b;
+  --danger-soft: #3a1d1f;
+  --danger-border: #5a2d2f;
+
+  --success: #86efac;
+  --success-soft: #16301f;
+  --success-border: #255036;
+  --success-solid: #15803d;
+  --on-success-solid: #ffffff;
+
+  --warn: #fcd34d;
+  --warn-soft: #33260f;
+  --warn-border: #4a3416;
+}
+
+/* ---- Semantic utilities ---------------------------------------------------
+   Expose the tokens to Tailwind so components can say `text-muted` or
+   `border-line` directly. `@theme inline` matters here: it inlines var(--muted)
+   into the generated utility instead of emitting a second custom property, so
+   a theme switch on <html> re-resolves immediately with no double indirection.
+
+   This is what replaces the old stone-* remap. Components now name the role
+   they want rather than a grey that CSS quietly reinterprets.
+--------------------------------------------------------------------------- */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-elevated: var(--elevated);
+  --color-fill-3: var(--fill-3);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-text: var(--accent-soft-text);
+  --color-accent-border: var(--accent-border);
+  --color-on-accent: var(--on-accent);
+
+  --color-trait-e: var(--trait-e);
+  --color-trait-a: var(--trait-a);
+  --color-trait-c: var(--trait-c);
+  --color-trait-n: var(--trait-n);
+  --color-trait-o: var(--trait-o);
+
+  --color-danger: var(--danger);
+  --color-danger-muted: var(--danger-muted);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-success-solid: var(--success-solid);
+  --color-on-success-solid: var(--on-success-solid);
+
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-border: var(--warn-border);
 }
 
 /* ---- Legacy aliases -------------------------------------------------------
@@ -212,57 +320,6 @@ h1, h2, h3 {
   background: var(--accent-soft);
   color: var(--accent-soft-text);
 }
-
-/* ---- Neutral ramp remap (Tailwind stone-*) --------------------------------
-   The app was authored with stone-* utilities as its neutral ramp. Point them
-   at semantic tokens so they read correctly in every theme. Unlayered, so they
-   win over Tailwind's own utilities without !important.
---------------------------------------------------------------------------- */
-.text-stone-800 { color: var(--ink-strong); }
-.text-stone-700 { color: var(--ink); }
-.text-stone-600 { color: var(--ink); }
-.text-stone-500 { color: var(--muted); }
-.text-stone-400 { color: var(--faint); }
-.text-stone-300 { color: var(--faint); }
-
-.bg-stone-50 { background-color: var(--surface-2); }
-.bg-stone-100 { background-color: var(--surface-2); }
-.bg-stone-200 { background-color: var(--fill-3); }
-.hover\:bg-stone-100:hover { background-color: var(--surface-2); }
-
-.border-stone-100 { border-color: var(--line); }
-.border-stone-200 { border-color: var(--line); }
-.border-stone-300 { border-color: var(--line-strong); }
-
-.bg-stone-500\/70 { background-color: color-mix(in srgb, var(--muted) 70%, transparent); }
-.bg-stone-200\/70 { background-color: color-mix(in srgb, var(--fill-3) 70%, transparent); }
-
-/* Surfaces authored as white / translucent white become themed surfaces. */
-.bg-white { background-color: var(--surface); }
-.bg-white\/70 { background-color: color-mix(in srgb, var(--surface) 82%, transparent); }
-.bg-white\/90 { background-color: color-mix(in srgb, var(--surface) 92%, transparent); }
-
-/* ---- Semantic state colours on dark themes --------------------------------
-   The light-tint state utilities (red/green/amber 50s) are authored for light
-   surfaces. On the dark themes, retint them so callouts stay coherent.
---------------------------------------------------------------------------- */
-:root[data-theme$="-dark"] .bg-red-50 { background-color: #3a1d1f; }
-:root[data-theme$="-dark"] .bg-green-50 { background-color: #16301f; }
-:root[data-theme$="-dark"] .bg-amber-50,
-:root[data-theme$="-dark"] .bg-orange-50 { background-color: #33260f; }
-:root[data-theme$="-dark"] .bg-orange-100 { background-color: #3a2a12; }
-:root[data-theme$="-dark"] .bg-orange-50\/40 { background-color: color-mix(in srgb, #33260f 60%, transparent); }
-:root[data-theme$="-dark"] .text-red-700 { color: #fca5a5; }
-:root[data-theme$="-dark"] .text-red-600 { color: #f89a9a; }
-:root[data-theme$="-dark"] .text-red-400 { color: #ee9a9a; }
-:root[data-theme$="-dark"] .text-green-700 { color: #86efac; }
-:root[data-theme$="-dark"] .text-amber-700,
-:root[data-theme$="-dark"] .text-orange-700,
-:root[data-theme$="-dark"] .text-orange-800,
-:root[data-theme$="-dark"] .text-orange-600 { color: #fcd34d; }
-:root[data-theme$="-dark"] .border-red-200 { border-color: #5a2d2f; }
-:root[data-theme$="-dark"] .border-green-200 { border-color: #255036; }
-:root[data-theme$="-dark"] .border-orange-200 { border-color: #4a3416; }
 
 /* ---- Reusable primitives ------------------------------------------------- */
 .card {
@@ -316,11 +373,11 @@ h1, h2, h3 {
 }
 .btn-danger {
   background: transparent;
-  color: #d1556b;
-  border: 1px solid color-mix(in srgb, #d1556b 45%, transparent);
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
 }
 .btn-danger:hover {
-  background: color-mix(in srgb, #d1556b 12%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
 
 .input {

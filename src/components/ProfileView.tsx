@@ -79,7 +79,7 @@ export default function ProfileView({
         {domains ? (
           <TraitBars domains={domains} teamMean={teamMean} />
         ) : (
-          <p className="text-sm text-stone-500">No completed assessment yet.</p>
+          <p className="text-sm text-muted">No completed assessment yet.</p>
         )}
       </section>
 
@@ -96,7 +96,7 @@ export default function ProfileView({
                   <BadgeIcon path={SECTION_PATH[key]} />
                   {SECTION_LABELS[key]}
                 </h3>
-                <p className="text-sm text-stone-600 leading-relaxed">
+                <p className="text-sm text-ink-soft leading-relaxed">
                   {narrative.sections[key]}
                 </p>
               </div>
@@ -114,12 +114,12 @@ export default function ProfileView({
           <h2 className="font-semibold flex items-center gap-2 mb-1">
             <BadgeIcon path={BULB_PATH} /> Coaching for you
           </h2>
-          <p className="text-sm text-stone-500 mb-3">
+          <p className="text-sm text-muted mb-3">
             A few ways to flex your own style. This section is only visible to you.
           </p>
           <ul className="space-y-2">
             {narrative.selfCoaching.map((tip, i) => (
-              <li key={i} className="flex gap-2.5 text-sm text-stone-700">
+              <li key={i} className="flex gap-2.5 text-sm text-ink">
                 <span
                   className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
                   style={{ background: "var(--color-brand-600)" }}
@@ -138,7 +138,7 @@ export default function ProfileView({
           <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
             {preferences.map((p, i) => (
               <div key={i}>
-                <dt className="text-xs text-stone-400">{p.prompt}</dt>
+                <dt className="text-xs text-faint">{p.prompt}</dt>
                 <dd className="text-sm font-medium mt-0.5">{p.display}</dd>
               </div>
             ))}
@@ -152,7 +152,7 @@ export default function ProfileView({
           <summary className="font-semibold cursor-pointer select-none">
             Detailed breakdown · 30 facets
           </summary>
-          <p className="text-xs text-stone-400 mt-2 mb-4">
+          <p className="text-xs text-faint mt-2 mb-4">
             Facet scores are shown in their own direction (for example a low
             Anxiety score means calm). These add nuance under each of the five
             traits.
@@ -169,10 +169,10 @@ export default function ProfileView({
                     .map((f) => (
                       <div key={`${f.domain}${f.facet}`}>
                         <div className="flex justify-between text-xs mb-0.5">
-                          <span className="text-stone-600">{FACETS[d][f.facet]}</span>
-                          <span className="font-mono text-stone-400">{Math.round(f.score)}</span>
+                          <span className="text-ink-soft">{FACETS[d][f.facet]}</span>
+                          <span className="font-mono text-faint">{Math.round(f.score)}</span>
                         </div>
-                        <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                        <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
                           <div
                             className="h-full rounded-full"
                             style={{ width: `${f.score}%`, background: DOMAIN_COLOR[d], opacity: 0.75 }}
@@ -187,7 +187,7 @@ export default function ProfileView({
         </details>
       )}
 
-      <p className="text-[11px] text-stone-400 leading-relaxed">
+      <p className="text-[11px] text-faint leading-relaxed">
         Based on the public-domain IPIP-NEO-120. This is a self-report reflection
         tool, not a validated clinical, diagnostic, or hiring assessment. Traits
         describe tendencies, not limits.

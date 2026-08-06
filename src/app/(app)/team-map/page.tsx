@@ -27,7 +27,7 @@ export default async function TeamMapPage() {
   const header = (
     <header>
       <h1 className="text-2xl font-bold tracking-tight">Team map</h1>
-      <p className="text-stone-500 mt-1">
+      <p className="text-muted mt-1">
         Where everyone on {activeTeam.name} lands across the Big Five, and where you sit in the mix.
       </p>
     </header>
@@ -39,7 +39,7 @@ export default async function TeamMapPage() {
         {header}
         <div className="card p-8 text-center">
           <p className="font-semibold">Not enough profiles yet</p>
-          <p className="text-sm text-stone-500 mt-1 mb-4">
+          <p className="text-sm text-muted mt-1 mb-4">
             The map needs at least two completed, shared profiles on this team. Once more
             teammates finish and share their assessment, they'll appear here.
           </p>
@@ -89,7 +89,7 @@ export default async function TeamMapPage() {
       {header}
       {!hasViewer ? (
         <div className="card p-4 flex items-center justify-between gap-4" style={{ background: "var(--color-brand-50)", borderColor: "var(--color-brand-200)" }}>
-          <p className="text-sm text-stone-600">
+          <p className="text-sm text-ink-soft">
             Finish your own assessment to see yourself on the map and how you compare to the team.
           </p>
           <Link href="/assessment" className="btn btn-primary py-1.5 px-3 text-sm shrink-0">Start assessment</Link>

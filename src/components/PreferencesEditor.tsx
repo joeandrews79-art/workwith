@@ -68,9 +68,9 @@ export default function PreferencesEditor({
     <section className="card p-5">
       <div className="flex items-center justify-between mb-1">
         <h2 className="font-semibold">Working preferences</h2>
-        <span className="text-xs text-stone-400">{answeredCount}/{questions.length} answered</span>
+        <span className="text-xs text-faint">{answeredCount}/{questions.length} answered</span>
       </div>
-      <p className="text-sm text-stone-500 mb-4">
+      <p className="text-sm text-muted mb-4">
         Quick, plain answers about how you like to work. These show on your shared
         profile so teammates can work with you well.
       </p>
@@ -78,12 +78,12 @@ export default function PreferencesEditor({
       <div className="space-y-6">
         {domains.map((d) => (
           <div key={d}>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-2">{d}</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-faint mb-2">{d}</h3>
             <div className="space-y-4">
               {questions.filter((q) => q.domain === d).map((q) => (
                 <div key={q.id}>
                   <p className="text-sm font-medium mb-1.5">{q.prompt}</p>
-                  {q.helpText && <p className="text-xs text-stone-400 mb-1.5">{q.helpText}</p>}
+                  {q.helpText && <p className="text-xs text-faint mb-1.5">{q.helpText}</p>}
 
                   {q.kind === "text" ? (
                     <textarea
@@ -138,7 +138,7 @@ export default function PreferencesEditor({
         <button className="btn btn-primary py-1.5 text-sm" onClick={save} disabled={pending}>
           {pending ? "Saving…" : "Save preferences"}
         </button>
-        {saved && <span className="text-sm text-green-700">Saved</span>}
+        {saved && <span className="text-sm text-success">Saved</span>}
       </div>
     </section>
   );

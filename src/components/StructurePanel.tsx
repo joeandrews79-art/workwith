@@ -68,7 +68,7 @@ export default function StructurePanel({
       <div className="card p-6 text-center space-y-3">
         <div>
           <p className="font-semibold">Turn this into a meeting</p>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             Claude drafts a title, type, goal, who to invite, talking points, and an
             agenda from your thought. You can edit everything after.
           </p>
@@ -78,11 +78,11 @@ export default function StructurePanel({
             {pending ? "Structuring…" : "Structure this"}
           </button>
         ) : (
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-muted">
             Structuring needs Claude. An admin needs to set ANTHROPIC_API_KEY.
           </p>
         )}
-        {error && <p className="text-sm text-red-700">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
       </div>
     );
   }
@@ -95,17 +95,17 @@ export default function StructurePanel({
           <span className="pill text-[10px]" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}>
             {t.label}
           </span>
-          <span className="text-xs text-stone-400">Proposed meeting</span>
+          <span className="text-xs text-faint">Proposed meeting</span>
         </div>
         <div>
           <h3 className="text-lg font-bold">{proposal.title}</h3>
-          {proposal.goal && <p className="text-stone-600 mt-0.5">{proposal.goal}</p>}
+          {proposal.goal && <p className="text-ink-soft mt-0.5">{proposal.goal}</p>}
         </div>
 
         {proposal.attendeeIds.length > 0 && (
           <div>
             <p className="label mb-1">Suggested attendees</p>
-            <p className="text-sm text-stone-700">{proposal.attendeeIds.map(nameOf).join(", ")}</p>
+            <p className="text-sm text-ink">{proposal.attendeeIds.map(nameOf).join(", ")}</p>
           </div>
         )}
 
@@ -115,9 +115,9 @@ export default function StructurePanel({
             <ol className="space-y-1.5">
               {proposal.agenda.map((a, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-stone-400 tabular-nums">{i + 1}.</span>
-                  <span className="text-stone-700">{a.topic}</span>
-                  <span className="pill bg-stone-100 text-stone-500 text-[10px] shrink-0">{PURPOSE_LABEL[a.purpose] ?? a.purpose}</span>
+                  <span className="text-faint tabular-nums">{i + 1}.</span>
+                  <span className="text-ink">{a.topic}</span>
+                  <span className="pill bg-surface-2 text-muted text-[10px] shrink-0">{PURPOSE_LABEL[a.purpose] ?? a.purpose}</span>
                 </li>
               ))}
             </ol>
@@ -129,7 +129,7 @@ export default function StructurePanel({
             <p className="label mb-1.5">Talking points</p>
             <ul className="space-y-1.5">
               {proposal.talkingPoints.map((p, i) => (
-                <li key={i} className="flex gap-2 text-sm text-stone-700">
+                <li key={i} className="flex gap-2 text-sm text-ink">
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--color-brand-600)" }} />
                   <span>{p}</span>
                 </li>
@@ -141,15 +141,15 @@ export default function StructurePanel({
         {proposal.outcome && (
           <div>
             <p className="label mb-1">Desired outcome</p>
-            <p className="text-sm text-stone-700">{proposal.outcome}</p>
+            <p className="text-sm text-ink">{proposal.outcome}</p>
           </div>
         )}
 
-        {proposal.notes && <p className="text-xs text-stone-400 border-t border-stone-100 pt-3">{proposal.notes}</p>}
+        {proposal.notes && <p className="text-xs text-faint border-t border-line pt-3">{proposal.notes}</p>}
       </div>
 
       {error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+        <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">{error}</p>
       )}
 
       <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export default function StructurePanel({
           Re-structure
         </button>
       </div>
-      <p className="text-xs text-stone-400">
+      <p className="text-xs text-faint">
         Creating the meeting sets its type, title, goal, and attendees. The
         working-style prep is then computed from the attendees' profiles. You can
         edit it all on the meeting page.

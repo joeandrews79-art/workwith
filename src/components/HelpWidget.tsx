@@ -40,8 +40,7 @@ export default function HelpWidget({ aiEnabled, isAdmin }: { aiEnabled: boolean;
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close help" : "Open help"}
-        className="fixed bottom-5 right-5 z-50 grid place-items-center w-12 h-12 rounded-full text-white shadow-lg transition-transform hover:scale-105"
-        style={{ background: "var(--color-brand-600)" }}
+        className="fixed bottom-5 right-5 z-50 grid place-items-center w-12 h-12 rounded-full bg-accent text-on-accent shadow-lg transition-transform hover:scale-105"
       >
         {open ? (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
@@ -83,9 +82,9 @@ export default function HelpWidget({ aiEnabled, isAdmin }: { aiEnabled: boolean;
                     <button className="btn btn-primary py-1.5 px-3 text-sm" disabled={pending || question.trim().length < 3} onClick={ask}>
                       {pending ? "Thinking…" : "Ask"}
                     </button>
-                    <span className="text-[11px] text-stone-400">Answers come from the guide. No profiles are sent.</span>
+                    <span className="text-[11px] text-faint">Answers come from the guide. No profiles are sent.</span>
                   </div>
-                  {error && <p className="text-sm text-red-700 mt-2">{error}</p>}
+                  {error && <p className="text-sm text-danger mt-2">{error}</p>}
                   {answer && (
                     <div className="mt-3 rounded-lg p-3 text-sm leading-relaxed whitespace-pre-wrap" style={{ background: "var(--color-elevated)", color: "var(--color-ink, inherit)" }}>
                       {answer}

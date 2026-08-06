@@ -100,7 +100,7 @@ export default function AgendaEditor({
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold">Agenda</h2>
-          {totalMinutes > 0 && <span className="text-xs text-stone-400">{totalMinutes} min total</span>}
+          {totalMinutes > 0 && <span className="text-xs text-faint">{totalMinutes} min total</span>}
         </div>
         <div className="flex items-center gap-1.5">
           {aiEnabled && (
@@ -124,21 +124,21 @@ export default function AgendaEditor({
       </div>
 
       {error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+        <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">{error}</p>
       )}
 
       {items.length === 0 ? (
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-muted">
           No agenda yet. Add items below{aiEnabled ? ", or let Claude draft one" : ""}.
         </p>
       ) : (
         <ul className="space-y-2">
           {items.map((item, i) => (
-            <li key={item.id} className="rounded-lg border border-stone-200 p-3">
+            <li key={item.id} className="rounded-lg border border-line-strong p-3">
               <div className="flex items-start gap-2">
                 <div className="flex flex-col gap-0.5 pt-1">
-                  <button className="text-stone-400 hover:text-stone-700 disabled:opacity-30" onClick={() => move(i, -1)} disabled={pending || i === 0} aria-label="Move up">▲</button>
-                  <button className="text-stone-400 hover:text-stone-700 disabled:opacity-30" onClick={() => move(i, 1)} disabled={pending || i === items.length - 1} aria-label="Move down">▼</button>
+                  <button className="text-faint hover:text-ink disabled:opacity-30" onClick={() => move(i, -1)} disabled={pending || i === 0} aria-label="Move up">▲</button>
+                  <button className="text-faint hover:text-ink disabled:opacity-30" onClick={() => move(i, 1)} disabled={pending || i === items.length - 1} aria-label="Move down">▼</button>
                 </div>
                 <div className="min-w-0 flex-1 space-y-2">
                   <input
@@ -165,13 +165,13 @@ export default function AgendaEditor({
                         }}
                         aria-label="Minutes"
                       />
-                      <span className="text-xs text-stone-400">min</span>
+                      <span className="text-xs text-faint">min</span>
                     </div>
                     <select className="input py-1 px-2 text-xs shrink-0" style={{ width: "8.5rem" }} value={item.ownerId ?? ""} onChange={(e) => commit(item, { ownerId: e.target.value || null })} disabled={pending} aria-label="Owner">
                       <option value="">No owner</option>
                       {attendees.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
-                    <button className="btn btn-ghost py-1 px-2 text-xs text-red-700 ml-auto" onClick={() => run(() => deleteAgendaItem(item.id))} disabled={pending}>
+                    <button className="btn btn-ghost py-1 px-2 text-xs text-danger ml-auto" onClick={() => run(() => deleteAgendaItem(item.id))} disabled={pending}>
                       Remove
                     </button>
                   </div>
@@ -183,7 +183,7 @@ export default function AgendaEditor({
       )}
 
       {/* Add item */}
-      <div className="pt-2 border-t border-stone-100">
+      <div className="pt-2 border-t border-line">
         <label className="label text-xs block mb-1.5" htmlFor="new-topic">Add an item</label>
         <div className="flex items-center gap-2">
           <input id="new-topic" className="input py-1.5 flex-1 min-w-0" value={newTopic} onChange={(e) => setNewTopic(e.target.value)} placeholder="Topic" onKeyDown={(e) => e.key === "Enter" && add()} />

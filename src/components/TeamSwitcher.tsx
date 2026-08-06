@@ -80,7 +80,7 @@ export default function TeamSwitcher({
 
       {open && canSwitch && (
         <div role="menu" className="card absolute left-2 right-2 mt-1 p-1.5 shadow-lg z-30">
-          <p className="px-3 pt-1 pb-1.5 text-[11px] uppercase tracking-wide text-stone-400">Your teams</p>
+          <p className="px-3 pt-1 pb-1.5 text-[11px] uppercase tracking-wide text-faint">Your teams</p>
           {teams.map((t) => {
             const on = t.id === active.id;
             return (
@@ -88,7 +88,7 @@ export default function TeamSwitcher({
                 key={t.id}
                 role="menuitem"
                 onClick={() => choose(t.id)}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-stone-100 flex items-center gap-2"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-surface-2 flex items-center gap-2"
                 style={on ? { color: "var(--color-brand-700)", fontWeight: 600 } : { color: "var(--color-muted)" }}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0" style={{ opacity: on ? 1 : 0 }} aria-hidden>

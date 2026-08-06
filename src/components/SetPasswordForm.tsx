@@ -26,7 +26,7 @@ export default function SetPasswordForm() {
         <input id="confirm" name="confirm" type="password" className="input" required minLength={8} autoComplete="new-password" placeholder="Type it again" />
       </div>
       {state?.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{state.error}</p>
+        <p className="text-sm text-danger bg-danger-soft border border-danger-border rounded-lg px-3 py-2">{state.error}</p>
       )}
       <button className="btn btn-primary w-full" disabled={pending}>
         {pending ? "Saving…" : "Save password and continue"}

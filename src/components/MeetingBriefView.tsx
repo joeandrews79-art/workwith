@@ -18,10 +18,10 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" /></svg>
             <h2 className="font-semibold">{brief.lens.label}</h2>
           </div>
-          <p className="text-sm text-stone-600 mb-3">{brief.lens.framing}</p>
+          <p className="text-sm text-ink-soft mb-3">{brief.lens.framing}</p>
           <ul className="space-y-2.5">
             {brief.lens.pointers.map((p, i) => (
-              <li key={i} className="flex gap-2.5 text-sm text-stone-800">
+              <li key={i} className="flex gap-2.5 text-sm text-ink-strong">
                 <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--color-brand-600)" }} />
                 <span className="leading-relaxed">{p}</span>
               </li>
@@ -38,7 +38,7 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
         </h2>
         <ul className="space-y-2.5">
           {brief.groupDynamic.map((g, i) => (
-            <li key={i} className="flex gap-2.5 text-sm text-stone-700">
+            <li key={i} className="flex gap-2.5 text-sm text-ink">
               <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--trait-n)" }} />
               <span className="leading-relaxed">{g}</span>
             </li>
@@ -52,12 +52,12 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: "var(--accent-text)" }}><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
           How to show up
         </h2>
-        <p className="text-sm text-stone-500 mb-3">
+        <p className="text-sm text-muted mb-3">
           Tuned to your profile and the mix of people in this meeting.
         </p>
         <ul className="space-y-2.5">
           {brief.yourPlay.map((p, i) => (
-            <li key={i} className="flex gap-2.5 text-sm text-stone-800">
+            <li key={i} className="flex gap-2.5 text-sm text-ink-strong">
               <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--color-brand-600)" }} />
               <span className="leading-relaxed">{p}</span>
             </li>
@@ -81,8 +81,8 @@ export default function MeetingBriefView({ brief }: { brief: MeetingBrief }) {
                 </span>
                 <div className="min-w-0">
                   <p className="font-semibold text-sm">{p.name}</p>
-                  <p className="text-[11px] text-stone-400 mb-1">Stands out on {p.topTrait.toLowerCase()}</p>
-                  <p className="text-sm text-stone-600 leading-relaxed">{p.tip}</p>
+                  <p className="text-[11px] text-faint mb-1">Stands out on {p.topTrait.toLowerCase()}</p>
+                  <p className="text-sm text-ink-soft leading-relaxed">{p.tip}</p>
                 </div>
               </div>
             ))}
